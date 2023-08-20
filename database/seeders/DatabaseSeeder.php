@@ -3,10 +3,6 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-
-use App\Models\EdadDirigida;
-use App\Models\Horario;
-use App\Models\Nivel;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -18,8 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(Roles::class);
-        $this->call(Administrador::class);
+        // \App\Models\User::factory(10)->create();
+
+        // \App\Models\User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
+
+        $this->call(RolesPermisosSeeder::class);
+        $this->call(AdministradorSeeder::class);
         $this->call(nivelesSeeder::class);
         $this->call(edad_dirigidasSeeder::class);
         $this->call(HorariosSeeder::class);
