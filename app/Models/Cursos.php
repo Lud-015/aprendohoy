@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cursos extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     public function nivel()
     {
@@ -26,5 +27,13 @@ class Cursos extends Model
     public function horarios()
     {
         return $this->belongsTo(Horario::class, 'horario_id');
+    }
+    public function inscritos()
+    {
+        return $this->hasMany(Inscritos::class,  'id' , 'estudiante_id');
+    }
+    public function foros()
+    {
+        return $this->hasMany(Foro::class,  'id' , 'cursos_id');
     }
 }

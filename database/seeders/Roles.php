@@ -50,11 +50,11 @@ class Roles extends Seeder
                 $role ->givePermissionTo(['Publicar Tareas']);
                 $role ->givePermissionTo(['Añadir Estudiantes']);
                 $role ->givePermissionTo(['Personalizar Curso']);
-        
+                
+                $role = Role::create(['name' => 'Coordinador']);
                 $role = Role::create(['name' => 'Administrador']);
                 $role->givePermissionTo(Permission::all());
 
-                $role = Role::create(['name' => 'Coordinador']);
 
 
             }

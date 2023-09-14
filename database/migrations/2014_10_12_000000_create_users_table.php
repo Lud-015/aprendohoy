@@ -21,11 +21,14 @@ return new class extends Migration
             $table->string('CI')->unique();
             $table->integer('Celular');
             $table->date('fechadenac');
+            $table->string('PaisReside')->nullable();
+            $table->string('CiudadReside')->nullable();
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            //$table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            //$table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

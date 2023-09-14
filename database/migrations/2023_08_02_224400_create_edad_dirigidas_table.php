@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('edad1');
             $table->integer('edad2');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

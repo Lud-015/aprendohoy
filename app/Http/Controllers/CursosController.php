@@ -3,7 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cursos;
+use App\Models\EdadDirigida;
+use App\Models\Foro;
+use App\Models\Horario;
+use App\Models\Inscritos;
+use App\Models\Nivel;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CursosController extends Controller
 {
@@ -15,73 +22,70 @@ class CursosController extends Controller
     public function index($id)
     {
         $cursos = Cursos::findOrFail($id);
+
+        $inscritos = DB::table('inscritos')->where('cursos_id', $id)->where('estudiante_id', auth()->user()->id)->get();
+        $foros = DB::table('foros')->where('cursos_id', $id)->get();
         // ["cursos"=>$cursos]
-        return view('Curso', compact('cursos', $cursos));
+        return view('Cursos', compact('cursos', $cursos), compact('inscritos', $inscritos))->with('foros', $foros);
+
+
+
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+
+
+    public function listaCurso($id)
     {
-        //
+        $cursos = Cursos::findOrFail($id);
+        $inscritos = Inscritos::all();
+        // ["cursos"=>$cursos]
+        return view('ListaParticipantes', compact('cursos', $cursos), compact('inscritos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function EditCIndex($id)
     {
-        //
+
+    $cursos= Cursos::findOrFail($id);
+    $niveles = Nivel::all();
+    $edad = EdadDirigida::all();
+    $docente = User::role('Docente')->get();
+    $horario = Horario::all();
+
+    return view('Administrador.EditarCursos')->with('docente', $docente)->with('horario', $horario)->with('edad', $edad)->with('niveles', $niveles)->with('cursos', $cursos);
+
+
+    }
+    public function EditC($id, Request $request)
+    {
+
+        $request->validate([
+            'nombre' => 'required',
+            'descripcion' => 'required',
+            'fecha_ini' => 'required',
+            'fecha_fin' => 'required',
+            'formato' => 'required',
+
+        ]);
+
+
+        $curso = Cursos::findOrFail($id);
+        $curso->nombreCurso = $request->nombre;
+        $curso->descripcionC = $request->descripcion;
+        $curso->fecha_ini = date("Y-m-d", strtotime($request->fecha_ini));
+        $curso->fecha_fin = date("Y-m-d", strtotime($request->fecha_fin));
+        $curso->formato = $request->formato;
+        $curso->docente_id = $request->docente_id ;
+        $curso->edadDir_id = $request->edad_id;
+        $curso->niveles_id = $request->nivel_id;
+        $curso->horario_id = $request->horario_id;
+        $curso->updated_at = now();
+
+        $curso->save();
+
+        return redirect(route('Inicio'));
+
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Cursos  $cursos
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Cursos $cursos)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Cursos  $cursos
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Cursos $cursos)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Cursos  $cursos
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Cursos $cursos)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Cursos  $cursos
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Cursos $cursos)
-    {
-        //
-    }
 }

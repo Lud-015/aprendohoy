@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cursos;
 use App\Models\Inscritos;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 
 class InscritosController extends Controller
 {
@@ -14,7 +18,17 @@ class InscritosController extends Controller
      */
     public function index()
     {
-        //
+
+        $estudiantes = User::role('Estudiante')->get();
+        $cursos = Cursos::all();
+        $inscritos = Inscritos::all();
+
+            # code...
+
+        return(view('Administrador.AsignarCursos')->with('estudiantes', $estudiantes)->with('cursos', $cursos));
+
+
+
     }
 
     /**
@@ -35,7 +49,35 @@ class InscritosController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // $request->validate([
+        //     'estudiante' => 'required',
+        //     'curso' => 'required',
+
+        // ]);
+
+        $inscribir = new Inscritos();
+
+        $inscribir->estudiante_id = $request->estudiante;
+        $inscribir->cursos_id = $request->curso;
+        $inscribir->created_at = now();
+
+
+
+
+            if ((Inscritos::where('estudiante_id', $inscribir->estudiante_id)->where('cursos_id', $inscribir->cursos_id)->exists())) {
+
+                return redirect()->route('AsignarCurso')->withErrors(['msg' => 'Alumno Ya Inscrito']);
+
+            }else{
+
+
+                $inscribir -> save();
+
+                return redirect()->route('Inicio');
+            }
+
+
+
     }
 
     /**

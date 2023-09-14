@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('hora_ini');
             $table->string('hora_fin');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

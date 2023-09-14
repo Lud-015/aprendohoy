@@ -8,10 +8,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
+
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
 
 
     /**
@@ -44,11 +48,34 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function cursos()
+
+    public function atributosDocente(){
+        return $this->hasOne(atributosDocente::class, 'id' , 'docente_id');
+    }
+
+    public function representanteLegal(){
+        return $this->hasOne(TutorRepresentanteLegal::class, 'id' , 'estudiante_id');
+    }
+
+    public function inscritos(): HasMany
     {
-        return $this->hasOne(Cursos::class);
+        return $this->hasMany(Inscritos::class, 'estudiante_id' , 'id');
     }
 
 
-    
+    /**
+ * Accessor for Age.
+ */
+public function age()
+{
+    return Carbon::parse($this->attributes['fechadenac'])->age;
+}
+
+
+
+public function foromensaje(): HasMany
+{
+    return $this->hasMany(ForoMensaje::class, 'estudiante_id');
+}
+
 }
