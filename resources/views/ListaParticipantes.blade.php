@@ -35,7 +35,7 @@ Lista de Paticipantes {{$cursos->nombreCurso}}
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignar Cursos
+                    <i class="ni ni-key-25 text-info"></i> Asignación Cursos
                 </a>
             </li>
 
@@ -61,7 +61,7 @@ Lista de Paticipantes {{$cursos->nombreCurso}}
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignar Cursos
+                    <i class="ni ni-key-25 text-info"></i> Asignación Cursos
                 </a>
             </li>
 
@@ -93,17 +93,31 @@ Lista de Paticipantes {{$cursos->nombreCurso}}
 
 
 @section('content')
-<div class="col-lg-12 row">
+<div class="col-xl-12">
+    <a href="javascript:history.back()" class="btn btn-primary">
+    &#9668; Volver
+</a>
+<a class="btn btn-warning" href="{{route('listaretirados', $cursos->id)}}">Lista Retirados</a>
+<a class="btn btn-dark" href="{{route('lista', $cursos->id)}}">Descargar Lista</a>
+<br>
+<br>
+<div class="border p-3">
 
+<div class="col-lg-12 row">
     <form class="navbar-search navbar-search form-inline mr-3 d-none d-md-flex ml-lg-auto">
         <div class="input-group input-group-alternative">
           <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fas fa-search"></i></span>
-          </div>
-          <input class="form-control" placeholder="Buscar" type="text">
-        </div>
-    </form>
-</div>
+
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
+            </div>
+            <input class="form-control search-input" placeholder="Buscar" type="text" id="searchInput">
+            <br>
+            <br>
+            <div class="border p-3">
+            </div>
+        </form>
+    </div>
+
                 <table class="table align-items-center table-flush">
                     <thead class="thead-light">
                         <tr>
@@ -115,38 +129,123 @@ Lista de Paticipantes {{$cursos->nombreCurso}}
                     </thead>
                     <tbody>
 
-                        @foreach ($inscritos as $inscritos)
-                            @if ($inscritos->cursos_id == $cursos->id)
-                            <tr>
+                        @forelse ($inscritos as $inscritos)
+                        @if ($inscritos->cursos_id == $cursos->id)
+                        <tr>
 
-                                <td scope="row">
+                            <td scope="row">
 
-                                    {{ $loop->iteration }}
+                                {{ $loop->iteration }}
 
-                                </td>
-                                <td scope="row">
-                                    {{ $inscritos->estudiantes->name }}
-                                    {{ $inscritos->estudiantes->lastname1 }}
-                                    {{ $inscritos->estudiantes->lastname2 }}
-                                </td>
-                                <td>
-                                    {{ $inscritos->estudiantes->Celular }}
-                                </td>
+                            </td>
+                            <td scope="row">
+                                {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->name : 'Estudiante Eliminado' }}
+                                {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->lastname1 : '' }}
+                                {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->lastname2 : '' }}
+                            </td>
+                            <td>
+                                {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->Celular : '' }}
+                            </td>
 
-                                <td>
+                            <td>
 
-                                    <a href="/user/{{ $inscritos->estudiantes->id }}">Ver Mas</a>
+                                <a href="{{ route('perfil', [$inscritos->estudiantes->id])}}">Ver Más</a> /
+                                <a href="{{ route('quitar', [$inscritos->id])}}" onclick="mostrarAdvertencia(event)">Quitar incscripción</a>
+                                @if ($cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($cursos->fecha_fin))
+                                /
+                                <a href="{{ route('boletin', [$inscritos->id])}}">Ver Boletín</a>/
+                                <a href="{{route('verBoletin2', [$inscritos->id])}}"> Ver Calificaciones Finales</a>
+                                @else
+                                @endif
 
-                                </td>
-                            </tr>
-                            @else
 
-                            @endif
+                             </td>
+                        </tr>
+                        @endif
 
-                        @endforeach
+
+                        @empty
+                        <tr>
+
+                            <td>
+
+                                <h4>NO HAY ALUMNOS INSCRITOS</h4>
+
+                            </td>
+                        </tr>
+
+
+
+
+                        @endforelse
+
 
                     </tbody>
                 </table>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+        function mostrarAdvertencia(event) {
+            event.preventDefault();
+
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esta acción retirara a este estudiante. ¿Estás seguro de que deseas continuar?, Esta opcion contrae problemas todavia y se esta revisando para que sea funcional totalmente',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'Cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirige al usuario al enlace original
+                    window.location.href = event.target.getAttribute('href');
+                }
+            });
+        }
+    </script>
+
+
+    <!-- Agrega esto en tu archivo Blade antes de </body> -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Manejo del evento de entrada en el campo de búsqueda
+            $('input[type="text"]').on('input', function() {
+                var searchText = $(this).val().toLowerCase();
+
+                // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
+                $('tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                });
+            });
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function() {
+            // Manejo del evento de entrada en el campo de búsqueda
+            $('.search-input').on('input', function() {
+                var searchText = $(this).val().toLowerCase();
+
+                // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
+                $('tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                });
+            });
+        });
+    </script>
+
+@if(session('success'))
+<div class="alert alert-success">
+    {{ session('success') }}
+</div>
+@endif
 
 
 

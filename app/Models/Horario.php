@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Horario extends Model
 {
     use HasFactory, SoftDeletes;
-
+    protected $softDelete = true;
 
     public function cursos()
     {

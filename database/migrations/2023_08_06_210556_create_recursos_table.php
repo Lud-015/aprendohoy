@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('nombreRecurso');
             $table->text('descripcionRecursos');
+            $table->text('tipoRecurso');
+            $table->string('archivoRecurso')->nullable();
             $table->unsignedBigInteger('cursos_id');
             $table->foreign('cursos_id')->references('id')->on('cursos');
             $table->timestamps();

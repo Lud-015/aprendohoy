@@ -10,5 +10,10 @@
         "lodash": "^4.17.19",
         "postcss": "^8.1.14",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "flatpickr": "^4.6.13",
+        "nodemailer": "^6.9.7",
+        "tui-calendar": "^1.15.3"
     }
 }

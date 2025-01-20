@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ForoMensaje extends Model
 {
     use HasFactory,SoftDeletes;
-
+    protected $softDelete = true;
     protected $table = 'foros_mensajes';
 
     public function estudiantes(): BelongsTo

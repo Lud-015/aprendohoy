@@ -14,7 +14,7 @@ class EdadDirigidaController extends Controller
      */
     public function index()
     {
-        //
+        return view('Administrador.NuevoEdadDirigida');
     }
 
     /**
@@ -35,7 +35,20 @@ class EdadDirigidaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string|unique:edad_dirigidas,nombre', // Verifica la unicidad en la tabla 'niveles' columna 'nombre'
+        ], [
+            'nombre.required' => 'El nombre de Edad Recomendada es obligatorio.',
+            'nombre.unique' => 'Ya existe la Edad Recomendada con este nombre.',
+        ]);
+
+        $nivel = new EdadDirigida();
+        $nivel->nombre = strtoupper($request->nombre);
+        $nivel->edad1 = strtoupper($request->edad1);
+        $nivel->edad2 = strtoupper($request->edad2);
+        $nivel->save();
+
+        return back()->with('success', 'Guardado con éxito!');
     }
 
     /**

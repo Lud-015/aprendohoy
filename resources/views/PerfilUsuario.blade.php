@@ -6,7 +6,6 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
 
 @section('nav')
     @if (auth()->user()->hasRole('Administrador'))
-    <a href="/EditarUsuario/{{$usuario->id}}" class="btn btn-sm btn-primary">Editar</a>
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link " href="{{ route('Miperfil') }}">
@@ -30,13 +29,13 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
             </li>
 
             <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
+                <a class="nav-link " href="{{ route('aportesLista') }}">
                     <i class="ni ni-bullet-list-67 text-red"></i> Aportes
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignar Cursos
+                    <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
                 </a>
             </li>
 
@@ -62,7 +61,7 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignar Cursos
+                    <i class="ni ni-key-25 text-info"></i> Asignación Cursos
                 </a>
             </li>
 
@@ -93,12 +92,23 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
 @endsection
 
 
+@section('avatar')
+    @if ($usuario->avatar == '')
+
+
+    <img src="{{asset('./assets/img/user.png')}}" class="rounded-circle">
+
+    @else
+    <img src="{{asset('storage/'. $usuario->avatar)}}" class="rounded-circle"  height="200px" width="200px">
+        @endif
+@endsection
 
 
 @section('contentPerfil')
 
+<br><br>
 <div class="row">
-    <div class="col">
+    {{-- <div class="col">
       <div class="card-profile-stats d-flex justify-content-center mt-md-5">
         <div>
           <span class="heading">0</span>
@@ -113,7 +123,7 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
           <span class="description">Foros</span>
         </div>
       </div>
-    </div>
+    </div> --}}
   </div>
   <div class="text-center">
     <h3>
@@ -123,23 +133,31 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
 
 
     <div class="h5 font-weight-300">
-      {{$usuario->roles->pluck('name')}}
+      {{$usuario->roles->pluck('name')[0]}}
     </div>
 
-    @if (auth()->user()->roles = "Administrador" or auth()->user()->roles = "Docente")
-    @foreach ($atributosD as $atributosD)
-    <div class="h5 mt-4">
-      <i class="ni business_briefcase-24 mr-2"></i>{{$atributosD->Especializacion}}
-      <br>
-      <i class="ni business_briefcase-24 mr-2"></i>{{$atributosD->formacion}}
-      <br>
-      <i class="ni business_briefcase-24 mr-2"></i>{{$atributosD->ExperienciaL}}
-    </div>
+    @if ($usuario->hasRole('Docente'))
 
-    @endforeach
+    {{-- @forelse ($atributosD as $atributosD)
+    Profesion
+    <br>
+    {{$atributosD->formacion}}
+    <br>
+    Especializacion
+    <br>
+    {{$atributosD->Especializacion}}
+    <br>
+    Experiencia Laboral
+    <br>
+    {{$atributosD->ExperienciaL}}
+    @empty
+
+    @endforelse --}}
+
 
     @endif
 
+    <br><br>
     <div>
         <i class="ni education_hat mr-2"></i>
 
@@ -155,22 +173,109 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
 
 @section('content')
 
+
+<br>
 <div class="card bg-secondary shadow">
     <div class="card-header bg-white border-0">
       <div class="row align-items-center">
         <div class="col-8">
-          <h3 class="mb-0">Perfil de {{$usuario->name}}</h3>
+
+        <h3 class="mb-0">Perfíl de {{$usuario->name}}</h3>
+        <br>
+        <a href="javascript:history.back()" class="btn btn-sm btn-primary">
+            &#9668; Volver
+        </a>
+
+        <a href="{{route('EditarperfilUser', [$usuario->id])}}" class="btn btn-sm btn-warning">Editar</a>
+
+          <button type="button" class="btn btn-sm btn-darker" data-toggle="modal" data-target="#exampleModal">Ver Credenciales</button>
 
         </div>
 
 
+
+        <!-- Primer Modal - Requiere contraseña de administrador -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Ver Credenciales</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form id="adminPasswordForm">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="adminPassword">Contraseña de Administrador:</label>
+                    <input type="password" class="form-control" id="adminPassword" required>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-primary">Verificar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segundo Modal - Muestra las credenciales después de verificar la contraseña de administrador -->
+        <div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Ver Credenciales</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Correo Electrónico: {{$usuario->email}}
+                <br>
+                @if ($usuario->tutor)
+                Contraseña Temporal: {{substr($usuario->tutor->nombreTutor,0,1).substr($usuario->tutor->appaternoTutor,0,1).substr($usuario->tutor->apmaternoTutor,0,1).$usuario->tutor->CI}}
+                @else
+                Contraseña Temporal: {{substr($usuario->name,0,1).substr($usuario->lastname1,0,1).substr($usuario->lastname2,0,1).$usuario->CI}}
+                @endif
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Compartir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+          <script>
+            // Escuchar el envío del formulario
+            document.getElementById("adminPasswordForm").addEventListener("submit", function(event) {
+              event.preventDefault(); // Evitar que se envíe el formulario
+
+              // Verificar la contraseña de administrador
+              var adminPassword = document.getElementById("adminPassword").value;
+
+              // Aquí deberías tener tu lógica para verificar la contraseña con la base de datos o alguna lógica de autenticación
+
+              // Ejemplo de lógica de autenticación: Si la contraseña es "admin123", entonces abrir el modal
+              if (adminPassword === "admin123") {
+                $('#exampleModal1').modal('show'); // Abre el modal
+              } else {
+                alert("Contraseña incorrecta"); // Muestra un mensaje de error si la contraseña es incorrecta
+              }
+            });
+          </script>
 
 
       </div>
     </div>
     <div class="card-body">
       <form>
-        <h6 class="heading-small text-muted mb-4">Informacion de usuario</h6>
+        <h6 class="heading-small text-muted mb-4">Información de usuario</h6>
         <div class="pl-lg-4">
           <div class="row">
             <div class="col-lg-6">
@@ -204,11 +309,58 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
         </div>
         <hr class="my-4" />
         <!-- Address -->
-        <h6 class="heading-small text-muted mb-4">Informacion de Contacto</h6>
+        <h6 class="heading-small text-muted mb-4">Información de Contacto</h6>
         <div class="pl-lg-4">
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
+                @if ($usuario->tutor)
+                        <div class="pl-lg-4">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="form-control-label" for="input-username">Nombre</label>
+                <input type="text" disabled id="input-username" class="form-control form-control-alternative" placeholder="Username" value="{{$usuario->tutor->nombreTutor}}">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="form-control-label" for="input-email">Correo Electrónico</label>
+                <input type="email" disabled id="input-email" class="form-control form-control-alternative" placeholder="{{$usuario->email}}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="form-control-label" for="input-first-name">Apellido Paterno
+                </label>
+                <input type="text"  disabled id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="{{$usuario->tutor->appaternoTutor}}">
+              </div>
+              <div class="form-group">
+                <label class="form-control-label" for="input-first-name">Dirección
+                </label>
+                <input type="text"  disabled id="input-first-name" class="form-control form-control-alternative" placeholder="Sin Direccion" value="{{$usuario->tutor->Direccion}}">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="form-control-label" for="input-last-name">Apellido Materno</label>
+                <input type="text"  disabled id="input-last-name" class="form-control form-control-alternative" placeholder="Last name" value="{{$usuario->tutor->apmaternoTutor}}">
+              </div>
+              <div class="form-group">
+                <label class="form-control-label" for="input-last-name">CI</label>
+                <input type="text"  disabled id="input-last-name" class="form-control form-control-alternative" placeholder="Last name" value="{{$usuario->tutor->CI}}">
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+                @else
+
+                @endif
                 <label class="form-control-label" for="input-address">Celular</label>
                 <input id="input-address" class="form-control form-control-alternative" disabled placeholder="Home Address" value="{{$usuario->Celular}}">
               </div>
@@ -221,6 +373,25 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
                 <input type="text" id="input-city" class="form-control form-control-alternative" placeholder="City" value="New York">
               </div> --}}
             </div>
+            @if ($usuario->hasRole('Docente'))
+
+            <div class="form-group">
+              <label class="form-control-label" for="input-address">Hoja de vida</label>
+            </div>
+              @if ($usuario->cv_file == '')
+                  <h3>Aún no se ha subido una hoja de vida</h3>
+              @else
+
+              <a href="{{asset('storage/'. auth()->user()->cv_file)}}"> Ver hoja de vida </a>
+
+             @endif
+            <br>
+
+
+
+            @endif
+
+
 
 
             </div>
@@ -236,10 +407,53 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
           </div>
         </div> --}}
       </form>
-    </div>
-  </div>
 
+    @if ($usuario->hasRole('Docente'))
+    <div class="border p-3">
+
+      <div class="table-responsive card">
+         <p>Últimas 4 experiencias laborales de {{$usuario->name }} :</p>
+         <table class="table align-items-center">
+             <tr>
+                 <th>Lugar de Trabajo</th>
+                 <th>Cargo</th>
+                 <th>Fecha Inicio</th>
+                 <th>Fecha Fin</th>
+                 <th>Contacto de Referencia</th>
+             </tr>
+             @forelse ($trabajos as $trabajos )
+                 <tr>
+                     <td>{{$trabajos->empresa}}</td>
+                     <td>{{$trabajos->cargo}}</td>
+                     <td>{{$trabajos->fecha_inicio}}</td>
+                     <td>{{$trabajos->fecha_fin}}</td>
+                     <td>{{$trabajos->contacto_ref}}</td>
+                 </tr>
+             @empty
+             <tr>
+                 <td>NO SE REGISTRARON TUS ULTIMOS TRABAJOS</td>
+             </tr>
+             @endforelse
+
+
+         </table>
+     </div>
+     @endif
+    </div>
+
+  </div>
+  @if(session('success'))
+  <div class="alert alert-success">
+      {{ session('success') }}
+  </div>
+  @endif
 
   @endsection
 
-@include('PerfilUsuarioLayout')
+
+
+  @include('PerfilUsuarioLayout')
+
+
+
+

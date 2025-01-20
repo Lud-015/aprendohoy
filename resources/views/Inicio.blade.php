@@ -1,234 +1,280 @@
 @section('titulo')
-Area Personal
+    Área Personal
 @endsection
-@section('nav')
-    @if (auth()->user()->hasRole('Administrador'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaDocentes') }}">
-                    <i class="ni ni-single-02 text-blue"></i> Lista de Docentes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaEstudiantes') }}">
-                    <i class="ni ni-single-02 text-orange"></i> Lista de Estudiantes
-                </a>
-            </li>
 
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignar Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Docente'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignar Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Estudiante'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Mis Aportes
-                </a>
-            </li>
-
-
-        </ul>
-    @endif
-@endsection
 <!-- Navigation -->
 
 
 
 @section('content')
-<div class="col-xl-12">
-        <div class="card-header border-0">
-            <div class="row align-items-center">
-                    @if (auth()->user()->hasRole('Administrador'))
-                        <h3 class="mb-0">Cursos Creados</h3>
-                    @endif
-                    @if (auth()->user()->hasRole('Docente') ||
-                            auth()->user()->hasRole('Estudiante'))
-                        <h3 class="mb-0">Mis Cursos</h3>
-                    @endif
-                <div class="col text-right">
-                    {{-- <a href="#!" class="btn btn-sm btn-success">Ver Todos</a> --}}
-                    @if (auth()->user()->hasRole('Administrador'))
-                        <a href="{{ route('CrearCurso') }}" class="btn btn-sm btn-success">Crear Curso</a>
-                    @endif
+
+
+
+    @if (auth()->user()->hasRole('Administrador'))
+        <div class="m-1 row">
+            <div class="col-xl-3 col-lg-6">
+                <div class="card card-stats mb-4 mb-xl-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Cursos </h5>
+                                <span class="h2 font-weight-bold mb-0">{{ count($cursos) }}</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+                <div class="card card-stats mb-4 mb-xl-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Alumnos</h5>
+                                <span class="h2 font-weight-bold mb-0">{{ count($estudiantes) }}</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+                <div class="card card-stats mb-4 mb-xl-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Docentes</h5>
+                                <span class="h2 font-weight-bold mb-0">{{ count($docentes) }}</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+                <div class="card card-stats mb-4 mb-xl-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Inscripciones</h5>
+                                <span class="h2 font-weight-bold mb-0">{{ count($inscritos) }}</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                                    <i class="fas fa-percent"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    @endif
+
+
+    @if (auth()->user()->hasRole('Estudiante'))
+        @forelse ($inscritos as $inscrito)
+            @if (auth()->user()->id == $inscrito->estudiante_id && $inscrito->cursos && $inscrito->cursos->deleted_at === null)
+                <div class="w-full md:w-1/2 xl:w-1/3 p-3">
+
+                    <a href="{{ route('Curso', $inscrito->cursos_id) }}" class="block bg-white border rounded shadow p-2">
+                        <div class="flex flex-row items-center">
+                            <div class="flex-shrink pr-4">
+                                <div class="rounded p-3 bg-blue-400"><i class="fa fa-bars fa-2x fa-fw fa-inverse"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1 text-right md:text-center">
+                                <h3 class="atma text-3xl">{{ $inscrito->cursos->nombreCurso }} <span
+                                        class="text-green-500"></span></h3>
+                                <h5 class="alegreya uppercase"></h5>
+                                <span class="inline-block mt-2">IR</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            @endif
+        @empty
+            <h1>NO TIENES CURSOS ASIGNADOS</h1>
+        @endforelse
+    @endif
+
+    @if (auth()->user()->hasRole('Docente'))
+        @forelse ($cursos2 as $cursos)
+            @if (auth()->user()->id == $cursos->docente_id)
+                <div class="w-full md:w-1/2 xl:w-1/3 p-3">
+
+                    {{-- <a href="{{ route('Curso', Crypt::encrypt($cursos->id)) }}" class="block bg-white border rounded shadow p-2"> --}}
+                    <a href="{{ route('Curso', $cursos->id) }}" class="block bg-white border rounded shadow p-2">
+                        <div class="flex flex-row items-center">
+                            <div class="flex-shrink pr-4">
+                                <div class="rounded p-3 bg-blue-400"><i class="fa fa-bars fa-2x fa-fw fa-inverse"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1 text-right md:text-center">
+                                <h3 class="atma text-3xl">{{ $cursos->nombreCurso }} <span class="text-green-500"></span>
+                                </h3>
+                                <h5 class="alegreya uppercase"></h5>
+                                <span class="inline-block mt-2">IR</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            @else
+            @endif
+        @empty
+            <div class="card pb-3 pt-3 col-xl-12">
+                <h4>NO TIENES CURSOS ASIGNADOS</h4>
+            </div>
+        @endforelse
+    @endif
+
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+
+@endsection
+@if (auth()->user()->hasRole('Administrador'))
+
+@section('contentini')
+    <div class="p-3 row mt-5">
+        <div class="col-xl-8 mb-5 mb-xl-0">
+            <div class="card shadow">
+                <div class="card-header border-0">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="mb-0">Notificaciones</h3>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <!-- Projects table -->
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Descripcion</th>
+                                <th>Tiempo </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (auth()->user()->notifications()->paginate(4) as $notification)
+                                <tr>
+                                    <th scope="row">
+                                        <p>{{ $notification->data['message'] }}</p>
+                                    </th>
+                                    <td>
+                                        <p>{{ $notification->created_at->diffForHumans() }}</p>
+                                    </td>
+                                </tr>
+                            @endforeach
+
+                        </tbody>
+                    </table>
+                </div>
+                <style>
+                    .card-footer .pagination-container .page-link svg {
+                        width: 14px;
+                        /* Ancho del icono */
+                        height: 14px;
+                        /* Altura del icono */
+                    }
+                </style>
+
+                <div class="card-footer py-4">
+                    <ul class="pagination justify-content-end mb-0 ml-5">
+                        {{ Auth::user()->notifications()->paginate(4)->links('custom-pagination') }}
+                    </ul>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card shadow">
+                <div class="card-header border-0">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="mb-0">Reportes</h3>
+                        </div>
+                        {{-- <div class="col text-right">
+                            <a href="#!" class="btn btn-sm btn-primary">See all</a>
+                        </div> --}}
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <!-- Projects table -->
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Nr°</th>
+                                <th scope="col">Cursos Finalizados</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @forelse ($cursos as $cursos)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ ucfirst(strtolower($cursos->nombreCurso)) }}</td>
+
+                                <td>
+                                    <a href="{{ route('rfc', [$cursos->id]) }}">
+                                        <img src="{{ asset('assets/icons/ojo.png') }}" alt="Ver Icon"
+                                            style="width: 16px; height: 16px;">
+                                        Ver
+                                    </a>
+                                </td>
+
+
+
+                            </tr>
+
+                        @empty
+                            <td>
+                                <h4>NO HAY CURSOS REGISTRADOS</h4>
+                            </td>
+                        @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="table-responsive ">
-            <!-- Projects table -->
-            @if (auth()->user()->hasRole('Administrador'))
-                <table class="table align-items-center table-responsive">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>Nº</th>
-                            <th>Nombre Curso</th>
-                            <th>Nivel</th>
-                            <th>Docente</th>
-                            <th>Edad Dirigida</th>
-                            <th>Fecha Incializacion</th>
-                            <th>Fecha Finalizacion</th>
-                            <th>Formato</th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        @foreach ($cursos as $cursos)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $cursos->nombreCurso }}</td>
-                                <td>{{ $cursos->nivel ? $cursos->nivel->nombre : 'N/A' }}</td>
-                                <td>{{ $cursos->docente->name }} {{ $cursos->docente->lastname1 }}
-                                    {{ $cursos->docente->lastname2 }}</td>
-                                <td
-                                    title="{{ $cursos->edad_dirigida ? $cursos->edad_dirigida->edad1 : 'N/A' }} - {{ $cursos->edad_dirigida ? $cursos->edad_dirigida->edad2 : 'N/A' }}">
-                                    {{ $cursos->edad_dirigida ? $cursos->edad_dirigida->nombre : 'N/A' }}</td>
-                                <td>{{ $cursos->fecha_ini ? $cursos->fecha_ini : 'N/A' }}</td>
-                                <td>{{ $cursos->fecha_fin ? $cursos->fecha_fin : 'N/A' }}</td>
-                                <td>{{ $cursos->formato ? $cursos->formato : 'N/A' }}</td>
-                                <td><a href="/EditarCurso/{{$cursos->id}}">EDITAR</a></td>
-                                <td><a href="">BORRAR</a></td>
-                                <td><a href="Cursos/id/{{ $cursos->id }}">VER</a></td>
-
-                            </tr>
-                        @endforeach
-                        {{-- <tr>
-
-                                          <th scope="row">
-                                              Matematicas
-                                          </th>
-                                          <td>
-                                              Juan Perez
-                                          </td>
-                                          <td>
-                                              14
-                                          </td>
-                                          <td>
-                                              <div class="d-flex align-items-center">
-                                                  <span class="mr-2">0%</span>
-                                                  <div>
-                                                      <div class="progress">
-                                                          <div class="progress-bar bg-gradient-danger"
-                                                              role="progressbar" aria-valuenow="60" aria-valuemin="0"
-                                                              aria-valuemax="100" style="width: 60%;"></div>
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </td>
-                                      </tr> --}}
-                    </tbody>
-                </table>
-            @endif
-            @if (auth()->user()->hasRole('Docente'))
-                @foreach ($cursos as $cursos)
-                    @if (auth()->user()->id == $cursos->docente_id)
-                        <div class="card pb-3 pt-3 col-xl-12">
-                            <br>
-                            <h3>{{ $cursos->nombreCurso }}</h3>
-                            <br>
-
-                            <p>{{ $cursos->descripcionC }}</p>
-                            <p> <a href="Cursos/id/{{ $cursos->id }}">IR A CURSO</a> </p>
-                            <div class="progress">
-                                <div class="progress-bar bg-gradient-info" role="progressbar" aria-valuenow="0"
-                                    aria-valuemin="0" aria-valuemax="100" style="width: 1%;"></div>
-                            </div>
-                        </div>
-                    @else
-                        {{-- <h1>NO TIENES CURSOS ASIGNADOS</h1> --}}
-                    @endif
-                @endforeach
-
-
-            @endif
-            @if (auth()->user()->hasRole('Estudiante'))
-                @foreach ($inscritos as $inscritos)
-                    @if (auth()->user()->id == $inscritos->estudiante_id)
-                        <div class="card pb-3 pt-3 col-xl-12">
-                            <br>
-                            <h3>{{ $inscritos->cursos->nombreCurso }}</h3>
-                            <br>
-
-                            <p>{{ $inscritos->cursos->descripcionC }}</p>
-                            <p> <a href="Cursos/id/{{ $inscritos->cursos_id }}">IR A CURSO</a> </p>
-                            <div class="progress">
-                                <div class="progress-bar bg-gradient-info" role="progressbar" aria-valuenow="0"
-                                    aria-valuemin="0" aria-valuemax="100" style="width: 1%;"></div>
-                            </div>
-                        </div>
-                    @else
-                        {{-- <h1>NO TIENES CURSOS ASIGNADOS</h1> --}}
-                    @endif
-                @endforeach
-
-
-            @endif
-
-
-
-
-
     </div>
-</div>
 @endsection
+@endif
 
-@include('layout')
 
+@if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Estudiante'))
+
+
+    @include('FundacionPlantillaUsu.index')
+@endif
+
+
+
+@if (auth()->user()->hasRole('Administrador'))
+    @include('layout')
+@endif

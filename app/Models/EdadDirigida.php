@@ -11,7 +11,7 @@ class EdadDirigida extends Model
 {
     use HasFactory, SoftDeletes;
 
-
+    protected $softDelete = true;
     public function cursos()
     {
         return $this->hasOne(Cursos::class, 'edadDir_id', 'id');

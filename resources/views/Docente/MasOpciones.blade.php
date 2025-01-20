@@ -13,7 +13,7 @@
 
 
    <h1>EDITAR PERFIL</h1>
-    <form action="" method="POST" >
+    <form action="{{route('')}}" method="POST" >
         @csrf
          <h4>Datos Personales</h4>
         <br>

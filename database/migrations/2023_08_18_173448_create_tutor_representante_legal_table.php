@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('CI');
             $table->string('Celular');
             $table->string('Direccion');
+            $table->string('CorreoElectronicoTutor');
             $table->unsignedBigInteger('estudiante_id');
             $table->foreign('estudiante_id')->references('id')->on('users');
             $table->timestamps();

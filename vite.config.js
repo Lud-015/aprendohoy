@@ -10,4 +10,10 @@ export default defineConfig({
             }
         ),
     ],
+    optimizeDeps: {
+        include: [
+            'flatpickr'
+        ]
+    }
+
 });

@@ -69,7 +69,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'America/La_Paz',
 
     /*
     |--------------------------------------------------------------------------
@@ -82,7 +82,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'es',
 
     /*
     |--------------------------------------------------------------------------
@@ -181,10 +181,13 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
+        ConsoleTVs\Charts\ChartsServiceProvider::class,
 
         /*
          * Package Service Providers...
          */
+
 
         /*
          * Application Service Providers...
@@ -210,7 +213,9 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // 'ExampleClass' => App\Example\ExampleClass::class,
+    'PDF' => Barryvdh\DomPDF\Facade::class,
+
+
     ])->toArray(),
 
 ];

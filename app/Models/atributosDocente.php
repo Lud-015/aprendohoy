@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class atributosDocente extends Model
 {
     use HasFactory, SoftDeletes;
-
+    protected $softDelete = true;
     public function docente()
     {
         return $this->belongsTo(User::class, 'docente_id');

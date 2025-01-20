@@ -10,7 +10,7 @@ Coded by www.creative-tim.com
 
 =========================================================
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+* The above copyright notice and this permission notice .shadow--hover:hoverl be included in all copies or substantial portions of the Software.
 
  */
 /*!
@@ -19,6 +19,13 @@ Coded by www.creative-tim.com
  * Copyright 2011-2020 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
+
+@font-face {
+    font-family: AB;
+    src: url('../fonts/AB.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
 :root {
   --blue: #5e72e4;
   --indigo: #5603ad;
@@ -52,8 +59,8 @@ Coded by www.creative-tim.com
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
-  --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-family-sans-serif: 'AB', sans-serif;
+  --font-family-monospace: 'AB', sans-serif;
 }
 
 *,
@@ -63,7 +70,7 @@ Coded by www.creative-tim.com
 }
 
 html {
-  font-family: sans-serif;
+  font-family: 'AB', sans-serif;
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -84,7 +91,7 @@ section {
 
 body {
   margin: 0;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'AB', sans-serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
@@ -215,7 +222,7 @@ pre,
 code,
 kbd,
 samp {
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family:'AB', sans-serif;
   font-size: 1em;
 }
 
@@ -275,7 +282,7 @@ select,
 optgroup,
 textarea {
   margin: 0;
-  font-family: inherit;
+  font-family: 'AB', sans-serif;
   font-size: inherit;
   line-height: inherit;
 }
@@ -406,7 +413,7 @@ h6,
 .h5,
 .h6 {
   margin-bottom: 0.5rem;
-  font-family: inherit;
+  font-family: 'AB', sans-serif;
   font-weight: 400;
   line-height: 1.5;
   color: #32325d;
@@ -510,7 +517,7 @@ mark,
 
 .initialism {
   font-size: 90%;
-  text-transform: uppercase;
+
 }
 
 .blockquote {
@@ -6748,7 +6755,7 @@ a.close.disabled {
   z-index: 1070;
   display: block;
   margin: 0;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'AB', sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -6873,7 +6880,7 @@ a.close.disabled {
   z-index: 1060;
   display: block;
   max-width: 276px;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'AB', sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -15635,7 +15642,7 @@ button.bg-darker:focus {
 }
 
 .text-monospace {
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family: 'AB', sans-serif;
 }
 
 .text-justify {
@@ -17749,7 +17756,7 @@ a.text-lighter:focus {
 }
 
 .badge {
-  text-transform: uppercase;
+
 }
 
 .badge a {
@@ -17807,7 +17814,7 @@ a.text-lighter:focus {
 
 .btn {
   position: relative;
-  text-transform: uppercase;
+
   will-change: transform;
   letter-spacing: 0.025em;
   font-size: 0.875rem;
@@ -18611,7 +18618,7 @@ a.btn-icon-only {
   padding-right: 1rem;
   color: #f6f9fc;
   font-size: .625rem;
-  text-transform: uppercase;
+
   font-weight: 700;
 }
 
@@ -18652,7 +18659,7 @@ a.btn-icon-only {
   color: #8898aa;
   letter-spacing: 0;
   font-size: 0.875rem;
-  text-transform: uppercase;
+
   font-weight: 600;
   margin-bottom: 1rem;
 }
@@ -18796,7 +18803,7 @@ textarea[resize="horizontal"] {
   height: 19px;
   line-height: 19px;
   text-align: center;
-  font-family: 'NucleoIcons';
+  font-family: 'AB', sans-serif;
   display: inline-block;
   position: absolute;
   right: 15px;
@@ -19486,7 +19493,7 @@ textarea[resize="horizontal"] {
 
 .navbar-nav .nav-link {
   font-size: 0.9rem;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'AB', sans-serif;
   font-weight: 400;
   text-transform: normal;
   letter-spacing: 0;
@@ -19506,7 +19513,7 @@ textarea[resize="horizontal"] {
 .navbar-brand {
   font-size: 0.875rem;
   font-weight: 600;
-  text-transform: uppercase;
+
   font-size: .875rem;
   letter-spacing: .05px;
 }
@@ -20361,7 +20368,7 @@ textarea[resize="horizontal"] {
   color: #172b4d;
   font-size: .625rem;
   font-weight: 600;
-  text-transform: uppercase;
+
   padding: .25rem 0rem;
 }
 
@@ -21141,7 +21148,7 @@ p {
 .heading {
   letter-spacing: 0.025em;
   font-size: 0.95rem;
-  text-transform: uppercase;
+
   font-weight: 400;
 }
 
@@ -21149,14 +21156,14 @@ p {
   letter-spacing: 0.025em;
   font-size: 1.375rem;
   font-weight: 600;
-  text-transform: uppercase;
+
 }
 
 .heading-section {
   letter-spacing: 0.025em;
   font-size: 1.375rem;
   font-weight: 600;
-  text-transform: uppercase;
+
 }
 
 .heading-section img {
@@ -21571,7 +21578,7 @@ article h5+figure {
 }
 
 .flatpickr-current-month span.cur-month {
-  font-family: inherit;
+  font-family: 'AB', sans-serif;
   font-weight: 700;
   color: inherit;
   display: inline-block;
@@ -21607,7 +21614,7 @@ article h5+figure {
   margin: 0;
   display: inline-block;
   font-size: inherit;
-  font-family: inherit;
+  font-family: 'AB', sans-serif;
   font-weight: 300;
   line-height: inherit;
   height: auto;
@@ -23359,7 +23366,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   border-radius: 4px;
   border: 0px none;
   text-align: left;
-  font-family: inherit;
+  font-family: 'AB', sans-serif;
   display: inline-block;
   vertical-align: middle;
   text-decoration: none;
@@ -23609,7 +23616,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 
 .color-swatch-header .pass-fail-item .lozenge {
   font-size: 11px;
-  text-transform: uppercase;
+
   font-weight: 600;
   background: #000;
   color: #fff;
@@ -23642,7 +23649,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 .color-swatch-body .prop-item .label {
   font-size: 11px;
   color: #62748C;
-  text-transform: uppercase;
+
   line-height: 16px;
 }
 
@@ -23699,7 +23706,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   margin: 5px 10px 0 0;
   font-size: 10px;
   display: inline-block;
-  text-transform: uppercase;
+
   font-weight: 600;
   background: #97A0AF;
   color: #042A53;
@@ -23717,7 +23724,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   overflow: auto;
   margin: 0;
   padding: 1.25rem;
-  font-family: Consolas, Menlo, Monaco, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Liberation Mono', 'Nimbus Mono L', 'Courier New', Courier, monospace;
+  font-family: 'AB', sans-serif;
   font-size: 14px;
   line-height: 1.375;
   text-align: left;
@@ -23752,7 +23759,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 .highlight pre kbd,
 .highlight pre pre,
 .highlight pre samp {
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family: 'AB', sans-serif;
   font-size: 1em;
 }
 
@@ -23938,7 +23945,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 
 code[class*="language-"],
 pre[class*="language-"] {
-  font-family: Consolas, Menlo, Monaco, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", "Courier New", Courier, monospace;
+  font-family: 'AB', sans-serif;
   font-size: 14px;
   line-height: 1.375;
   direction: ltr;

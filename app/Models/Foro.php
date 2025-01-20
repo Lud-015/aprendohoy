@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Foro extends Model
 {
     use HasFactory, SoftDeletes;
-
+    protected $softDelete = true;
 
     public function cursos() :BelongsTo
 
@@ -24,6 +24,33 @@ class Foro extends Model
 
     public function foromensaje(): HasMany
     {
-        return $this->hasMany(Foro::class, 'foro_id');
+        return $this->hasMany(ForoMensaje::class, 'foro_id');
     }
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Evento que se dispara al intentar eliminar el modelo
+        static::deleting(function ($foro) {
+            // Aquí puedes agregar lógica para manejar la eliminación del modelo
+            // por ejemplo, eliminar también los mensajes asociados en la relación
+            $foro->foromensaje()->delete();
+        });
+
+        // Evento que se dispara al intentar restaurar el modelo eliminado
+        static::restoring(function ($foro) {
+            // Aquí puedes agregar lógica para manejar la restauración del modelo
+            // por ejemplo, restaurar también los mensajes asociados en la relación
+            $foro->foromensaje()->withTrashed()->restore();
+        });
+    }
+
+
+
+
+
+
+
 }

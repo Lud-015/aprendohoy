@@ -14,7 +14,7 @@ class NivelController extends Controller
      */
     public function index()
     {
-        //
+        return view('Administrador.NuevoNivel');
     }
 
     /**
@@ -35,7 +35,18 @@ class NivelController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nivel' => 'required|string|unique:nivel,nombre', // Verifica la unicidad en la tabla 'niveles' columna 'nombre'
+        ], [
+            'nivel.required' => 'El nombre del nivel es obligatorio.',
+            'nivel.unique' => 'Ya existe un nivel con este nombre.',
+        ]);
+
+        $nivel = new Nivel;
+        $nivel->nombre = strtoupper($request->nivel);
+        $nivel->save();
+
+        return back()->with('success', 'Nivel guardado con éxito!');
     }
 
     /**

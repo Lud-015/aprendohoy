@@ -11,15 +11,21 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+
+
+        public function up()
     {
         Schema::create('cursos', function (Blueprint $table) {
             $table->id();
             $table->string('nombreCurso');
+            $table->string('codigoCurso')->nullable();
             $table->string('descripcionC');
             $table->string('fecha_ini');
             $table->string('fecha_fin');
+            $table->string('archivoContenidodelCurso')->nullable();
+            $table->integer('notaAprobacion')->nullable();
             $table->string('formato');
+            $table->string('estado')->nullable();
             $table->unsignedBigInteger('docente_id');
             $table->foreign('docente_id')->references('id')->on('users');
             $table->unsignedBigInteger('edadDir_id');

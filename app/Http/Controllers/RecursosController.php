@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\RecursosEvent;
+use App\Models\Cursos;
 use App\Models\Recursos;
 use Illuminate\Http\Request;
 
@@ -14,18 +16,12 @@ class RecursosController extends Controller
      */
     public function index($id)
     {
-        return view('Docente.CrearRecursos');
+
+        $curso = Cursos::findOrFail($id);
+        return view('Docente.CrearRecursos')->with('curso', $curso);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -35,51 +31,127 @@ class RecursosController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $messages = [
+            'tituloRecurso.required' => 'El campo título del recurso es obligatorio.',
+            'descripcionRecurso.required' => 'El campo descripción del recurso es obligatorio.',
+            'tipoRecurso.required' => 'Elige un tipo de Recurso.',
+        ];
+
+        $request->validate([
+            'tituloRecurso' => 'required',
+            'descripcionRecurso' => 'required',
+            'tipoRecurso' => 'required',
+        ], $messages);
+
+        $recurso = new Recursos();
+
+        $recurso->nombreRecurso = $request->tituloRecurso;
+        $recurso->cursos_id = $request->cursos_id;
+
+        $recurso->descripcionRecursos = $request->descripcionRecurso;
+        $recurso->tipoRecurso = $request->tipoRecurso;
+
+        if ($request->hasFile('archivo')) {
+            $recursosPath = $request->file('archivo')->store('archivo', 'public');
+            $recurso->archivoRecurso = $recursosPath;
+        }
+
+        event(new RecursosEvent($recurso, 'crear'));
+
+        $recurso->save();
+
+
+        return redirect(route('Curso', $request->cursos_id))->with('success', 'Recurso creado Con éxito');
+
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Recursos  $recursos
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Recursos $recursos)
+    public function descargar($nombreArchivo)
     {
-        //
+        $rutaArchivo = storage_path('/app/public/'.$nombreArchivo);
+
+        return response()->download($rutaArchivo);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Recursos  $recursos
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Recursos $recursos)
+
+    public function edit($id)
     {
-        //
+        $recurso = Recursos::findOrFail($id);
+
+        return view('Docente.EditarRecursos')->with('recurso', $recurso);
+
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Recursos  $recursos
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Recursos $recursos)
+    public function update(Request $request)
     {
-        //
+
+        $messages = [
+            'tituloRecurso.required' => 'El campo título del recurso es obligatorio.',
+            'descripcionRecurso.required' => 'El campo descripción del recurso es obligatorio.',
+        ];
+
+        $request->validate([
+            'tituloRecurso' => 'required',
+            'descripcionRecurso' => 'required',
+        ], $messages);
+
+
+
+        $recurso = Recursos::findOrFail($request->idRecurso);
+
+        $recurso->nombreRecurso = $request->tituloRecurso;
+        $recurso->cursos_id = $request->cursos_id;
+
+        $recurso->descripcionRecursos = $request->descripcionRecurso;
+        $recurso->tipoRecurso = $request->tipoRecurso;
+
+        if ($request->hasFile('archivo')) {
+            $recursosPath = $request->file('archivo')->store('archivo', 'public');
+            $recurso->archivoRecurso = $recursosPath;
+        }
+
+        $recurso->save();
+
+
+        return redirect(route('Curso', $request->cursos_id))->with('success', 'Editado con éxito');
+
+
+
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Recursos  $recursos
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Recursos $recursos)
+    public function delete($id)
     {
-        //
+        $recurso = Recursos::findOrFail($id);
+        $recurso->delete();
+
+        return back()->with('success', 'Eliminado con éxito');
     }
+
+    public function indexE($id)
+    {
+
+        $cursos = Cursos::findOrFail($id);
+
+        $recursos = Recursos::withTrashed()
+        ->where('cursos_id', $id)
+        ->onlyTrashed()
+        ->get();
+
+
+        return view('Docente.ListaRecursosEliminados')->with('recursos', $recursos)->with('cursos', $cursos);
+    }
+
+
+
+
+    public function restore($id)
+    {
+        $recurso = Recursos::onlyTrashed()->find($id);
+        $recurso->restore();
+
+        return back()->with('success', 'Restaurado con éxito');
+    }
+
+
+
+
 }

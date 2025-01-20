@@ -5,76 +5,100 @@
     Crear Estudiante
 @endsection
 
-@section('nav')
-    <nav class="navbar">
-        <a href="{{ route('Inicio') }}" class="nav-link">Inicio</a>
-        <a href="{{ route('ListaEstudiantes') }}" class="nav-link">Lista de Estudiantes</a>
-        <a href="#" class="nav-link">Crear Estudiante</a>
-    </nav>
-@endsection
+
 
 @section('content')
 
+    <div class="col-xl-12">
+        <a href="{{ route('ListaEstudiantes') }}" class="btn btn-primary">
+            &#9668; Volver
+        </a>
+        <br>
+        <br>
+        <a href="{{ route('CrearEstudianteMenor') }}" class="btn btn-sm btn-success">Crear Estudiante con Representante
+            Legal</a>
+    </div>
 
     <div class="form col-12  mb-3 ">
-        <b>Tiene Representante Legal</b>
-        <input type="checkbox" name="representante" id="check" value="1" onchange="javascript:showContent()" />
         <hr>
-        <form class="" method="post">
+
+        <form class="form" method="post" action="{{ route('CrearEstudiantePost') }}">
             @csrf
-            <!-- Campos del formulario -->
-            <div class="flex-row">
-            <label for="name">Nombre</label>
-            <input type="text" name="name">
-            <br>
-            <label for="lastname1">Apellido Paterno</label>
-            <input type="text" name="lastname1">
-            <br>
-            <label for="lastname2">Apellido Materno</label>
-            <input type="text" name="lastname2">
-            <br>
-            <label for="CI">CI</label>
-            <input type="text" name="CI">
-            <br>
-            <label for="Celular">Celular</label>
-            <input type="text" name="Celular">
-            <br>
-            <label for="fechadenac">Fecha de Nacimiento</label>
-            <input type="text" name="fechadenac">
-            <br>
-            <label for="">Pais Residencia</label>
-            <input type="text" name="PaisReside">
-            <br>
-            <label for="">Ciudad Residencia</label>
-            <input type="text" name="CiudadReside">
-            <br>
-            <label for="email">Correo Electrónico</label>
-            <input type="text" name="email">
-            <br>
-        </div>
-            <div class="flex-row" id="content" style="display: none;">
-            <h4>
-            Informacion de Representante Legal
-            </h4>
-            <label for="">Nombre Tutor</label>
-            <input type="text" name="nombreT">
-            <br>
-            <label for="">Apellido Paterno Tutor</label>
-            <input type="text" name="appT">
-            <br>
-            <label for="">Apellido Materno Tutor</label>
-            <input type="text" name="apmT">
-            <br>
-            <label for="">Celular Tutor</label>
-            <input type="text" name="CelularT">
-            <br>
-            <label for="">CI Tutor</label>
-            <input type="text" name="CIT">
-            <br>
+            <div class="form-group">
+                <label for="name">Nombre</label>
+                <span class="text-danger">*</span>
+                <input type="text" name="name" value="{{ old('name') }}" class="form-control custom-width">
+            </div>
+            <div class="mr-10 mt-3 mb-3" style="display: flex; align-items: center;">
+
+                <div class="mr-8">
+                    <label for="lastname1">Apellido Paterno</label>
+                    <span class="text-danger">*</span>
+                    <input type="text" name="lastname1" value="{{ old('lastname1') }}" class="form-control w-auto">
+                </div>
+
+                <div class="ml-3">
+                    <label for="lastname2">Apellido Materno</label>
+                    <span class="text-danger">*</span>
+                    <input type="text" name="lastname2" value="{{ old('lastname2') }}" class="form-control w-auto">
+                </div>
+            </div>
+            <div class="mr-10 mt-3 mb-3" style="display: flex; align-items: center;">
+
+                <div class="mr-8">
+                    <label for="CI">CI Estudiante</label>
+                    <span class="text-danger">*</span>
+
+                    <input type="text" name="CI" value="{{ old('CI') }}" class="form-control w-auto">
+                </div>
+
+                <div class="ml-3">
+                    <label for="Celular">Número de Celular</label>
+                    <span class="text-danger">*</span>
+                    <input type="text" name="Celular" value="{{ old('Celular') }}" class="form-control w-auto">
+                </div>
             </div>
 
-            <input type="submit" value="Crear Estudiante" class="btn-crear">
+            <div class="mr-10 mt-3 mb-3" style="display: flex; align-items: center;">
+
+                <div class="form-group">
+                    <label for="fechadenac">Fecha de Nacimiento</label>
+                    <span class="text-danger">*</span>
+
+                    <input type="date" name="fechadenac" value="{{ old('fechadenac') }}" class="form-control w-auto">
+                </div>
+            </div>
+
+            <div class="mr-10 mt-3 mb-3" style="display: flex; align-items: center;">
+
+                <div class="mr-8">
+                    <label for="PaisReside">Pais de Residencia (Opcional)</label>
+                    <input type="text" name="PaisReside" value="{{ old('PaisReside') }}" class="form-control w-auto">
+                </div>
+
+                <div class="ml-3">
+                    <label for="CiudadReside">Ciudad de Residencia (Opcional)</label>
+                    <input type="text" name="CiudadReside" value="{{ old('CiudadReside') }}"
+                        class="form-control w-auto">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <span class="text-danger">*</span>
+                <input type="text" name="email" value="{{ old('email') }}" class="form-control custom-width">
+            </div>
+
+            <input type="submit" value="Guardar" class="btn btn-primary">
         </form>
+
+        <style>
+            .custom-width {
+                width: 50%;
+                height: 50px;
+            }
+        </style>
+
     </div>
 
     @if ($errors->any())
@@ -87,20 +111,8 @@
         </div>
     @endif
 
-    <script type="text/javascript">
-        function showContent() {
-            element = document.getElementById("content");
-            check = document.getElementById("check");
-            if (check.checked) {
-                element.style.display='block';
-            }
-            else {
-                element.style.display='none';
-            }
-        }
-    </script>
 
-
+    </div>
 @endsection
 
 @include('layout')

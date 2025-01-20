@@ -2,90 +2,133 @@
     Asignar Cursos
 @endsection
 
-@section('nav')
-@if (auth()->user()->hasRole('Administrador'))
-<ul class="navbar-nav">
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('Miperfil') }}">
-            <i class="ni ni-circle-08 text-green"></i> Mi perfil
-        </a>
-    </li>
-    <li class="nav-item   ">
-        <a class="nav-link   " href="{{ route('Inicio') }}">
-            <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link " href="{{ route('ListaDocentes') }}">
-            <i class="ni ni-single-02 text-blue"></i> Lista de Docentes
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link " href="{{ route('ListaEstudiantes') }}">
-            <i class="ni ni-single-02 text-orange"></i> Lista de Estudiantes
-        </a>
-    </li>
-  <li class="nav-item">
-    <a class="nav-link " href="./examples/tables.html">
-      <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-    </a>
-  </li>
-  <li class="nav-item active">
-    <a class="nav-link active" href="{{route('AsignarCurso')}}">
-      <i class="ni ni-key-25 text-info"></i> Asignar Cursos
-    </a>
-  </li>
-
-</ul>
-@endif
-
-@endsection
 
 
 @section('content')
-    <form method="POST">
-        @csrf
-        <div class="card-body p-3">
-            <div class="row">
-                <div class="col-md-6 mb-md-0 mb-4">
-                    <h3>Curso</h3>
-                    <div class="card card-body border card-plain border-radius-lg d-flex align-items-center flex-row">
+<form method="POST" action="{{ route('inscribir') }}">
+    @csrf
+    <div class="card-body p-3">
+        <div class="row">
+            <div class="col-md-6 mb-md-0 mb-4">
+                <h3>Curso</h3>
+                <div class="card card-body border card-plain border-radius-lg d-flex align-items-center flex-row">
+                    @if (auth()->user()->hasRole('Administrador'))
                         <select name="curso" id="" class="mb-0 bg-transparent border-0">
-                            @foreach ($cursos as $cursos)
-                                <option value="{{ $cursos->id }}">{{ $cursos->nombreCurso }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <h3>Estudiante</h3>
-                    <div class="card card-body border card-plain border-radius-lg d-flex align-items-center flex-row">
-                        <select name="estudiante" id="" class="mb-0 bg-transparent border-0">
-
-                            @foreach ($estudiantes as $estudiantes)
-
-                                <option value="{{ $estudiantes->id }}">
-                                    {{ $estudiantes->name . ' ' . $estudiantes->lastname1 . ' ' . $estudiantes->lastname2 }}
+                            @forelse ($cursos as $curso) <!-- Cambié el nombre de $cursos a $curso para evitar errores -->
+                                <option value="{{ $curso->id }}">{{ ucfirst(strtolower($curso->nombreCurso)) }}</option>
+                            @empty
+                                <option value="">
+                                    NO HAY CURSOS DISPONIBLES
                                 </option>
-
-                            @endforeach
-
+                            @endforelse
                         </select>
+                    @elseif (auth()->user()->hasRole('Docente'))
+                        <select name="curso" id="" class="mb-0 bg-transparent border-0">
+                            @forelse ($cursos as $curso)
+                                @if (auth()->user()->id == $curso->docente_id)
+                                    <option value="{{ $curso->id }}">{{ ucfirst(strtolower($curso->nombreCurso)) }}</option>
+                                @endif
+                            @empty
+                                <option value="">
+                                    NO TIENES CURSOS ASIGNADOS
+                                </option>
+                            @endforelse
+                        </select>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h3>Estudiante</h3>
+                <div class="card card-body border card-plain border-radius-lg d-flex align-items-center flex-column">
+                    <!-- Campo de búsqueda -->
+                    <input type="text" id="searchStudent" placeholder="Buscar estudiante..." class="form-control mb-2">
+
+                    <!-- Lista de estudiantes con estilos para ocultar/mostrar -->
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <ul id="studentList" class="list-group w-100">
+                            @forelse ($estudiantes as $estudiante)
+                                <li class="list-group-item d-flex align-items-center">
+                                    <input type="checkbox" name="estudiantes[]" value="{{ $estudiante->id }}" class="form-check-input ml-2">
+                                    <span class="ml-5">{{ $estudiante->name . ' ' . $estudiante->lastname1 . ' ' . $estudiante->lastname2 }}</span>
+                                </li>
+                            @empty
+                                <li class="list-group-item">NO HAY ESTUDIANTES REGISTRADOS</li>
+                            @endforelse
+                        </ul>
+                        <!-- Mensaje de no resultados, inicialmente oculto -->
+                        <p id="noResultsMessage" style="display: none; text-align: center; padding: 10px; font-weight: bold;">
+                            NO SE ENCONTRARON RESULTADOS
+                        </p>
                     </div>
                 </div>
             </div>
-            <br><br>
-
-            <input class="btn btn-lg btn-success" type="submit" value="INCRIBIR ALUMNO">
-
         </div>
-    </form>
+
+        <!-- Botón para inscribir -->
+        <br><br>
+        <input class="btn btn-lg btn-success" type="submit" value="Inscribir Alumno">
+    </div>
+</form>
+
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
     @if ($errors->any())
-    @foreach ($errors->all() as $error)
-        <h2 class="bg-danger alert-danger">{{$error}}</h2>
-    @endforeach
+        @foreach ($errors->all() as $error)
+            <h2 class="bg-danger alert-danger">{{ $error }}</h2>
+        @endforeach
     @endif
 @endsection
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var searchInput = document.getElementById('searchStudent');
+        var studentList = document.getElementById('studentList');
+        var students = studentList.getElementsByTagName('li');
+        var noResultsMessage = document.getElementById('noResultsMessage');
+
+        searchInput.addEventListener('keyup', function() {
+            var searchTerm = searchInput.value.toLowerCase().trim();
+            var hasResults = false;
+
+            // Si el campo de búsqueda está vacío, muestra el mensaje para que el usuario ingrese algo
+            if (searchTerm === '') {
+                studentList.style.display = 'none';
+                noResultsMessage.textContent = 'Coloque un nombre para buscar';
+                noResultsMessage.style.display = 'block';
+                return;
+            }
+
+            // Verifica los nombres de los estudiantes y muestra los que coinciden con el término de búsqueda
+            for (var i = 0; i < students.length; i++) {
+                var studentName = students[i].textContent.toLowerCase();
+                if (studentName.includes(searchTerm)) {
+                    students[i].style.display = 'flex'; // Mostrar estudiante
+                    hasResults = true;
+                } else {
+                    students[i].style.display = 'none'; // Ocultar estudiante
+                }
+            }
+
+            // Muestra el mensaje "NO SE ENCONTRARON RESULTADOS" si no hay coincidencias
+            if (!hasResults) {
+                studentList.style.display = 'none';
+                noResultsMessage.textContent = 'NO SE ENCONTRARON RESULTADOS';
+                noResultsMessage.style.display = 'block';
+            } else {
+                studentList.style.display = 'block';
+                noResultsMessage.style.display = 'none';
+            }
+        });
+
+        // Simulación de una pulsación de tecla al cargar la página para mostrar todos los estudiantes
+        searchInput.dispatchEvent(new Event('keyup'));
+    });
+</script>
 
 @extends('layout')

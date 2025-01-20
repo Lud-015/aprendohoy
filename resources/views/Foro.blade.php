@@ -1,19 +1,6 @@
-{{-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foro</title>
-    <link rel="stylesheet" href="{{ asset('assets/css/foro.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/navbar.css') }}">
-
-</head>
-<body> --}}
-
-
 @section('titulo')
 
-Foro de Discusión de {{$foro->nombreForo}}
+    Foro de Discusión de {{ $foro->nombreForo }}
 
 @endsection
 
@@ -49,7 +36,7 @@ Foro de Discusión de {{$foro->nombreForo}}
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignar Cursos
+                    <i class="ni ni-key-25 text-info"></i> Asignación Cursos
                 </a>
             </li>
 
@@ -75,7 +62,7 @@ Foro de Discusión de {{$foro->nombreForo}}
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignar Cursos
+                    <i class="ni ni-key-25 text-info"></i> Asignación Cursos
                 </a>
             </li>
 
@@ -106,49 +93,71 @@ Foro de Discusión de {{$foro->nombreForo}}
 @endsection
 
 @section('content')
+    <div class="container mt-5">
+        <div class="border p-3 mb-4 bg-light rounded">
+            <a href="javascript:history.back()" class="btn btn-primary mb-3">
+                &#9668; Volver
+            </a>
 
-
-
-    <textarea class="col-12" id="" cols="100" rows="10" readonly style="border: 0">
-
-        {{$foro->descripcionForo}}
-
-    </textarea>
-
-    <br>
-    @foreach ($forosmensajes as $forosmensajes)
-    @if ($forosmensajes->foro_id == $foro->id)
-
-    <div class="card-body">
-
-        <div class="comment shadow">
-            <h5 class="author">{{$forosmensajes->estudiantes->name}} {{$forosmensajes->estudiantes->lastname1}} {{$forosmensajes->estudiantes->lastname2}} - {{$forosmensajes->tituloMensaje}}</h5>
-            <textarea name="" readonly id="" cols="100" rows="5" style="border: 0" >{{$forosmensajes->mensaje}}</textarea>
+            <textarea class="form-control" cols="100" rows="5" readonly
+                style="border: none; background-color: transparent;">{{ htmlspecialchars($foro->descripcionForo) }}</textarea>
         </div>
-    </div>
-    @endif
-    @endforeach
 
-    <div class="card-body ">
-    <!-- Formulario para agregar un comentario -->
-    <form class="comment-form " method="POST">
-        @csrf
-        <input type="text" name="foro_id" value="{{$foro->id}}" hidden>
-        <input type="text" name="estudiante_id" value="{{auth()->user()->id}}" hidden>
-        <input type="text" name="tituloMensaje">
-        <textarea name="mensaje" cols="100" rows="4" placeholder="Escribe tu comentario aquí" style="border: 0"></textarea>
-        <br>
-        <button type="submit">Publicar Comentario</button>
-    </form>
+        @foreach ($forosmensajes as $mensaje)
+            @if ($mensaje->foro_id == $foro->id)
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $mensaje->estudiantes->name }} {{ $mensaje->estudiantes->lastname1 }}
+                            {{ $mensaje->estudiantes->lastname2 }} - {{ $mensaje->tituloMensaje }}</h5>
+                        <p class="card-text">{{ $mensaje->mensaje }}</p>
+                    </div>
+                </div>
+            @endif
+        @endforeach
+
+        <div class="card mb-4">
+            <div class="card-body">
+                @if (
+                    ($foro->cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($foro->cursos->fecha_fin)) ||
+                        ($foro->fechaFin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($foro->fechaFin)))
+                    <p class="text-danger">Ya no se puede responder a este foro</p>
+                @else
+                    <form class="comment-form" method="POST">
+                        @csrf
+                        <input type="hidden" name="foro_id" value="{{ $foro->id }}">
+                        <input type="hidden" name="estudiante_id" value="{{ auth()->user()->id }}">
+
+                        <div class="mb-3">
+                            <label for="tituloMensaje" class="form-label">Título de mensaje</label>
+                            <input type="text" class="form-control" name="tituloMensaje"
+                                placeholder="Título del Mensaje">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mensaje" class="form-label">Mensaje</label>
+                            <textarea class="form-control" name="mensaje" cols="100" rows="4" placeholder="Escribe tu comentario aquí"></textarea>
+                        </div>
+
+                        <button class="btn btn-success" type="submit">Publicar Comentario</button>
+                    </form>
+                @endif
+            </div>
+        </div>
+
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
     </div>
 
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
     </div>
 @endif
 @endsection
