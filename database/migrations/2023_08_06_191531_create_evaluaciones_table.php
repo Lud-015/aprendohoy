@@ -21,7 +21,8 @@ return new class extends Migration
             $table->date('fecha_vencimiento');
             $table->string('archivoEvaluacion');
             $table->double('puntos');
-            $table->enum('tipo_tarea', ['subida_archivo', 'cuestionario']); // Enumeración para indicar el tipo de tarea
+            $table->enum('tipo_evaluacion', ['subida_archivo', 'cuestionario']);
+            $table->enum('estado', ['pendiente', 'en_progreso', 'completada'])->default('pendiente'); // Sin 'after'
             $table->unsignedBigInteger('cursos_id');
             $table->foreign('cursos_id')->references('id')->on('cursos');
             $table->timestamps();

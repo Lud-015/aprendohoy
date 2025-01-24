@@ -7,7 +7,8 @@
 }
 /* Agrega un borde izquierdo y derecho a la barra de navegación */
 .navbar-main {
-    background: linear-gradient(to right bottom, #1A4789 49.5%, #FFFF 50%);
+    background: rgb(26,71,137);
+    background: linear-gradient(145deg, rgba(26,71,137,1) 40%, rgba(34,77,141,1) 53%, rgba(255,255,255,1) 53%);
     height: 140px; /* Ajusta la altura de la navbar según sea necesario */
     border: none;
     border-radius: 0;
@@ -15,6 +16,13 @@
     overflow: hidden;
     border-left: 5%; /* Borde izquierdo ajustado */
     border-right: 5%; /* Borde derecho ajustado */
+}
+
+.section{
+    background-size: cover;
+    background-repeat:
+    no-repeat;
+    filter: brightness(0.9) blur(2px) saturate(120%);
 }
 
 /* Estilo para el contenedor de la navbar */
@@ -62,9 +70,7 @@
   /*End navbar*/
 
 /* Estilo para el contenedor principal */
-.section-shaped {
-    background: linear-gradient(to bottom, #145DA0, #3A8CC2, #FFFF);
-}
+
    /* Estilo para la fuente "ATMA BOLD" */
 .atma-bold {
     font-family: 'ATMA BOLD', sans-serif;

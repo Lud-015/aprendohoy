@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('horarios', function (Blueprint $table) {
             $table->id();
-            $table->string('dias');
-            $table->string('hora_ini');
-            $table->string('hora_fin');
+            $table->enum('dia', ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo']);
+            $table->time('hora_inicio');
+            $table->time('hora_fin');
             $table->timestamps();
             $table->softDeletes();
         });

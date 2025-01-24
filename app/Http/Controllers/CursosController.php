@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Asistencia;
 use App\Models\Boletin;
 use App\Models\Cursos;
+use App\Models\Cursos_Horario;
 use App\Models\EdadDirigida;
 use App\Models\Evaluaciones;
 use App\Models\Foro;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Spatie\SimpleExcel\SimpleExcelWriter;
+use Illuminate\Support\Facades\Auth;
 use App\Charts\BartChart;
 use App\Events\CursoEvent;
 use App\Helpers\TextHelper;
@@ -43,7 +45,11 @@ class CursosController extends Controller
         }
         $inscritos = DB::table('inscritos')->where('cursos_id', $id)->where('estudiante_id', auth()->user()->id)->pluck('estudiante_id');
 
-
+        if (Auth::user()->hasRole('Administrador') || Auth::user()->hasRole('Docente')) {
+            $horarios = Cursos_Horario::where('curso_id', $id)->withTrashed()->get();
+        }else{
+            $horarios = Cursos_Horario::where('curso_id', $id)->get();
+        }
         $foros = Foro::where('cursos_id', $id)->get();
         $tareas = Tareas::where('cursos_id', $id)->get();
         $evaluaciones = Evaluaciones::where('cursos_id', $id)->get();
@@ -61,7 +67,15 @@ class CursosController extends Controller
         }
 
 
-        return view('Cursos')->with('foros', $foros)->with('recursos', $recursos)->with('tareas', $tareas)->with('cursos', $cursos)->with('inscritos', $inscritos)->with('evaluaciones', $evaluaciones)->with('boletin', $boletin);
+        return view('Cursos')
+            ->with('foros', $foros)
+            ->with('recursos', $recursos)
+            ->with('tareas', $tareas)
+            ->with('cursos', $cursos)
+            ->with('inscritos', $inscritos)
+            ->with('evaluaciones', $evaluaciones)
+            ->with('boletin', $boletin)
+            ->with('horarios', $horarios);
 
 
 
@@ -155,14 +169,6 @@ class CursosController extends Controller
         }
 
         $curso->updated_at = now();
-        $horario = Horario::findOrFail($request->horario_id);
-        $diasSeleccionados = $request->input('Dias');
-        $diasSerializados = json_encode($diasSeleccionados);
-        $horario->dias = $diasSerializados;
-        $horario->hora_ini = $request->hora1;
-        $horario->hora_fin = $request->hora2;
-
-        $horario->save();
         event(new CursoEvent($curso ,'modificado'));
         $curso->save();
 
@@ -311,22 +317,6 @@ class CursosController extends Controller
 
 
 
-    public function certificado($id){
-
-
-        $curso = Cursos::findOrFail($id);
-
-        $inscritos = Inscritos::where('cursos_id', $id)
-        ->where('estudiante_id', auth()->user()->id)
-        ->first();
-
-        $boletin = Boletin::where('inscripcion_id', $inscritos->id)->first();
-
-        return view('Estudiante.certificado')->with('curso', $curso)->with('inscritos', $inscritos)->with('boletin', $boletin);
-
-    }
-
-
     public function ReporteFinalCurso($id){
 
 
@@ -393,7 +383,7 @@ class CursosController extends Controller
         $conteoLicencias = $asistencias->where('tipoAsitencia', 'Licencia')->count();
 
 
-        
+
 
         return view('Cursos.SumarioCurso', compact('conteoPresentes', 'conteoRetrasos', 'conteoFaltas', 'conteoLicencias', 'participanteCount', 'aprendizCount', 'habilidosoCount', 'expertoCount') )
                     ->with('cursos', $cursos)->with('asistencias', $asistencias)

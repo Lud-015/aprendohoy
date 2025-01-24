@@ -13,7 +13,7 @@ class Cursos extends Model
     use HasFactory, SoftDeletes;
     protected $softDelete = true;
 
-    
+
     public function nivel(): BelongsTo
     {
         return $this->belongsTo(Nivel::class, 'niveles_id');
@@ -28,9 +28,9 @@ class Cursos extends Model
     {
         return $this->belongsTo(EdadDirigida::class, 'edadDir_id');
     }
-    public function horarios(): BelongsTo
+    public function horarios()
     {
-        return $this->belongsTo(Horario::class, 'horario_id');
+        return $this->belongsToMany(Horario::class, 'curso_horarios');
     }
     public function inscritos(): HasMany
     {
@@ -58,5 +58,7 @@ class Cursos extends Model
     {
         return $this->hasMany(Evaluaciones::class,  'id' , 'curso_id');
     }
+
+
 
 }

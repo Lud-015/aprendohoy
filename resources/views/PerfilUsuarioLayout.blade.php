@@ -128,14 +128,15 @@
       <img src="{{asset('../assets/img/logof.png')}}" style="width: auto; height: 80px;">
       </a>
       <a class="navbar-brand logo-derecho" href="../index.html">
-      <img src="{{asset('../assets/img/logoedin.png')}}" style="width: auto; height: 125px;">
+      <img src="{{asset('../assets/img/Acceder.png')}}" style="width: auto; height: 125px;">
       </a>
     </div>
   </div>
 </nav>
 <style>
 .navbar-main {
-    background: linear-gradient(to right bottom, #1A4789 49.5%, #FFFF 50%);
+    background: rgb(26,71,137);
+    background: linear-gradient(145deg, rgba(26,71,137,1) 40%, rgba(34,77,141,1) 53%, rgba(255,255,255,1) 53%);
     height: 140px; /* Ajusta la altura de la navbar según sea necesario */
     width: 100%;
     border: none;

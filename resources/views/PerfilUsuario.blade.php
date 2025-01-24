@@ -186,9 +186,11 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
             &#9668; Volver
         </a>
 
+        @if ($usuario->hasRole('Administrador'))
         <a href="{{route('EditarperfilUser', [$usuario->id])}}" class="btn btn-sm btn-warning">Editar</a>
+        <button type="button" class="btn btn-sm btn-darker" data-toggle="modal" data-target="#exampleModal">Ver Credenciales</button>
+        @endif
 
-          <button type="button" class="btn btn-sm btn-darker" data-toggle="modal" data-target="#exampleModal">Ver Credenciales</button>
 
         </div>
 
@@ -198,6 +200,7 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
+
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Ver Credenciales</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">

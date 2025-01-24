@@ -91,10 +91,14 @@
 
 
 @section('content')
-    <div class="col-lg-12 row">
-
+    <div class="col-xl-12 row">
+        <div class="col-1 mb-3">
+            <a href="{{route('listacurso', ['id'=> $cursos->id])}}" class="btn btn-primary">
+                &#9668; Volver
+            </a>
+        </div>
         <form class="navbar-search navbar-search form-inline mr-3 d-none d-md-flex ml-lg-auto">
-            <div class="input-group input-group-alternative">
+            <div class="ml-3 input-group input-group-alternative">
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fas fa-search"></i></span>
                 </div>
@@ -134,7 +138,7 @@
                         <td>
 
 
-                            <a href="{{ route('restaurarIncripcion', $inscritos->id ?? '') }}">Restaurar Inscripción</a> /
+                            <a class="btn btn-sm btn-success" href="{{ route('restaurarIncripcion', $inscritos->id ?? '') }}">Restaurar Inscripción</a>
 
                         </td>
                     </tr>

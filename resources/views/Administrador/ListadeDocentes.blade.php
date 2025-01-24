@@ -99,12 +99,12 @@
                     {{ $docente->email }}
                 </td>
                 <td>
-                    <a href="{{ route('perfil' , [$docente->id]) }}">
+                    <a class="btn btn-sm" href="{{ route('perfil' , [$docente->id]) }}">
                         Ver Más
                         <img src="{{ asset('assets/icons/ojo.png') }}" alt="Ver Icon" style="width: 16px; height: 16px;">
                     </a>
-                    /
-                    <a href="{{ route('eliminarUser', [$docente->id])  }}" onclick="mostrarAdvertencia(event)">
+
+                    <a class="btn btn-sm" href="{{ route('eliminarUser', [$docente->id])  }}" onclick="mostrarAdvertencia(event)">
                         Eliminar Docente
                         <img src="{{ asset('assets/icons/borrar.png') }}" alt="Borrar Icon" style="width: 16px; height: 16px;">
                     </a>

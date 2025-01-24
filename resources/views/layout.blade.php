@@ -9,6 +9,8 @@
     </title>
     <!-- Favicon -->
     <link href="{{ asset('./assets/img/logof.png') }}" rel="icon" type="image/png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.5/perfect-scrollbar.min.js"></script>
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
     <!-- Icons -->
@@ -30,6 +32,7 @@
         font-family: Arial, sans-serif;
         font-size: 14px;
     }
+
     .styled-textarea:focus {
         border-color: #66afe9;
         outline: none;
@@ -62,9 +65,9 @@
         <div class="container-fluid">
             <!-- Toggler -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidenav-collapse-main"
-            aria-controls="sidenav-main" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+                aria-controls="sidenav-main" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
 
 
@@ -128,107 +131,74 @@
                 </li>
                 <hr>
 
-                @if (auth()->user()->hasRole('Administrador'))
+                @php
+                    $navItems = [
+                        'Administrador' => [
+                            ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
+                            [
+                                'route' => 'Inicio',
+                                'icon' => 'ni ni-tv-2 text-primary',
+                                'text' => 'Inicio',
+                                'active' => true,
+                            ],
+                            [
+                                'route' => 'ListadeCursos',
+                                'icon' => 'ni ni-book-bookmark text-blue',
+                                'text' => 'Lista de Cursos',
+                            ],
+                            [
+                                'route' => 'ListaDocentes',
+                                'icon' => 'ni ni-single-02 text-blue',
+                                'text' => 'Lista de Docentes',
+                            ],
+                            [
+                                'route' => 'ListaEstudiantes',
+                                'icon' => 'ni ni-single-02 text-orange',
+                                'text' => 'Lista de Estudiantes',
+                            ],
+                            ['route' => 'aportesLista', 'icon' => 'ni ni-bullet-list-67 text-red', 'text' => 'Aportes'],
+                            [
+                                'route' => 'AsignarCurso',
+                                'icon' => 'ni ni-key-25 text-info',
+                                'text' => 'Asignación de Cursos',
+                            ],
+                        ],
+                        'Docente' => [
+                            ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
+                            [
+                                'route' => 'Inicio',
+                                'icon' => 'ni ni-tv-2 text-primary',
+                                'text' => 'Mis Cursos',
+                                'active' => true,
+                            ],
+                            [
+                                'route' => 'AsignarCurso',
+                                'icon' => 'ni ni-key-25 text-info',
+                                'text' => 'Asignación de Cursos',
+                            ],
+                        ],
+                        'Estudiante' => [
+                            ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
+                            [
+                                'route' => 'Inicio',
+                                'icon' => 'ni ni-tv-2 text-primary',
+                                'text' => 'Mis Cursos',
+                                'active' => true,
+                            ],
+                        ],
+                    ];
+                @endphp
+
+                @foreach ($navItems[auth()->user()->getRoleNames()->first()] ?? [] as $item)
                     <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('Miperfil') }}">
-                                <i class="ni ni-circle-08 text-green"></i> Mi perfil
+                        <li class="nav-item {{ $item['active'] ?? false ? 'active' : '' }}">
+                            <a class="nav-link{{ $item['active'] ?? false ? ' active' : '' }}"
+                                href="{{ route($item['route']) }}">
+                                <i class="{{ $item['icon'] }}"></i> {{ $item['text'] }}
                             </a>
                         </li>
-                        <li class="nav-item  active ">
-                            <a class="nav-link  active " href="{{ route('Inicio') }}">
-                                <i class="ni ni-tv-2 text-primary"></i> Inicio
-                            </a>
-                        </li>
-                        <li class="nav-item   ">
-                            <a class="nav-link  " href="{{ route('ListadeCursos') }}">
-                                <i class="ni ni-book-bookmark text-blue"></i> Lista de Cursos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="{{ route('ListaDocentes') }}">
-                                <i class="ni ni-single-02 text-blue"></i> Lista de Docentes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="{{ route('ListaEstudiantes') }}">
-                                <i class="ni ni-single-02 text-orange"></i> Lista de Estudiantes
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link " href="{{ route('aportesLista') }}">
-                                <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                                <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
-                            </a>
-                        </li>
-
                     </ul>
-                @endif
-                @if (auth()->user()->hasRole('Docente'))
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('Miperfil') }}">
-                                <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                            </a>
-                        </li>
-                        <li class="nav-item  active ">
-                            <a class="nav-link  active " href="{{ route('Inicio') }}">
-                                <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="./examples/tables.html">
-                                <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                                <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
-                            </a>
-                        </li>
-
-                    </ul>
-                @endif
-                @if (auth()->user()->hasRole('Estudiante'))
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('Miperfil') }}">
-                                <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                            </a>
-                        </li>
-                        <li class="nav-item  active ">
-                            <a class="nav-link  active " href="{{ route('Inicio') }}">
-                                <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="./examples/tables.html">
-                                <i class="ni ni-bullet-list-67 text-red"></i> Mis Aportes
-                            </a>
-                        </li>
-
-
-                    </ul>
-                @endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                @endforeach
 
                 <!-- Divider -->
                 <hr class="my-3">
@@ -291,26 +261,17 @@
                     <nav id="navbar-main"
                         class="navbar navbar-main navbar-expand-lg navbar-transparent navbar-light py-10">
                         <div class="container">
-                            <div class="navbar-container">
-                                <a class="navbar-brand logo-izquierdo" href="{{ route('Inicio') }}">
-                                    <img src="{{ asset('../assets/img/logof.png') }}"
-                                        style="width: auto; height: 80px;">
-                                </a>
-                                <a class="navbar-brand logo-derecho" href="{{ route('Inicio') }}">
-                                    <img src="{{ asset('../assets/img/logoedin.png') }}"
-                                        style="width: auto; height: 125px;">
-                                </a>
-
-                            </div>
-
+                            <div class="navbar-container"> <a class="navbar-brand logo-izquierdo"
+                                    href="{{ route('Inicio') }}"> <img src="{{ asset('../assets/img/logof.png') }}"
+                                        style="width: auto; height: 80px;"> </a> <a class="navbar-brand logo-derecho"
+                                    href="{{ route('Inicio') }}"> <img
+                                        src="{{ asset('../assets/img/Acceder.png') }}"
+                                        style="width: auto; height: 125px;"> </a> </div>
                         </div>
-                    </nav>
-
-                    @yield('contentup')
-
-                    <style>
+                    </nav> @yield('contentup') <style>
                         .navbar-main {
-                            background: linear-gradient(to right bottom, #1A4789 49.5%, #FFFF 50%);
+                            background: rgb(26,71,137);
+                            background: linear-gradient(145deg, rgba(26,71,137,1) 40%, rgba(34,77,141,1) 53%, rgba(255,255,255,1) 53%);
                             height: 140px;
                             /* Ajusta la altura de la navbar según sea necesario */
                             width: 100%;
@@ -336,13 +297,11 @@
                             display: flex;
                             align-items: center;
                         }
-                    </style>
-                    <!-- Card stats -->
-
-
+                    </style> <!-- Card stats -->
                 </div>
             </div>
         </div>
+
 
 
 
@@ -352,34 +311,11 @@
             <div class="row mt-5">
                 <div class="col-xl-12">
                     <div class="card shadow">
-                        <div class="card-header border-0">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <h3 class="mb-0">
 
-                                        @yield('titulo')
-
-                                    </h3>
-                                </div>
-                                <div class="col text-right">
-                                    {{-- <a href="#!" class="btn btn-sm btn-success">Ver Todos</a>
-                  <a href="#!" class="btn btn-sm btn-success">Crear Curso</a> --}}
-                                </div>
-                            </div>
-                        </div>
                         <div class="table-responsive ">
-                            <table>
-
-                                @yield('content')
-
-
-                            </table>
-
+                            @yield('content')
                         </div>
-
-
                         @yield('contentini')
-
                     </div>
                 </div>
             </div>

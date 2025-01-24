@@ -25,15 +25,13 @@ return new class extends Migration
             $table->string('archivoContenidodelCurso')->nullable();
             $table->integer('notaAprobacion')->nullable();
             $table->string('formato');
-            $table->string('estado')->nullable();
+            $table->string('estado')->default('Activo');
             $table->unsignedBigInteger('docente_id');
             $table->foreign('docente_id')->references('id')->on('users');
             $table->unsignedBigInteger('edadDir_id');
             $table->foreign('edadDir_id')->references('id')->on('edad_dirigidas');
             $table->unsignedBigInteger('niveles_id');
             $table->foreign('niveles_id')->references('id')->on('nivel');
-            $table->unsignedBigInteger('horario_id');
-            $table->foreign('horario_id')->references('id')->on('horarios');
             $table->timestamps();
             $table->softDeletes();
         });

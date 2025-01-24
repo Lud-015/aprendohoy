@@ -71,7 +71,7 @@ class InscritosController extends Controller
         }
 
         // Usar una transacción para asegurar la atomicidad
-        \DB::transaction(function () use ($estudiantes, $cursoId) {
+        DB::transaction(function () use ($estudiantes, $cursoId) {
             foreach ($estudiantes as $estudianteId) {
                 // Crear una nueva inscripción
                 $inscribir = new Inscritos();
@@ -130,6 +130,26 @@ class InscritosController extends Controller
         $inscritos->restore();
 
         return back()->with('success', 'Inscripcion restaurada!');
+
+    }
+
+    public function completado($id){
+
+
+        $inscritos = Inscritos::findOrFail( $id );
+
+        if ($inscritos->cursos->docente_id == auth()->user()->id || auth()->user()->hasRole('administrador')) {
+            $inscritos->completado = true;
+            $inscritos->progreso = 100;
+
+            $inscritos->save();
+
+            return back()->with('success','El estudiante a completado el curso');
+        }
+
+        return abort(403);
+
+
 
     }
 }

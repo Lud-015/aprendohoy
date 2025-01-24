@@ -18,6 +18,10 @@ return new class extends Migration
             $table->unsignedBigInteger('cursos_id');
             $table->foreign('cursos_id')->references('id')->on('cursos');
             $table->unsignedBigInteger('estudiante_id');
+            $table->enum('estado', ['pendiente', 'activo', 'cancelado', 'finalizado'])->default('activo');
+            $table->double('progreso')->default(0);
+            $table->boolean('completado')->default(false);
+            $table->boolean('pago_completado')->default(false);
             $table->foreign('estudiante_id')->references('id')->on('users');
             $table->timestamps();
             $table->softDeletes();

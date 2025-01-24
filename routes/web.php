@@ -13,10 +13,12 @@ use App\Http\Controllers\TareasController;
 use App\Http\Controllers\TareasEntregaController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\BoletinController;
+use App\Http\Controllers\CertificadoController;
 use App\Http\Controllers\CuestionarioController;
 use App\Http\Controllers\EdadDirigidaController;
 use App\Http\Controllers\EvaluacionesController;
 use App\Http\Controllers\EvaluacionEntregaController;
+use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\NivelController;
 use App\Http\Controllers\NotaEntregaController;
 use App\Http\Controllers\PreguntaTareaController;
@@ -42,7 +44,6 @@ use Illuminate\Support\Facades\Mail;
 */
 
 
-Route::get('api/Temas', [CuestionarioController::class, 'apiTemas']);
 
 
 Route::get('/reciboprueba', function () {
@@ -50,16 +51,23 @@ Route::get('/reciboprueba', function () {
 })->middleware('noCache');
 
 Route::get('/login', function () {
-    return view('sign-in');
+    return view('login');
 })->middleware('noCache');
+
+
+Route::get('/signin', function () {
+    return view('CrearUsuario.registrarse');
+})->middleware('noCache')->name('signin');
+
+Route::post('/resgistrarse', [UserController::class, 'storeUsuario'])->name('registrarse');
+
+
 Route::get('/home', function () {
     return view('landing');
 })->middleware('noCache')->name('home');
 
 
-Route::get('/pruebas', function () {
-    return view('pruebas');
-})->middleware('noCache')->name('home');
+
 
 
 
@@ -137,7 +145,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/ListaAportes', [MenuController::class, 'ListaAportes'])->name('aportesLista');
 
 
-
+        Route::get('/validar-certificado/{codigo}', [CertificadoController::class, 'validarCertificado']);
 
 
 
@@ -149,12 +157,19 @@ Route::group(['middleware' => ['auth']], function () {
 
     //DOCENTE
     Route::group(['middleware' => ['role:Docente|Administrador' ]], function () {
-        Route::get('/user/{id}', [UserController::class, 'Profile'])->name('perfil');
         Route::get('/NuevoNivel', [NivelController::class, 'index'])->name('crearNivel');
         Route::post('/NuevoNivel', [NivelController::class, 'store'])->name('guardarNivel');
         Route::get('/NuevaEdadRecomendada', [EdadDirigidaController::class, 'index'])->name('crearEdad');
         Route::post('/NuevaEdadRecomendada', [EdadDirigidaController::class, 'store'])->name('guardarRangodeEdad');
         Route::get('/sumario',  [MenuController::class, 'analytics'])->name('sumario');
+        Route::prefix('horarios')->group(function () {
+            Route::post('/store', [HorarioController::class, 'store'])->name('horarios.store');
+            Route::post('/horarios/update', [HorarioController::class, 'update'])->name('horarios.update');
+            Route::delete('/horarios/{id}', [HorarioController::class, 'delete'])->name('horarios.delete');
+            Route::post('/horarios/{id}/restore', [HorarioController::class, 'restore'])->name('horarios.restore');
+        });
+
+
 
 
         //EditarCursos
@@ -228,7 +243,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/QuitarInscripcion/{id}', [InscritosController::class, 'delete'])->name('quitar');
         Route::get('/RestaurarInscripcion/{id}', [InscritosController::class, 'restaurarInscrito'])->name('restaurarIncripcion');
         //ListaDeInscritos
-        Route::get('listaParticipantes/cursoid={id}', [CursosController::class, 'listaCurso'])->name('listacurso');
         Route::get('listaRestirados/cursoid={id}', [CursosController::class, 'listaRetirados'])->name('listaretirados');
         Route::get('VerEntregadeTareas/tarea={id}', [TareasController::class, 'listadeEntregas'])->name('listaEntregas');
         Route::post('VerEntregadeTareas/tarea={id}', [TareasController::class, 'listadeEntregasCalificar'])->name('calificarT');
@@ -253,7 +267,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/boletinDeCalificaciones/{id}', [BoletinController::class , 'boletin'])->name('boletin');
         Route::post('/boletinDeCalificaciones/{id}', [BoletinController::class , 'guardar_boletin'])->name('boletinPost');
 
-        //
+        //Lista
         Route::get('/listaGeneral/{id}', [CursosController::class , 'imprimir'])->name('lista');
         //REPORTE GENERAL
         Route::get('/reportegeneralCurso/{id}', [CursosController::class , 'ReporteFinalCurso'])->name('rfc');
@@ -262,8 +276,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/enviar-boletin/{id}', [BoletinController::class, 'enviarBoletin'])->name('enviarBoletinPost');
         Route::post('/enviar-boletin/{id}', [BoletinController::class, 'enviarBoletin'])->name('enviarBoletinPost');
 
-
-
+        //CERTIFICADOS
+        Route::get('certificados/generar/{id}/', [CertificadoController::class, 'generarCertificado'])->name('certificados.generar');
+        Route::get('completado/{curso_id}/{estudiante_id}', [InscritosController::class, 'completado'])->name('completado');
 
 
 
@@ -274,7 +289,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['role:Estudiante|Docente|Administrador']], function () {
         // Route::get('/descargarRecurso/{nombreArchivo}', [RecursosController::class, 'descargar'])->name('descargar');
         //Calendario
+        Route::get('listaParticipantes/cursoid={id}', [CursosController::class, 'listaCurso'])->name('listacurso');
+
         Route::get('/Notificaciones', [UserController::class, 'notificaciones'])->name('notificaciones');
+        Route::get('/user/{id}', [UserController::class, 'Profile'])->name('perfil');
 
         Route::get('/pago/{id}', [AportesController::class, 'vistaPrevia'])->name('factura');
 
@@ -305,7 +323,9 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/verBoletin/{id}', [BoletinController::class , 'boletinEstudiantes'])->name('verBoletin');
         Route::get('/verCalificacionFinal/{id}', [BoletinController::class , 'boletinEstudiantes2'])->name('verBoletin2');
-        Route::get('/VerCertificado/{id}', [CursosController::class , 'certificado'])->name('certificado');
+
+        Route::get('/validar-certificado/{codigo}', [CertificadoController::class, 'validarCertificado']);
+
 
         Route::get('/ResolverCuestionario/{id}', [CuestionarioController::class , 'cuestionarioTSolve'])->name('resolvercuestionario');
 
@@ -320,6 +340,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('HistorialAsistencia/cursoid={id}', [AsistenciaController::class, 'show'])->name('historialAsistencias');
 
     });
+        Route::get('certificado/qr/{codigo}', [CertificadoController::class, 'descargarQR'])->name('descargar.qr');
 
 
 });

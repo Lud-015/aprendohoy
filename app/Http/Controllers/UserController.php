@@ -14,57 +14,44 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+use App\Events\EstudianteEvent;
 
 class UserController extends Controller
 {
 
-    /**
-     * Handle an authentication attempt.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
 
-
-    //  public function authenticate(Request $request)
-    //  {
-    //      $credentials = $request->validate([
-    //          'email' => ['required', 'email'],
-    //          'password' => ['required'],
-    //      ]);
-
-    //      if (Auth::attempt($credentials)) {
-    //          // Autenticación exitosa
-    //          $user = auth()->user();
-    //          $token = $user->createToken('API Token')->plainTextToken;
-
-    //          // Devolver una respuesta JSON en lugar de redirigir
-    //         //  return response()->json([
-    //         //      'token' => $token,
-    //         //      'user' => $user
-    //         //  ]);
-
-    //      }
-
-    //      // Si la autenticación falla, devolver una respuesta JSON de error
-    //      return response()->json([
-    //          'error' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
-    //      ], 401);
-    //  }
     public function authenticate(Request $request)
     {
+        $maxAttempts = 5; // Número máximo de intentos permitidos
+        $decayMinutes = 1; // Tiempo de bloqueo en minutos
 
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
+        $key = 'login-attempts:' . $request->ip(); // Clave única para el usuario por IP
 
+        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
+            $seconds = RateLimiter::availableIn($key);
+
+            throw ValidationException::withMessages([
+                'email' => "Has excedido el número de intentos. Inténtalo nuevamente en {$seconds} segundos.",
+            ]);
+        }
 
         if (Auth::attempt($credentials)) {
+            RateLimiter::clear($key); // Resetea los intentos si el inicio de sesión es exitoso
             event(new UsuarioEvent(auth()->user(), 'login'));
             return redirect()->intended('/Inicio');
         }
+
+        // Incrementa los intentos fallidos
+        RateLimiter::hit($key, $decayMinutes * 60);
 
         return back()->withErrors([
             'email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
@@ -173,6 +160,51 @@ class UserController extends Controller
         return redirect(route('Miperfil'));
 
     }
+
+
+    public function storeUsuario(Request $request)
+    {
+
+        $request->validate([
+            'name' => 'required',
+            'lastname1' => 'required',
+            'lastname2' => 'required',
+            'email' => 'required|unique:users,email',
+            'password' => 'required|confirmed',
+        ], [
+            'name.required' => 'El nombre es obligatorio.',
+            'lastname1.required' => 'El primer apellido es obligatorio.',
+            'lastname2.required' => 'El segundo apellido es obligatorio.',
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.unique' => 'Este correo electrónico ya está en uso.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
+
+
+        $user = new User();
+        $user->name = $request->name;
+        $user->lastname1 = $request->lastname1;
+        $user->lastname2 = $request->lastname2;
+        $user->CI = Str::random(10);
+        $user->Celular = 0;
+        $user->fechadenac = Carbon::parse('2000-01-01');
+        $user->email = $request->email;
+        $user->PaisReside = $request->country;
+        $user->password = bcrypt($request->password);
+
+        $estudiante =  $user;
+
+        event(new EstudianteEvent($estudiante,'', 'registro'));
+        $user->save();
+
+        $user->assignRole('Estudiante');
+
+        return redirect()->route('Inicio');
+
+
+    }
+
 
 
 

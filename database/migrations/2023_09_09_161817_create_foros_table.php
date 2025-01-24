@@ -21,6 +21,8 @@ return new class extends Migration
             $table->date('fechaFin');
             $table->unsignedBigInteger('cursos_id');
             $table->foreign('cursos_id')->references('id')->on('cursos');
+            $table->enum('estado', ['abierto', 'cerrado', 'en_discusion'])->default('abierto');
+            $table->boolean('progreso')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

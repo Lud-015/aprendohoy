@@ -11,8 +11,10 @@ class Horario extends Model
     use HasFactory, SoftDeletes;
     protected $softDelete = true;
 
+    protected $fillable = ['dia', 'hora_inicio', 'hora_fin'];
+
     public function cursos()
     {
-        return $this->hasOne(Cursos::class, 'horario_id', 'id');
+        return $this->belongsToMany(Cursos::class, 'curso_horarios'); // Verifica el nombre de la tabla pivote
     }
 }

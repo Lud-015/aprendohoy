@@ -11,7 +11,7 @@
                 <img src="{{ asset('./resources/img/logof.png') }}" class="w-24 lg:w-32 xl:w-40 h-auto">
             </div>
             <div class="header-brand logo-derecho">
-                <img src="{{ asset('./resources/img/logoedin.png') }}" class="w-20 lg:w-24 xl:w-32 h-auto">
+                <img src="{{ asset('./assets/img/Acceder.png') }}" class="w-20 lg:w-24 xl:w-32 h-auto">
             </div>
         </div>
         <div class="w-full container mx-auto flex flex-wrap items-right mt-0 pt-3 mb-12 pb-20 md:pb-1">

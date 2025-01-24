@@ -94,28 +94,26 @@ Lista de Paticipantes {{$cursos->nombreCurso}}
 
 @section('content')
 <div class="col-xl-12">
-    <a href="javascript:history.back()" class="btn btn-primary">
+    <a href="{{route('Curso', ['id' => $cursos->id])}}" class="btn btn-primary">
     &#9668; Volver
-</a>
+    </a>
+@if (auth()->user()->hasRole('Docente')|| auth()->user()->hasRole('Administrador'))
+
 <a class="btn btn-warning" href="{{route('listaretirados', $cursos->id)}}">Lista Retirados</a>
 <a class="btn btn-dark" href="{{route('lista', $cursos->id)}}">Descargar Lista</a>
+
+@endif
 <br>
 <br>
-<div class="border p-3">
+<div class="">
 
 <div class="col-lg-12 row">
     <form class="navbar-search navbar-search form-inline mr-3 d-none d-md-flex ml-lg-auto">
-        <div class="input-group input-group-alternative">
-          <div class="input-group-prepend">
-
+        <div class="input-group">
               <span class="input-group-text"><i class="fas fa-search"></i></span>
-            </div>
-            <input class="form-control search-input" placeholder="Buscar" type="text" id="searchInput">
-            <br>
-            <br>
-            <div class="border p-3">
-            </div>
-        </form>
+              <input class="form-control search-input" placeholder="Buscar" type="text" id="searchInput">
+        </div>
+    </form>
     </div>
 
                 <table class="table align-items-center table-flush">
@@ -146,20 +144,25 @@ Lista de Paticipantes {{$cursos->nombreCurso}}
                             <td>
                                 {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->Celular : '' }}
                             </td>
-
                             <td>
 
-                                <a href="{{ route('perfil', [$inscritos->estudiantes->id])}}">Ver Más</a> /
-                                <a href="{{ route('quitar', [$inscritos->id])}}" onclick="mostrarAdvertencia(event)">Quitar incscripción</a>
+                                <a class="btn btn-sm btn-info" href="{{ route('perfil', [$inscritos->estudiantes->id])}}">Ver Más</a>
+                            @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Administrador'))
+                                <a class="btn btn-sm btn-danger" href="{{ route('quitar', [$inscritos->id])}}" onclick="mostrarAdvertencia(event)">Quitar incscripción</a>
                                 @if ($cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($cursos->fecha_fin))
-                                /
-                                <a href="{{ route('boletin', [$inscritos->id])}}">Ver Boletín</a>/
-                                <a href="{{route('verBoletin2', [$inscritos->id])}}"> Ver Calificaciones Finales</a>
+
+                                <a class="btn btn-sm btn-info" href="{{ route('boletin', [$inscritos->id])}}">Ver Boletín</a>/
+                                <a class="btn btn-sm btn-info" href="{{route('verBoletin2', [$inscritos->id])}}"> Ver Calificaciones Finales</a>
+
                                 @else
                                 @endif
 
+                                <a class="btn btn-sm btn-info" href="{{ route('certificados.generar', ['id' => $inscritos->id ]) }}"> Ver Certificado</a>
 
-                             </td>
+                                <a class="btn btn-sm btn-success" href="{{ route('completado', ['curso_id' => $inscritos->cursos_id, 'estudiante_id' => $inscritos->id]) }}"> Completado</a>
+
+                                @endif
+                            </td>
                         </tr>
                         @endif
 

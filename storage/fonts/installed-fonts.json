@@ -1,5 +1,9 @@
 {
     "ab": {
         "normal": "ab_normal_5cf2ffd23510ba8ccc7b7bd7978ad030"
+    },
+    "montserrat": {
+        "normal": "D:\\Proyecto\\Fundacion\\storage\\fonts\/montserrat_normal_8b39ce6f1e92b671adb8930c94175e08",
+        "bold": "montserrat_bold_d6f7b66b1ae15f51f1e1cecb60246712"
     }
 }

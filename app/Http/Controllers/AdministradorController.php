@@ -263,12 +263,7 @@ class AdministradorController extends Controller
             'docente_id' => 'required|integer',
             'fecha_ini' => 'required|date|date_format:Y-m-d',
             'fecha_fin' => 'required|date|date_format:Y-m-d|after_or_equal:fecha_ini',
-            'formato' => 'required|string',
-            'hora1' => 'required|date_format:H:i',
-            'hora2' => 'required|date_format:H:i|after:hora1',
-            'Dias' => [
-                'required',
-            ],
+
         ], [
             'nombre.required' => 'El nombre es obligatorio.',
             'docente_id.required' => 'El ID del docente es obligatorio.',
@@ -282,12 +277,6 @@ class AdministradorController extends Controller
             'fecha_fin.after_or_equal' => 'La fecha de finalización debe ser después o igual a la fecha de inicio.',
             'formato.required' => 'El formato es obligatorio.',
             'formato.string' => 'El formato debe ser una cadena de texto.',
-            'hora1.required' => 'La hora de inicio es obligatoria.',
-            'hora1.date_format' => 'La hora de inicio debe estar en formato HH:mm (24 horas).',
-            'hora2.required' => 'La hora de finalización es obligatoria.',
-            'hora2.date_format' => 'La hora de finalización debe estar en formato HH:mm (24 horas).',
-            'hora2.after' => 'La hora de finalización debe ser después de la hora de inicio.',
-            'Dias.required' => 'Debes seleccionar al menos un día.',
         ]);
 
 
@@ -308,16 +297,7 @@ class AdministradorController extends Controller
         $curso->niveles_id = $request->nivel_id;
         $curso->notaAprobacion = 51;
         $curso->estado = ($curso->fecha_fin < now()) ? 'Finalizado' : 'Activo';
-        $horario = new Horario();
-        $diasSeleccionados = $request->input('Dias');
-        $diasSerializados = json_encode($diasSeleccionados);
-        $horario->dias = $diasSerializados;
-        $horario->hora_ini = $request->hora1;
-        $horario->hora_fin = $request->hora2;
 
-        $horario->save();
-
-        $curso->horario_id = Horario::latest('id')->first()->id;
 
         event(new CursoEvent($curso, 'crear'));
 
