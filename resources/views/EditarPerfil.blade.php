@@ -92,188 +92,110 @@
 
 
 @section('content')
-    <div class=" p-4 pl-4">
+    <div class="p-4 pl-4">
         <a href="javascript:history.back()" class="btn btn-primary">
             &#9668; Volver
         </a>
         <br>
 
-
-        <form class="" action="{{ route('EditarperfilPost', auth()->user()->id) }}" method="POST"
-            enctype="multipart/form-data">
+        <form action="{{ route('EditarperfilPost', auth()->user()->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <br>
 
             <h1>Datos De Contacto</h1>
 
-            <div style="display: flex; align-items: center;" class="mb-4">
-                <label for="">Número de Celular</label>
-
-                <input type="text" value="{{ auth()->user()->Celular }}" name="Celular">
+            <div class="form-group mb-4">
+                <label for="Celular">Número de Celular</label>
+                <input type="text" name="Celular" value="{{ auth()->user()->Celular }}" class="form-control">
             </div>
 
-            <div style="display: flex; align-items: center;">
-                <div>
-
-                    <label for="">Pais:</label>
-                    <input type="text" value="{{ auth()->user()->PaisReside }}" name="PaisReside">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="PaisReside">Pais:</label>
+                    <input type="text" name="PaisReside" value="{{ auth()->user()->PaisReside }}" class="form-control">
                 </div>
-                <div class="ml-4">
-
-                    <label class="ml-5" for="">Ciudad:</label>
-                    <input type="text" value="{{ auth()->user()->CiudadReside }}" name="CiudadReside">
+                <div class="form-group col-md-6">
+                    <label for="CiudadReside">Ciudad:</label>
+                    <input type="text" name="CiudadReside" value="{{ auth()->user()->CiudadReside }}" class="form-control">
                 </div>
-
             </div>
+
             <br>
+
             @if (auth()->user()->hasRole('Docente'))
-                @foreach ($atributosD as $atributosD)
-                    <label for="">Datos del Profesionales</label>
+                @foreach ($atributosD as $atributo)
+                    <label for="">Datos Profesionales</label>
                     <br>
 
-                    <div style="display: flex; align-items: center; " class="mb-4">
-                        <div>
-
-                            <span>
-                                Formación Academica:
-                            </span>
-                            <br>
-                            <input type="text" placeholder="Formacion Academica" name="formacion"
-                                value="{{ $atributosD->formacion }}">
-
+                    <div class="form-row mb-4">
+                        <div class="form-group col-md-4">
+                            <label for="formacion">Formación Académica:</label>
+                            <input type="text" name="formacion" placeholder="Formación Académica" value="{{ $atributo->formacion }}" class="form-control">
                         </div>
-                        <div class="ml-4">
-
-                            <span>
-                                Experiencia Laboral:
-                            </span>
-                            <br>
-                            <input type="text" placeholder="Experiencia Laboral" name="Especializacion"
-                                value="{{ $atributosD->Especializacion }}">
+                        <div class="form-group col-md-4">
+                            <label for="Especializacion">Experiencia Laboral:</label>
+                            <input type="text" name="Especializacion" placeholder="Experiencia Laboral" value="{{ $atributo->Especializacion }}" class="form-control">
                         </div>
-                        <div class="ml-4">
-
-                            <span>
-
-                                Especialización:
-                            </span>
-                            <br>
-                            <input type="text" placeholder="Especilaizacion" name="ExperienciaL"
-                                value="{{ $atributosD->ExperienciaL }}">
-                            <br>
+                        <div class="form-group col-md-4">
+                            <label for="ExperienciaL">Especialización:</label>
+                            <input type="text" name="ExperienciaL" placeholder="Especialización" value="{{ $atributo->ExperienciaL }}" class="form-control">
                         </div>
                     </div>
                 @endforeach
 
                 <br>
 
-                <h2>Ultimos Trabajos Realizados</h2>
+                <h2>Últimos Trabajos Realizados</h2>
 
                 <table class="table table-responsive-sm table-hover">
-                    <tr>
-                        <th>Empresa</th>
-                        <th>Cargo</th>
-                        <th>Año Ingreso</th>
-                        <th>Año Salida</th>
-                        <th>Contacto Referencia</th>
-                    </tr>
-                    @forelse ($ultimosTrabajos as $ultimosTrabajos)
+                    <thead>
                         <tr>
-                            <input type="text" name="trabajos[{{ $loop->index }}][id]"
-                                value="{{ $ultimosTrabajos->id }}" hidden>
-                            <td><input type="text" name="trabajos[{{ $loop->index }}][empresa]"
-                                    value="{{ $ultimosTrabajos->empresa }}"></td>
-                            <td><input type="text" name="trabajos[{{ $loop->index }}][cargo]"
-                                    value="{{ $ultimosTrabajos->cargo }}"></td>
-                            <td><input type="date" name="trabajos[{{ $loop->index }}][fechain]"
-                                    value="{{ $ultimosTrabajos->fecha_inicio }}"></td>
-                            <td><input type="date" name="trabajos[{{ $loop->index }}][fechasal]"
-                                    value="{{ $ultimosTrabajos->fecha_fin }}"></td>
-                            <td><input type="text" name="trabajos[{{ $loop->index }}][contacto]"
-                                    value="{{ $ultimosTrabajos->contacto_ref }}"></td>
+                            <th>Empresa</th>
+                            <th>Cargo</th>
+                            <th>Año Ingreso</th>
+                            <th>Año Salida</th>
+                            <th>Contacto Referencia</th>
                         </tr>
-
-                    @empty
-                        <tr>
-                            <input type="text" name="trabajos[0][id]" value="" hidden>
-                            <td><input type="text" name="trabajos[0][empresa]" value=""></td>
-                            <td><input type="text" name="trabajos[0][cargo]" value=""></td>
-                            <td><input type="date" name="trabajos[0][fechain]" value=""></td>
-                            <td><input type="date" name="trabajos[0][fechasal]" value=""></td>
-                            <td><input type="text" name="trabajos[0][contacto]" value=""></td>
-                        </tr>
-                        <tr>
-                            <input type="text" name="trabajos[1][id]" value="" hidden>
-                            <td><input type="text" name="trabajos[1][empresa]" value=""></td>
-                            <td><input type="text" name="trabajos[1][cargo]" value=""></td>
-                            <td><input type="date" name="trabajos[1][fechain]" value=""></td>
-                            <td><input type="date" name="trabajos[1][fechasal]" value=""></td>
-                            <td><input type="text" name="trabajos[1][contacto]" value=""></td>
-                        </tr>
-                        <tr>
-                            <input type="text" name="trabajos[2][id]" value="" hidden>
-                            <td><input type="text" name="trabajos[2][empresa]" value=""></td>
-                            <td><input type="text" name="trabajos[2][cargo]" value=""></td>
-                            <td><input type="date" name="trabajos[2][fechain]" value=""></td>
-                            <td><input type="date" name="trabajos[2][fechasal]" value=""></td>
-                            <td><input type="text" name="trabajos[2][contacto]" value=""></td>
-                        </tr>
-                        <tr>
-                            <input type="text" name="trabajos[3][id]" value="" hidden>
-                            <td><input type="text" name="trabajos[3][empresa]" value=""></td>
-                            <td><input type="text" name="trabajos[3][cargo]" value=""></td>
-                            <td><input type="date" name="trabajos[3][fechain]" value=""></td>
-                            <td><input type="date" name="trabajos[3][fechasal]" value=""></td>
-                            <td><input type="text" name="trabajos[3][contacto]" value=""></td>
-                        </tr>
-                    @endforelse
-
+                    </thead>
+                    <tbody>
+                        @forelse ($ultimosTrabajos as $trabajo)
+                            <tr>
+                                <td><input type="text" name="trabajos[{{ $loop->index }}][empresa]" value="{{ $trabajo->empresa }}" class="form-control"></td>
+                                <td><input type="text" name="trabajos[{{ $loop->index }}][cargo]" value="{{ $trabajo->cargo }}" class="form-control"></td>
+                                <td><input type="date" name="trabajos[{{ $loop->index }}][fechain]" value="{{ $trabajo->fecha_inicio }}" class="form-control"></td>
+                                <td><input type="date" name="trabajos[{{ $loop->index }}][fechasal]" value="{{ $trabajo->fecha_fin }}" class="form-control"></td>
+                                <td><input type="text" name="trabajos[{{ $loop->index }}][contacto]" value="{{ $trabajo->contacto_ref }}" class="form-control"></td>
+                            </tr>
+                        @empty
+                            @for ($i = 0; $i < 4; $i++)
+                                <tr>
+                                    <td><input type="text" name="trabajos[{{ $i }}][empresa]" value="" class="form-control"></td>
+                                    <td><input type="text" name="trabajos[{{ $i }}][cargo]" value="" class="form-control"></td>
+                                    <td><input type="date" name="trabajos[{{ $i }}][fechain]" value="" class="form-control"></td>
+                                    <td><input type="date" name="trabajos[{{ $i }}][fechasal]" value="" class="form-control"></td>
+                                    <td><input type="text" name="trabajos[{{ $i }}][contacto]" value="" class="form-control"></td>
+                                </tr>
+                            @endfor
+                        @endforelse
+                    </tbody>
                 </table>
             @endif
 
-
-            {{-- @if (auth()->user()->hasRole('Docente') or auth()->user()->hasRole('Administrador'))
-
-      @foreach ($atributosD as $atributosD)
-
-      <input type="text" placeholder="Formacion Academica" name="formacion" value="{{ $atributosD->formacion }}">
-      <br>
-      <input type="text" placeholder="Experiencia Laboral" name="Especializacion"  value="{{ $atributosD->Especializacion }}">
-      <br>
-      <input type="text"  placeholder="Especilaizacion" name="ExperienciaL" value="{{ $atributosD->ExperienciaL }}">
-      <br>
-
-      @endforeach
-      @endif
- --}}
-
-
-
-            <br>
-
-
-
-
-
-
-            <div style="display: flex; align-items: center" class="ml-4 mt-4 mb-4">
-                <span>INGRESA LA CONTRASEÑA PARA HACER LOS CAMBIOS</span>
-
+            <div class="form-group mt-4 mb-4">
+                <label for="confirmpassword">INGRESA LA CONTRASEÑA PARA HACER LOS CAMBIOS</label>
                 <div class="input-group">
-                    <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Contraseña" class="ml-4 ">
+                    <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Contraseña" class="form-control ml-4">
                     <div class="input-group-append">
                         <span class="input-group-text">
                             <i id="togglePassword" class="fa fa-eye-slash" aria-hidden="true"></i>
                         </span>
                     </div>
-                    <br>
                 </div>
             </div>
-            <div class="m-4">
 
+            <div class="form-group m-4">
                 <input class="btn btn-success" type="submit" value="Guardar Cambios">
             </div>
-
         </form>
     </div>
 
@@ -293,7 +215,7 @@
         const togglePassword = document.querySelector('#togglePassword');
         const password = document.querySelector('#confirmpassword');
 
-        togglePassword.addEventListener('click', function(e) {
+        togglePassword.addEventListener('click', function() {
             // Cambiar el tipo de input entre 'password' y 'text'
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
@@ -302,9 +224,6 @@
             this.classList.toggle('fa-eye-slash');
         });
     </script>
-
-
 @endsection
-
 
 @include('layout')

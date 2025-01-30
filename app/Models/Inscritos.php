@@ -44,25 +44,28 @@ class Inscritos extends Model
         return $this->hasMany(Boletin::class,  'inscripcion_id');
     }
 
-        // Configuración para soft deletes en cascada
-        protected static function boot()
-        {
-            parent::boot();
+    public function certificado()
+    {
+        return $this->hasOne(Certificado::class, 'inscrito_id');
+    }
 
-            static::deleting(function ($inscrito) {
-                $inscrito->asistencia()->delete();
-                $inscrito->notatarea()->delete();
-                $inscrito->notaevaluacion()->delete();
-                $inscrito->boletines()->delete();
-            });
+    // Configuración para soft deletes en cascada
+    protected static function boot()
+    {
+        parent::boot();
 
-            static::restoring(function ($inscrito) {
-                $inscrito->asistencia()->restore();
-                $inscrito->notatarea()->restore();
-                $inscrito->notaevaluacion()->restore();
-                $inscrito->boletines()->restore();
-            });
-        }
+        static::deleting(function ($inscrito) {
+            $inscrito->asistencia()->delete();
+            $inscrito->notatarea()->delete();
+            $inscrito->notaevaluacion()->delete();
+            $inscrito->boletines()->delete();
+        });
 
-
+        static::restoring(function ($inscrito) {
+            $inscrito->asistencia()->restore();
+            $inscrito->notatarea()->restore();
+            $inscrito->notaevaluacion()->restore();
+            $inscrito->boletines()->restore();
+        });
+    }
 }

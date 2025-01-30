@@ -21,7 +21,7 @@ class TareasEntregaController extends Controller
 
         if ($request->hasFile('entrega')) {
             $tareaEntrega = $request->file('entrega')->store('entrega', 'public');
-            $entrega->ArchivoEntrega = $tareaEntrega;
+            $entrega->archivo_entregado = $tareaEntrega;
         }
 
         $entrega ->save();

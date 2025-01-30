@@ -12,5 +12,8 @@ class Certificado extends Model
 
     protected $fillable = ['curso_id', 'inscrito_id', 'codigo_certificado', 'ruta_certificado'];
 
-
+    public function inscrito()
+    {
+        return $this->belongsTo(Inscritos::class, 'inscrito_id');
+    }
 }

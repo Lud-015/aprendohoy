@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('lastname1');
             $table->string('lastname2');
             $table->string('CI')->unique();
+            $table->text('descripcion')->nullable();
             $table->integer('Celular');
             $table->date('fechadenac');
             $table->string('PaisReside')->nullable();
@@ -27,7 +28,7 @@ return new class extends Migration
             //$table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('avatar')->nullable(); // Campo para el avatar
-          
+
             //$table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

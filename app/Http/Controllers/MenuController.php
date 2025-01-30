@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aportes;
-use App\Models\EdadDirigida;
 use App\Models\Horario;
-use App\Models\Nivel;
 use App\Models\User;
 use App\Models\Cursos;
 use App\Models\Evaluaciones;
@@ -110,12 +108,10 @@ class MenuController extends Controller
     public function storeCIndex()
     {
 
-    $niveles = Nivel::all();
-    $edad = EdadDirigida::all();
     $docente = User::role('Docente')->get();
     $horario = Horario::all();
 
-    return view('Administrador.CrearCursos')->with('docente', $docente)->with('horario', $horario)->with('edad', $edad)->with('niveles', $niveles);
+    return view('Administrador.CrearCursos')->with('docente', $docente)->with('horario', $horario);
 
 
     }
@@ -134,7 +130,12 @@ class MenuController extends Controller
         $foros = collect();
 
         foreach ($cursos as $curso) {
-            $cursoTareas = Tareas::where('cursos_id', $curso->id)->get();
+            $cursoTareas = Tareas::with(['subtema.tema'])
+            ->whereHas('subtema.tema', function ($query) use ($curso) {
+                $query->where('curso_id', $curso->id);
+            })
+            ->get();
+
             $cursoEvaluaciones = Evaluaciones::where('cursos_id', $curso->id)->get();
             $cursoForos = Foro::where('cursos_id', $curso->id)->get();
 

@@ -13,6 +13,7 @@ class Foro extends Model
     use HasFactory, SoftDeletes;
     protected $softDelete = true;
 
+
     public function cursos() :BelongsTo
 
     {
@@ -26,6 +27,22 @@ class Foro extends Model
     {
         return $this->hasMany(ForoMensaje::class, 'foro_id');
     }
+
+        // Relación con el estudiante (usuario)
+        public function estudiante()
+        {
+            return $this->belongsTo(User::class, 'estudiante_id');
+        }
+
+        // Relación con el foro
+        public function foro()
+        {
+            return $this->belongsTo(Foro::class, 'foro_id');
+        }
+
+
+
+
 
 
     protected static function boot()

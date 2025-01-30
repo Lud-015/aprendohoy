@@ -20,7 +20,5 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(Roles::class);
         $this->call(Administrador::class);
-        $this->call(nivelesSeeder::class);
-        $this->call(edad_dirigidasSeeder::class);
     }
 }

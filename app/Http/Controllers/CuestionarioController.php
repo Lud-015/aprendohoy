@@ -2,137 +2,170 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Evaluaciones;
-use App\Models\PreguntaTarea;
-use App\Models\RespuestaTareas;
-use App\Models\Tareas;
+use App\Models\Cuestionario;
+use App\Models\Inscritos;
+use App\Models\Pregunta;
+use App\Models\Respuesta;
+use App\Models\Resultados;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Support\Facades\Auth;
 
 class CuestionarioController extends Controller
 {
-    public function cuestionarioTIndex($id){
-        $tarea = Tareas::findOrFail($id);
-        $pregunta = PreguntaTarea::where('tarea_id', $id)->get();
+    public function index($id)
+    {
+        $cuestionario = Cuestionario::with(['preguntas' => function ($query) {
+            $query->withTrashed()->with(['opciones' => function ($query) {
+                $query->withTrashed(); // Incluye las opciones eliminadas lógicamente
+            }]);
+        }])->findOrFail($id);
 
-        return view('Docente.cuestionario')->with('tarea', $tarea)->with('pregunta', $pregunta);
+
+        return view('Docente.respuestas')->with('cuestionario', $cuestionario);
     }
 
-    public function cuestionarioTSolve($id)
+    public function mostrarCuestionario($id)
     {
-        $tarea = Tareas::findOrFail($id);
-        $pregunta = PreguntaTarea::with('respuestas')->where('tarea_id', $id)->get();
+        $cuestionario = Cuestionario::with(['preguntas.opciones'])->findOrFail($id);
 
-        $quizData = $pregunta->map(function($pregunta) {
-            return [
-                'id' => $pregunta->id,
-                'tarea_id' => $pregunta->tarea_id,
-                'tipo_preg' => $pregunta->tipo_preg,
-                'texto_pregunta' => $pregunta->texto_pregunta,
-                'puntos' => $pregunta->puntos,
-                'choices' => $pregunta->respuestas->map(function($respuesta) {
-                    return [
-                        'id' => $respuesta->id,
-                        'texto_respuesta' => $respuesta->texto_respuesta,
-                        'es_correcta' => $respuesta->es_correcta,
-                    ];
-                }),
-                'pointerEvents' => false,
-                'secondsLeft' => 20,
-                'AnsweredQue' => ''
-            ];
-        });
+        if ($cuestionario->preguntas->isEmpty()) {
+            return redirect()->route('Curso', $cuestionario->subtema->tema->curso->id) // Redirigir al dashboard o página principal
+                ->with('error', 'Este cuestionario no tiene preguntas disponibles.');
+        }
 
-        // Detectar si la solicitud es una petición de API
-        if (request()->wantsJson()) {
-            return response()->json([
-                'quizData' => $quizData,
-                'tarea' => $tarea
+        $inscripcion = Inscritos::where('estudiante_id', Auth::id())
+            ->where('cursos_id', $cuestionario->subtema->tema->curso->id)
+            ->firstOrFail();
+
+        // Verificar si ya realizó un intento
+        $intentoPrevio = Respuesta::where('estudiante_id', $inscripcion->id)
+            ->whereHas('pregunta', function ($query) use ($id) {
+                $query->where('cuestionario_id', $id);
+            })
+            ->exists();
+
+        if ($intentoPrevio) {
+            // Calcular nota del intento único
+            $notaFinal = Respuesta::where('estudiante_id', $inscripcion->id)
+                ->whereHas('pregunta', function ($query) use ($id) {
+                    $query->where('cuestionario_id', $id);
+                })
+                ->join('preguntas', 'respuestas.pregunta_id', '=', 'preguntas.id')
+                ->selectRaw('SUM(CASE
+                                    WHEN respuestas.opcion_id IS NOT NULL AND preguntas.tipo = "multiple" THEN preguntas.puntos
+                                    WHEN respuestas.respuesta = "1" AND preguntas.tipo = "verdadero_falso" THEN preguntas.puntos
+                                    ELSE 0
+                                END) as nota')
+                ->value('nota');
+
+            return redirect()->route('Curso', $cuestionario->subtema->tema->curso->id)
+                ->with('error', 'Ya realizaste este cuestionario. Tu nota fue: ' . $notaFinal);
+        }
+
+        return response()
+            ->view('Estudiante.cuestionario_resolve', compact('cuestionario', 'inscripcion'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
+
+
+
+    public function procesarRespuestas(Request $request, $id)
+    {
+        $inscritoId = $request->input('inscrito_id');
+        $respuestas = $request->input('respuestas');
+
+        // Verificar si ya existe un intento previo
+        $intentoPrevio = Respuesta::where('estudiante_id', $inscritoId)
+            ->whereHas('pregunta', function ($query) use ($id) {
+                $query->where('cuestionario_id', $id);
+            })
+            ->exists();
+
+        if ($intentoPrevio) {
+            return redirect()->route('cuestionario.responder', $id)
+                ->with('error', 'Ya realizaste este cuestionario. Solo se permite un intento.');
+        }
+
+        // Variables para el puntaje
+        $puntajeObtenido = 0;
+        $puntajeTotal = 0;
+
+        // Procesar respuestas
+        foreach ($respuestas as $preguntaId => $respuesta) {
+            $pregunta = Pregunta::find($preguntaId);
+            $puntajeTotal += $pregunta->puntos;
+
+            // Verificar si la respuesta es correcta
+            if ($pregunta->tipo === 'multiple' || $pregunta->tipo === 'verdadero_falso') {
+                $opcionCorrecta = $pregunta->opciones()->where('es_correcta', true)->first();
+                if ($opcionCorrecta && $opcionCorrecta->id == $respuesta) {
+                    $puntajeObtenido += $pregunta->puntos;
+                }
+            }
+
+            // Guardar respuesta
+            Respuesta::create([
+                'pregunta_id' => $preguntaId,
+                'estudiante_id' => $inscritoId,
+                'respuesta' => is_array($respuesta) ? json_encode($respuesta) : $respuesta,
+                'opcion_id' => is_numeric($respuesta) ? $respuesta : null,
+                'intento' => 1, // Siempre será el primer intento
             ]);
         }
 
-        // Si no es una petición JSON, devolver la vista normal
-        return view('Estudiante.quizz', [
-            'quizData' => $quizData,
-            'tarea' => $tarea,
-            'pregunta' => $pregunta
+        // Guardar resultado
+        Resultados::create([
+            'cuestionario_id' => $id,
+            'estudiante_id' => $inscritoId,
+            'intento' => 1, // Solo un intento permitido
+            'puntaje_obtenido' => $puntajeObtenido,
+            'puntaje_total' => $puntajeTotal,
         ]);
-    }
 
-
-    public function cuestionarioTResults($id){
-        $evaluacion = Evaluaciones::findOrFail($id);
-
-        return view('Docente.cuestionario')->with('evaluacion', $evaluacion);
+        return redirect()->route('cuestionario.responder', $id)
+            ->with('success', "Respuestas enviadas correctamente. Puntaje obtenido: {$puntajeObtenido}/{$puntajeTotal}");
     }
 
 
 
-    public function cuestionarioEIndex($id){
-        $evaluacion = Evaluaciones::findOrFail($id);
 
-        return view('Docente.cuestionario')->with('evaluacion', $evaluacion);
+
+    public function store(Request $request, $id)
+    {
+
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'fecha_habilitacion' => 'required|date',
+            'fecha_vencimiento' => 'required|date|after:fecha_habilitacion',
+            'puntos' => 'required|numeric|min:0',
+        ], [
+            'titulo.required' => 'El título es obligatorio.',
+            'titulo.string' => 'El título debe ser una cadena de texto.',
+            'titulo.max' => 'El título no puede tener más de 255 caracteres.',
+            'descripcion.string' => 'La descripción debe ser una cadena de texto.',
+            'fecha_habilitacion.required' => 'La fecha de habilitación es obligatoria.',
+            'fecha_habilitacion.date' => 'La fecha de habilitación debe ser una fecha válida.',
+            'fecha_vencimiento.required' => 'La fecha de vencimiento es obligatoria.',
+            'fecha_vencimiento.date' => 'La fecha de vencimiento debe ser una fecha válida.',
+            'fecha_vencimiento.after' => 'La fecha de vencimiento debe ser posterior a la fecha de habilitación.',
+            'puntos.required' => 'Los puntos son obligatorios.',
+            'puntos.numeric' => 'Los puntos deben ser un número.',
+            'puntos.min' => 'Los puntos no pueden ser negativos.',
+        ]);
+
+        Cuestionario::create([
+            'titulo_cuestionario' => $request->titulo,
+            'descripcion' => $request->descripcion,
+            'fecha_habilitacion' => $request->fecha_habilitacion,
+            'fecha_vencimiento' => $request->fecha_vencimiento,
+            'puntos' => $request->puntos, // Corregí esto, ya que antes estaba asignando 'fecha_vencimiento' a 'puntos'
+            'subtema_id' => $id,
+        ]);
+
+        return back()->with('success', 'Tema creado correctamente.');
     }
-
-    public function cuestionarioEResults($id){
-        $evaluacion = Evaluaciones::findOrFail($id);
-
-        return view('Docente.cuestionario')->with('evaluacion', $evaluacion);
-    }
-
-
-    public function crearPreguntaIndex($id){
-        $tarea = Tareas::findOrFail($id);
-
-        return view('Docente.CrearPregunta')->with('tarea', $tarea);
-    }
-
-
-    public function editarPreguntaIndexT($id){
-        $pregunta = PreguntaTarea::findOrFail($id);
-        return view('Docente.EditarPregunta')->with('pregunta', $pregunta);
-    }
-    public function editarPreguntaPost(Request $request){
-        $pregunta = PreguntaTarea::findOrFail($request->id);
-
-
-        $pregunta->tipo_preg = $request->tipo;
-        $pregunta->texto_pregunta = $request->pregunta;
-        $pregunta->puntos = $request->puntos;
-
-
-        $pregunta->save();
-
-
-
-
-        return redirect(route('cuestionario', $pregunta->tarea_id))->with('success','Pregunta editada correctamente!!');
-    }
-
-
-    public function respuestas($id){
-        $pregunta = PreguntaTarea::findOrFail($id);
-
-        $respuesta = RespuestaTareas::where('pregunta_id',$id)->get();
-        return view('Docente.respuestas')->with('respuesta', $respuesta)->with('pregunta', $pregunta);
-    }
-
-    public function responder(){
-        $preguntas = PreguntaTarea::with('respuestas')->get();
-
-        // return view('Estudiante.quizz')->with('preguntas', $preguntas);
-
-        return new BinaryFileResponse(public_path('godot/HTML/cuestionario.html'));
-
-    }
-
-
-    public function apiTemas(){
-        $temas = Tareas::where('tipo_tarea', 'cuestionario')->get();
-
-
-        return response()->json($temas);
-    }
-
-
 }

@@ -143,7 +143,7 @@
                     <a href="{{asset('storage/'. $entrega->ArchivoEntrega)}}">VER ENTREGA</a>
                     <br>
 
-                    @if ($tareas->cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->cursos->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
+                    @if ($tareas->subtema->tema->curso->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->subtema->tema->curso->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
 
                     @else
                     <a href="{{route('quitarEntrega', $entrega->id)}}">Quitar Entrega</a>
@@ -159,7 +159,7 @@
         <hr>
 
 
-        @if ($tareas->cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->cursos->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
+        @if ($tareas->subtema->tema->curso->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->subtema->tema->curso->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
         <h2>Esta actividad ya no recibe entregas</h2>
 
         @else

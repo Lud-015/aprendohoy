@@ -74,7 +74,6 @@
                     <div class="card card-stats mb-4 mb-xl-0">
                         <div class="card-body">
                             <h1 class="mb-0">CURSO {{ $cursos->nombreCurso }}</h1>
-                            <h2 class="mb-0">INFORMACIÓN DEL CURSO</h2>
                             <h2 class="card-title text-muted mb-0">Docente:
                                 <a href="{{ route('perfil', ['id' => $cursos->docente->id]) }}">
                                     {{ $cursos->docente ? $cursos->docente->name . ' ' . $cursos->docente->lastname1 . ' ' . $cursos->docente->lastname2 : 'N/A' }}
@@ -83,12 +82,14 @@
                             <div class="row">
                                 <div class="col">
                                     <h4 class="card-title text-muted mb-0">Estado: {{ $cursos->estado }}</h4>
+                                    <h4 class="card-title text-muted mb-0">Tipo: {{ $cursos->tipo }}</h4>
 
                                     <br>
                                     <h2>Descripcion</h2>
                                     <h4 class="card-title text-muted mb-0">{{ $cursos->descripcionC }}</h4>
-                                    <p></p>
-                                    <br><br>
+                                    <a class="mr-2 btn btn-sm btn-info" href="{{ route('listacurso', [$cursos->id]) }}">
+                                        <i class="fas fa-user"></i>
+                                        VerParticipantes</a>
                                     <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal"
                                         data-bs-target="#modalHorario">
                                         <i class="fa fa-calendar"></i>
@@ -296,6 +297,43 @@
                                             </div>
                                         </div>
 
+                                        <a class="mr-2 btn btn-sm btn-info"
+                                            href="{{ route('asistencias', [$cursos->id]) }}"> <i
+                                                class="fas fa-check"></i> Dar Asistencia</a>
+                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal"
+                                            data-bs-target="#qrModal">
+                                            Generar Código QR
+                                        </button>
+                                        <div class="modal fade" id="qrModal" tabindex="-1"
+                                            aria-labelledby="qrModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="qrModalLabel">Código QR para
+                                                            Inscribirte</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body text-center">
+                                                        <h6>Escanea este código QR para inscribirte:</h6>
+                                                        <!-- Mostrar el QR -->
+                                                        <img src="data:image/png;base64,{{ $qrCode }}"
+                                                            alt="QR Code" class="img-fluid mt-3">
+
+                                                        <!-- Enlace para descargar el QR -->
+                                                        <a href="data:image/png;base64,{{ $qrCode }}"
+                                                            download="codigo_qr_curso.png" class="btn btn-success mt-4">
+                                                            Descargar Código QR
+                                                        </a>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Cerrar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         @if ($cursos->docente_id == auth()->user()->id)
                                             <a class="mr-2 btn btn-sm btn-info" href="{{ route('repF', [$cursos->id]) }}"
                                                 onclick="mostrarAdvertencia2(event)"> <i class="fas fa-list"></i>
@@ -303,9 +341,6 @@
                                             <a class="mr-2 btn btn-sm btn-info"
                                                 href="{{ route('editarCurso', [$cursos->id]) }}"><i
                                                     class="fas fa-edit"></i> Editar Curso</a>
-                                            <a class="mr-2 btn btn-sm btn-info"
-                                                href="{{ route('asistencias', [$cursos->id]) }}"> <i
-                                                    class="fas fa-check"></i> Dar Asistencia</a>
                                         @endif
 
                                         @if (auth()->user()->hasRole('Administrador') && !empty($cursos->archivoContenidodelCurso))
@@ -314,17 +349,10 @@
                                                     class="fas fa-file"></i> Ver Plan Del Curso</a>
                                         @endif
                                     @endif
-                                    <a class="mr-2 btn btn-sm btn-info" href="{{ route('listacurso', [$cursos->id]) }}">
-                                        <i class="fas fa-user"></i>
-                                        VerParticipantes</a>
+
 
                                     <a href="{{ route('historialAsistencias', [$cursos->id]) }}"
                                         class="btn btn-sm btn-info"> <i class="fas fa-list"></i> Ver asistencias</a>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="icon icon-shape bg-info text-white rounded-circle shadow">
-                                        <i class="fas fa-cube"></i>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -377,9 +405,11 @@
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#tab-actividades">Actividades</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#tab-evaluaciones">Evaluaciones</a>
-                    </li>
+                    @if ($cursos->tipo == 'curso')
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-evaluaciones">Evaluaciones</a>
+                        </li>
+                    @endif
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#tab-foros">Foros</a>
                     </li>
@@ -391,46 +421,379 @@
                 <div class="tab-content mt-4">
                     <!-- Actividades -->
                     <div class="tab-pane fade show active" id="tab-actividades">
-                        <h3>Actividades</h3>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            @if (auth()->user()->hasRole('Docente'))
-                                @if (!$cursos->fecha_fin || \Carbon\Carbon::now() <= \Carbon\Carbon::parse($cursos->fecha_fin))
-                                    <div>
-                                        <a href="{{ route('CrearTareas', [$cursos->id]) }}"
-                                            class="btn btn-success btn-sm">Nueva Tarea</a>
-                                        <a href="{{ route('tareasEliminadas', [$cursos->id]) }}"
-                                            class="btn btn-warning btn-sm">Tareas Eliminadas</a>
-                                    </div>
-                                @endif
+
+                        <div class="tab-pane fade show active" id="tab-actividades">
+                            @if ($cursos->docente_id == auth()->user()->id)
+                                <button class="btn btn-primary mb-3" data-bs-toggle="modal"
+                                    data-bs-target="#modalTema">Agregar Tema</button>
                             @endif
-                        </div>
-                        @forelse ($tareas as $tarea)
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h5>{{ $tarea->titulo_tarea }}</h5>
-                                    <p>Creado: {{ $tarea->fecha_habilitacion }} | Vence: {{ $tarea->fecha_vencimiento }}
-                                    </p>
-                                    <div>
-                                        @if ($tarea->tipo_tarea == 'cuestionario')
-                                            <a href="{{ route('cuestionario', $tarea->id) }}"
-                                                class="btn btn-primary btn-sm">Resolver Cuestionario</a>
-                                        @else
-                                            <a href="{{ route('VerTarea', [$tarea->id]) }}"
-                                                class="btn btn-primary btn-sm">Ver Actividad</a>
-                                        @endif
-                                        @if (auth()->user()->hasRole('Docente'))
-                                            <a href="{{ route('editarTarea', $tarea->id) }}"
-                                                class="btn btn-info btn-sm">Editar</a>
-                                            <a href="{{ route('quitarTarea', $tarea->id) }}"
-                                                class="btn btn-danger btn-sm"
-                                                onclick="mostrarAdvertencia(event)">Eliminar</a>
-                                        @endif
+                            <!-- Modal para agregar Tema -->
+                            <div class="modal fade" id="modalTema" tabindex="-1" aria-labelledby="modalTemaLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalTemaLabel">Agregar Tema</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="POST" action="{{ route('temas.store', $cursos->id) }}"
+                                                enctype="multipart/form-data">
+                                                @csrf
+                                                <div class="mb-3">
+                                                    <label for="titulo" class="form-label">Título del Tema</label>
+                                                    <input type="text" name="titulo" class="form-control" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="descripcion" class="form-label">Descripción</label>
+                                                    <textarea name="descripcion" class="form-control"></textarea>
+                                                </div>
+
+                                                <input type="file" name="imagen" accept="image/*">
+
+                                                <button type="submit" class="btn btn-primary">Agregar Tema</button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        @empty
-                            <p>No hay tareas asignadas.</p>
-                        @endforelse
+                            <div class="container">
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-tabs" id="temasTabs" role="tablist">
+                                    @foreach ($temas as $index => $tema)
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link {{ $index === 0 ? 'active' : '' }}"
+                                                id="tema-{{ $tema->id }}-tab" data-bs-toggle="tab"
+                                                data-bs-target="#tema-{{ $tema->id }}" type="button" role="tab"
+                                                aria-controls="tema-{{ $tema->id }}"
+                                                aria-selected="{{ $index === 0 ? 'true' : 'false' }}">
+                                                {{ $tema->titulo_tema }}
+                                            </button>
+                                        </li>
+                                    @endforeach
+                                </ul>
+
+                                <!-- Tab panes -->
+                                <div class="tab-content" id="temasContent">
+                                    @foreach ($temas as $index => $tema)
+                                        <div class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}"
+                                            id="tema-{{ $tema->id }}" role="tabpanel"
+                                            aria-labelledby="tema-{{ $tema->id }}-tab">
+                                            <div class="card my-3">
+                                                <div class="card-body">
+                                                    <img class="ml-5 pl-6" src="{{ asset('storage/' . $tema->imagen) }}"
+                                                        alt="Imagen del tema" width="300">
+                                                        <div class="my-3">
+                                                            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#descripcionTema-{{ $tema->id }}" aria-expanded="false" aria-controls="descripcionTema-{{ $tema->id }}">
+                                                                Ver Descripción del Tema
+                                                            </button>
+                                                            <div class="collapse" id="descripcionTema-{{ $tema->id }}">
+                                                                <div class="card card-body">
+                                                                    {{ $tema->descripcion }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    <!-- Botón para agregar subtema -->
+                                                    @if ($cursos->docente_id == auth()->user()->id)
+                                                        <button class="btn btn-sm btn-outline-primary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalSubtema-{{ $tema->id }}">Agregar
+                                                            Subtema</button>
+                                                        <button class="btn btn-sm btn-outline-secondary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalEditarTema-{{ $tema->id }}">Editar
+                                                            Tema</button>
+                                                    @endif
+
+                                                    <!-- Subtemas del tema -->
+                                                    <div class="accordion" id="subtemasAccordion-{{ $tema->id }}">
+                                                        @foreach ($tema->subtemas as $subtemaIndex => $subtema)
+                                                            <div class="accordion-item">
+                                                                <h2 class="accordion-header"
+                                                                    id="subtemaHeading-{{ $subtema->id }}">
+                                                                    <button
+                                                                        class="accordion-button {{ $subtemaIndex === 0 ? '' : 'collapsed' }}"
+                                                                        type="button" data-bs-toggle="collapse"
+                                                                        data-bs-target="#subtemaCollapse-{{ $subtema->id }}"
+                                                                        aria-expanded="{{ $subtemaIndex === 0 ? 'true' : 'false' }}"
+                                                                        aria-controls="subtemaCollapse-{{ $subtema->id }}">
+                                                                        {{ $subtema->titulo_subtema }}
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="subtemaCollapse-{{ $subtema->id }}"
+                                                                    class="accordion-collapse collapse {{ $subtemaIndex === 0 ? 'show' : '' }}"
+                                                                    aria-labelledby="subtemaHeading-{{ $subtema->id }}"
+                                                                    data-bs-parent="#subtemasAccordion-{{ $tema->id }}">
+                                                                    <div class="accordion-body">
+                                                                        <img class="ml-6 pd-6" src="{{ asset('storage/' . $subtema->imagen) }}"
+                                                                            alt="Imagen del subtema" width="300">
+                                                                            <div class="my-3">
+                                                                                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#descripcionTema-{{ $tema->id }}" aria-expanded="false" aria-controls="descripcionTema-{{ $tema->id }}">
+                                                                                    Ver Descripción del SubTema
+                                                                                </button>
+                                                                                <div class="collapse" id="descripcionTema-{{ $subtema->id }}">
+                                                                                    <div class="card card-body">
+                                                                                        {{ $subtema->descripcion }}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        <!-- Botón para agregar tarea -->
+                                                                        @if ($cursos->docente_id == auth()->user()->id)
+                                                                            <button class="btn btn-sm btn-outline-success"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#modalTarea-{{ $subtema->id }}">Agregar
+                                                                                Tarea</button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-secondary"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#modalEditarSubtema-{{ $subtema->id }}">Editar
+                                                                                Subtema</button>
+                                                                        @endif
+
+                                                                        <!-- Tareas del subtema -->
+                                                                        @foreach ($subtema->tareas as $tarea)
+                                                                            <div class="my-4 mb-3">
+                                                                                <h2>{{ $tarea->titulo_tarea }}</h2>
+                                                                                <p class="text-light">Entrega Digital</p>
+                                                                                <p>Creado: {{ $tarea->fecha_habilitacion }}
+                                                                                    | Vence:
+                                                                                    {{ $tarea->fecha_vencimiento }}</p>
+                                                                                <div>
+                                                                                    @if (auth()->user()->hasRole('Docente'))
+                                                                                        <a href="{{ route('editarTarea', $tarea->id) }}"
+                                                                                            class="btn btn-info btn-sm">Editar</a>
+                                                                                        <a href="{{ route('quitarTarea', $tarea->id) }}"
+                                                                                            class="btn btn-danger btn-sm"
+                                                                                            onclick="mostrarAdvertencia(event)">Eliminar</a>
+                                                                                    @endif
+                                                                                    <a href="{{ route('VerTarea', $tarea->id) }}"
+                                                                                        class="btn btn-primary btn-sm">Ver
+                                                                                        Actividad</a>
+                                                                                    <a href="{{ route('calificarT', $tarea->id) }}"
+                                                                                        class="btn btn-primary btn-sm">Calificar</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endforeach
+
+                                                                        <!-- Cuestionarios del subtema -->
+                                                                        @foreach ($subtema->cuestionarios as $cuestionario)
+                                                                            <div class="my-4 mb-3">
+                                                                                <h2>{{ $cuestionario->titulo_cuestionario }}
+                                                                                </h2>
+                                                                                <p class="text-light">Cuestionario</p>
+                                                                                <p>Creado:
+                                                                                    {{ $cuestionario->fecha_habilitacion }}
+                                                                                    | Vence:
+                                                                                    {{ $cuestionario->fecha_vencimiento }}
+                                                                                </p>
+                                                                                <div>
+                                                                                    @if ($cursos->docente_id == auth()->user()->id)
+                                                                                        <a href=""
+                                                                                            class="btn btn-info btn-sm">Editar</a>
+                                                                                        <a href=""
+                                                                                            class="btn btn-danger btn-sm"
+                                                                                            onclick="mostrarAdvertencia(event)">Eliminar</a>
+                                                                                        <a href="{{ route('cuestionarios.index', $cuestionario->id) }}"
+                                                                                            class="btn btn-primary btn-sm">Administrar
+                                                                                            Cuestionario</a>
+                                                                                    @endif
+                                                                                    <a href="{{ route('cuestionario.mostrar', $cuestionario->id) }}"
+                                                                                        class="btn btn-primary btn-sm">Responder</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Modales (Agregar Subtema, Editar Tema, Agregar Tarea, Editar Subtema, etc.) -->
+                            @foreach ($temas as $tema)
+                                <!-- Modal para agregar Subtema -->
+                                <div class="modal fade" id="modalSubtema-{{ $tema->id }}" tabindex="-1"
+                                    aria-labelledby="modalSubtemaLabel-{{ $tema->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="modalSubtemaLabel-{{ $tema->id }}">
+                                                    Agregar Subtema</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="POST" action="{{ route('subtemas.store', $tema->id) }}"
+                                                    enctype="multipart/form-data">
+                                                    @csrf
+                                                    <div class="mb-3">
+                                                        <label for="titulo" class="form-label">Título del
+                                                            Subtema</label>
+                                                        <input type="text" name="titulo" class="form-control"
+                                                            required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="descripcion" class="form-label">Descripción</label>
+                                                        <textarea name="descripcion" class="form-control"></textarea>
+                                                    </div>
+                                                    <input type="file" name="imagen" accept="image/*">
+                                                    <button type="submit" class="btn btn-success">Agregar
+                                                        Subtema</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal para editar Tema -->
+                                <div class="modal fade" id="modalEditarTema-{{ $tema->id }}" tabindex="-1"
+                                    aria-labelledby="modalEditarTemaLabel-{{ $tema->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="modalEditarTemaLabel-{{ $tema->id }}">
+                                                    Editar Tema</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="POST" action="{{ route('temas.update', $tema->id) }}"
+                                                    enctype="multipart/form-data">
+                                                    @csrf
+                                                    <div class="mb-3">
+                                                        <label for="titulo" class="form-label">Título del Tema</label>
+                                                        <input type="text" name="titulo" class="form-control"
+                                                            value="{{ $tema->titulo_tema }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="descripcion" class="form-label">Descripción</label>
+                                                        <textarea name="descripcion" class="form-control">{{ $tema->descripcion }}</textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="imagen" class="form-label">Imagen</label>
+                                                        <input type="file" name="imagen" accept="image/*"
+                                                            class="form-control">
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Guardar
+                                                        Cambios</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            @foreach ($temas as $tema)
+                                @foreach ($tema->subtemas as $subtema)
+                                    <!-- Modal para agregar Tarea -->
+                                    <div class="modal fade" id="modalTarea-{{ $subtema->id }}" tabindex="-1"
+                                        aria-labelledby="modalTareaLabel-{{ $subtema->id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalTareaLabel-{{ $subtema->id }}">
+                                                        Agregar Tarea</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST"
+                                                        action="{{ route('CrearTareasPost', $subtema->id) }}"
+                                                        enctype="multipart/form-data">
+                                                        @csrf
+                                                        <div class="mb-3">
+                                                            <label for="titulo" class="form-label">Título de la
+                                                                Tarea</label>
+                                                            <input type="text" name="tituloTarea" class="form-control"
+                                                                required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="descripcion"
+                                                                class="form-label">Descripción</label>
+                                                            <textarea name="tareaDescripcion" class="form-control" required></textarea>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="fecha_habilitacion" class="form-label">Fecha de
+                                                                Habilitación</label>
+                                                            <input type="date" name="fechaHabilitacion"
+                                                                class="form-control" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="fecha_vencimiento" class="form-label">Fecha de
+                                                                Vencimiento</label>
+                                                            <input type="date" name="fechaVencimiento"
+                                                                class="form-control" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="archivo" class="form-label">Archivo
+                                                                (opcional)</label>
+                                                            <input type="file" name="tareaArchivo"
+                                                                class="form-control">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="puntos" class="form-label">Puntos</label>
+                                                            <input type="number" name="puntos" class="form-control"
+                                                                required>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-success">Agregar
+                                                            Tarea</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal para editar Subtema -->
+                                    <div class="modal fade" id="modalEditarSubtema-{{ $subtema->id }}" tabindex="-1"
+                                        aria-labelledby="modalEditarSubtemaLabel-{{ $subtema->id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title"
+                                                        id="modalEditarSubtemaLabel-{{ $subtema->id }}">Editar Subtema
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST"
+                                                        action="{{ route('subtemas.update', $subtema->id) }}"
+                                                        enctype="multipart/form-data">
+                                                        @csrf
+                                                        <div class="mb-3">
+                                                            <label for="titulo" class="form-label">Título del
+                                                                Subtema</label>
+                                                            <input type="text" name="titulo" class="form-control"
+                                                                value="{{ $subtema->titulo_subtema }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="descripcion"
+                                                                class="form-label">Descripción</label>
+                                                            <textarea name="descripcion" class="form-control">{{ $subtema->descripcion }}</textarea>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="imagen" class="form-label">Imagen</label>
+                                                            <input type="file" name="imagen" accept="image/*"
+                                                                class="form-control">
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Guardar
+                                                            Cambios</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endforeach
+                        </div>
                     </div>
 
                     <!-- Evaluaciones -->

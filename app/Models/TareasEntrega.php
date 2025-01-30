@@ -11,6 +11,8 @@ class TareasEntrega extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = "entregas_tareas";
+
     protected $softDelete = true;
     public function estudiantes(): BelongsTo
     {

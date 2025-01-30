@@ -148,7 +148,7 @@
             <tbody>
 
                 @foreach ($inscritos as $inscritos)
-                     @if ($inscritos->cursos_id ==  $tareas->cursos_id)
+                     @if ($inscritos->cursos_id ==  $tareas->subtema->tema->curso->id)
 
                     <tr>
 
@@ -172,7 +172,7 @@
 
 
 
-                            @if ($tareas->cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->cursos->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
+                            @if ($tareas->subtema->tema->curso->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->subtema->tema->curso->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
 
                             disabled
 
@@ -211,9 +211,9 @@
 
                         @forelse ($entregasTareas as $item)
 
-                            @if ($item->estudiante_id == $inscritos->estudiante_id && $inscritos->cursos_id ==  $tareas->cursos_id )
+                            @if ($item->estudiante_id == $inscritos->estudiante_id && $inscritos->cursos_id ==  $tareas->subtema->tema->curso->id )
 
-                            <a href="{{ asset('storage/' . $item->ArchivoEntrega) }}"> VER TAREA </a>
+                            <a href="{{ asset('storage/' . $item->archivo_entregado) }}"> VER TAREA </a>
                             <br>
 
                             @else
@@ -266,7 +266,7 @@
 
                                             <br><br>
 
-                                            @if ($tareas->cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->cursos->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
+                                            @if ($tareas->subtema->tema->curso->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->subtema->tema->curso->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
 
 
                                             @else
@@ -299,7 +299,7 @@
 
         <div class="card">
             <div class="card-footer">
-                @if ($tareas->cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->cursos->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
+                @if ($tareas->subtema->tema->curso->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->subtema->tema->curso->fecha_fin) || $tareas->fecha_vencimiento && \Carbon\Carbon::now() > \Carbon\Carbon::parse($tareas->fecha_vencimiento))
 
                 <h3>Ya no  se puede calificar esta actividad</h3>
 

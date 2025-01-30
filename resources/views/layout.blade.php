@@ -8,6 +8,7 @@
         @yield('titulo')
     </title>
     <!-- Favicon -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="{{ asset('./assets/img/logof.png') }}" rel="icon" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.5/perfect-scrollbar.min.js"></script>
 
@@ -368,6 +369,26 @@
                 application: "argon-dashboard-free"
             });
     </script>
+
+<script>
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: "{{ session('success') }}",
+            confirmButtonText: 'Entendido'
+        });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: "{{ session('error') }}",
+            confirmButtonText: 'Reintentar'
+        });
+    @endif
+</script>
 
 
 

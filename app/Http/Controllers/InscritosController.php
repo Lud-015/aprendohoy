@@ -10,6 +10,8 @@ use App\Notifications\InscritoNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class InscritosController extends Controller
 {
@@ -152,4 +154,93 @@ class InscritosController extends Controller
 
 
     }
+
+
+    public function inscribirse($id, $token)
+    {
+        $qrToken = DB::table('qr_tokens')
+            ->where('curso_id', $id)
+            ->where('token', $token)
+            ->where('expiracion', '>=', now())
+            ->whereColumn('usos_actuales', '<', 'limite_uso')
+            ->first();
+
+        if (!$qrToken) {
+            return redirect()->route('Inicio')->withErrors('El código QR no es válido o ha expirado.');
+        }
+
+        DB::table('qr_tokens')->where('id', $qrToken->id)->increment('usos_actuales');
+
+        $curso = Cursos::findorFail($id);
+
+        if ($curso->fecha_fin) {
+            $fechaActual = Carbon::now();
+            $fechaFin = Carbon::parse($curso->fecha_fin);
+
+            if ($fechaFin->lt($fechaActual)) {
+                return redirect()->route('Inicio')->withErrors('El curso ya finalizó.');
+            }
+        }
+
+        $usuario = auth()->user();
+        if ($usuario->hasRole('Administrador') || $usuario->hasRole('Docente')) {
+            return route('Inicio')->withErrors('No puedes inscribirte es este curso siendo docente o administrador porfavor crear otra cuenta.');
+        }elseif ($usuario->id == $curso->docente_id) {
+            return route('Inicio')->withErrors('Ya eres Docente en este curso.');
+        }
+
+        $inscripcion = Inscritos::withTrashed() // Incluir registros eliminados
+            ->where('cursos_id', $id)
+            ->where('estudiante_id', $usuario->id)
+            ->first();
+
+        if ($inscripcion) {
+            if ($inscripcion->trashed()) {
+                return redirect()->back()->withErrors('Tu inscripción en este curso fue cancelada previamente.');
+            }
+
+            return redirect()->back()->withErrors('Ya estás inscrito en este curso.');
+        }
+
+        $estudiante = User::find($usuario->id);
+
+        if ($estudiante && $curso) {
+            // Enviar la notificación a través del evento
+            event(new InscritoEvent($estudiante, $curso, 'inscripcion'));
+        }
+
+        $inscritos = new Inscritos();
+        $inscritos->cursos_id = $id;
+        if ($curso->tipo == 'congreso') {
+            $inscritos->pago_completado = true;
+            $inscritos->progreso = doubleval(100);
+        }
+        $inscritos->estudiante_id = $usuario->id;
+        $inscritos->save();
+
+
+
+        return redirect()->route('Curso', $id)->with('success', '¡Te has inscrito correctamente!');
+    }
+
+
+    public function actualizarPago(Request $request, $inscrito_id)
+    {
+        // Encuentra el registro de inscripción
+        $inscrito = Inscritos::findOrFail($inscrito_id);
+
+        // Actualiza el campo 'pago_completado' basado en el valor enviado desde el formulario
+        $inscrito->pago_completado = filter_var($request->input('pago_completado'), FILTER_VALIDATE_BOOLEAN);
+        $inscrito->save();
+
+        // Redirige con un mensaje de éxito
+        return redirect()->back()->with('success', 'El estado del pago se ha actualizado correctamente.');
+    }
+
+
+
+
+
+
+
 }

@@ -52,7 +52,10 @@ class ForoController extends Controller
     }
     public function index($id){
         $foro = Foro::findOrFail($id);
-        $forosmensajes = ForoMensaje::all();
+        $forosmensajes = ForoMensaje::where('foro_id', $foro->id)
+            ->whereNull('respuesta_a')
+            ->with('respuestas.estudiantes') // Cargar respuestas y sus autores
+            ->get();
 
 
         return view('Foro')->with('foro', $foro)->with('forosmensajes', $forosmensajes);
@@ -60,30 +63,35 @@ class ForoController extends Controller
     }
 
 
-    public function storeMensaje(Request $request){
-
+    public function storeMensaje(Request $request)
+    {
         $messages = [
             'tituloMensaje.required' => 'El campo título del mensaje es obligatorio.',
             'mensaje.required' => 'El campo mensaje es obligatorio.',
+            'foro_id.required' => 'El foro al que pertenece el mensaje es obligatorio.',
+            'foro_id.exists' => 'El foro especificado no existe.',
+            'estudiante_id.required' => 'El identificador del estudiante es obligatorio.',
+            'estudiante_id.exists' => 'El estudiante especificado no existe.',
+            'respuesta_a.exists' => 'El mensaje al que respondes no existe.',
         ];
 
-        $request->validate([
-            'tituloMensaje' => 'required',
-            'mensaje' => 'required',
+        $validated = $request->validate([
+            'tituloMensaje' => 'required|string|max:255',
+            'mensaje' => 'required|string',
+            'foro_id' => 'required|exists:foros,id',
+            'estudiante_id' => 'required|exists:users,id',
+            'respuesta_a' => 'nullable|exists:foros_mensajes,id',
         ], $messages);
 
-        $ForoMensaje = new ForoMensaje();
-
-        $ForoMensaje->tituloMensaje = $request->tituloMensaje;
-        $ForoMensaje->mensaje = $request->mensaje;
-        $ForoMensaje->foro_id = $request->foro_id;
-        $ForoMensaje->estudiante_id = $request->estudiante_id;
-
-        $ForoMensaje->save();
-
-        return back()->with('success', 'Mensaje Enviado');
-
+        try {
+            $mensaje = ForoMensaje::create($validated);
+            return back()->with('success', 'Mensaje enviado exitosamente.');
+        } catch (\Exception $e) {
+            \Log::error('Error creating mensaje: ' . $e->getMessage());
+            return back()->with('error', 'Hubo un problema al enviar el mensaje. Inténtalo nuevamente.');
+        }
     }
+
 
 
 
@@ -160,6 +168,65 @@ class ForoController extends Controller
         return back()->with('succes', 'Foro restaurado exitosamente');
 
     }
+
+    public function editMensaje(Request $request, $id)
+{
+    $mensaje = ForoMensaje::findOrFail($id);
+
+    $messages = [
+        'tituloMensaje.required' => 'El campo título del mensaje es obligatorio.',
+        'mensaje.required' => 'El campo mensaje es obligatorio.',
+    ];
+
+    $request->validate([
+        'tituloMensaje' => 'required',
+        'mensaje' => 'required',
+    ], $messages);
+
+    $mensaje->update([
+        'tituloMensaje' => $request->tituloMensaje,
+        'mensaje' => $request->mensaje,
+    ]);
+
+    return back()->with('success', 'Mensaje actualizado correctamente.');
+}
+
+public function editRespuesta(Request $request, $id)
+{
+    $respuesta = ForoMensaje::findOrFail($id); // Encuentra la respuesta
+
+    $messages = [
+        'tituloMensaje.required' => 'El campo título de la respuesta es obligatorio.',
+        'mensaje.required' => 'El campo mensaje es obligatorio.',
+    ];
+
+    $request->validate([
+        'tituloMensaje' => 'required',
+        'mensaje' => 'required',
+    ], $messages);
+
+    $respuesta->update([
+        'tituloMensaje' => $request->tituloMensaje,
+        'mensaje' => $request->mensaje,
+    ]);
+
+    return back()->with('success', 'Respuesta actualizada correctamente.');
+}
+
+public function deleteRespuesta($id)
+{
+    $respuesta = ForoMensaje::findOrFail($id);
+    $respuesta->delete(); // Soft delete
+    return back()->with('success', 'Respuesta eliminada correctamente.');
+}
+
+
+public function deleteMensaje($id)
+{
+    $mensaje = ForoMensaje::findOrFail($id);
+    $mensaje->delete(); // Soft delete
+    return back()->with('success', 'Mensaje eliminado correctamente.');
+}
 
 
 

@@ -16,6 +16,7 @@ use App\Models\NotaEntrega;
 use App\Models\NotaEvaluacion;
 use App\Models\Recursos;
 use App\Models\Tareas;
+use App\Models\Temas;
 use App\Models\TareasEntrega;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -27,6 +28,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Charts\BartChart;
 use App\Events\CursoEvent;
 use App\Helpers\TextHelper;
+use App\Models\Tema;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class CursosController extends Controller
 {
@@ -37,51 +42,72 @@ class CursosController extends Controller
      */
     public function index($id)
     {
-        // $id =  Crypt::decrypt($id);
         $cursos = Cursos::findOrFail($id);
         $recursos = Recursos::where('cursos_id', $id)->get();
+
+        // Generar o buscar un token válido
+        $token = DB::table('qr_tokens')
+            ->where('curso_id', $id)
+            ->where('expiracion', '>=', now()) // Asegurar que no esté expirado
+            ->whereColumn('usos_actuales', '<', 'limite_uso') // Límite no alcanzado
+            ->first();
+
         foreach ($recursos as $recurso) {
             $recurso->descripcionRecursos = TextHelper::createClickableLinksAndPreviews($recurso->descripcionRecursos);
         }
-        $inscritos = DB::table('inscritos')->where('cursos_id', $id)->where('estudiante_id', auth()->user()->id)->pluck('estudiante_id');
+
+        $inscritos = DB::table('inscritos')
+            ->where('cursos_id', $id)
+            ->where('estudiante_id', auth()->user()->id)
+            ->pluck('estudiante_id');
 
         if (Auth::user()->hasRole('Administrador') || Auth::user()->hasRole('Docente')) {
             $horarios = Cursos_Horario::where('curso_id', $id)->withTrashed()->get();
-        }else{
+        } else {
             $horarios = Cursos_Horario::where('curso_id', $id)->get();
         }
+
         $foros = Foro::where('cursos_id', $id)->get();
-        $tareas = Tareas::where('cursos_id', $id)->get();
+        $temas = Tema::where('curso_id', $id)->get();
         $evaluaciones = Evaluaciones::where('cursos_id', $id)->get();
 
-
-
         $inscritos2 = Inscritos::where('cursos_id', $id)
-        ->where('estudiante_id', auth()->user()->id)
-        ->first();
+            ->where('estudiante_id', auth()->user()->id)
+            ->first();
 
-        if ($inscritos2) {
-            $boletin = Boletin::where('inscripcion_id', $inscritos2->id)->first();
-        } else {
-            $boletin = null;
+        $boletin = $inscritos2 ? Boletin::where('inscripcion_id', $inscritos2->id)->first() : null;
+
+        if (!$token) {
+            // Crear un nuevo token si no existe o los anteriores han expirado
+            $token = DB::table('qr_tokens')->insertGetId([
+                'curso_id' => $id,
+                'token' => Str::random(32), // Token único
+                'limite_uso' => 5, // Ejemplo: máximo 5 usos
+                'expiracion' => Carbon::now()->addHours(24), // Expira en 24 horas
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $token = DB::table('qr_tokens')->find($token);
         }
 
+        // Generar la URL con el token
+        $urlInscripcion = route('inscribirse.qr', ['id' => $id, 'token' => $token->token]);
 
-        return view('Cursos')
-            ->with('foros', $foros)
-            ->with('recursos', $recursos)
-            ->with('tareas', $tareas)
-            ->with('cursos', $cursos)
-            ->with('inscritos', $inscritos)
-            ->with('evaluaciones', $evaluaciones)
-            ->with('boletin', $boletin)
-            ->with('horarios', $horarios);
+        // Generar el QR
+        $qrCode = base64_encode(QrCode::format('png')->size(300)->generate($urlInscripcion));
 
-
-
-
-
-
+        return view('Cursos', [
+            'foros' => $foros,
+            'recursos' => $recursos,
+            'temas' => $temas,
+            'cursos' => $cursos,
+            'inscritos' => $inscritos,
+            'evaluaciones' => $evaluaciones,
+            'boletin' => $boletin,
+            'horarios' => $horarios,
+            'qrCode' => $qrCode, // Pasar el QR a la vista
+        ]);
     }
 
 
@@ -98,8 +124,8 @@ class CursosController extends Controller
     {
         $curso = Cursos::findOrFail($id);
         $inscritos = Inscritos::where('cursos_id', $id)->whereNull('deleted_at')->get();
-        // ["cursos"=>$cursos]
-        return view('Estudiante.listadeestudiantes')->with('inscritos', $inscritos)->with('curso', $curso);
+        $horarios = Cursos_Horario::where('curso_id', $id)->get();
+        return view('Estudiante.listadeestudiantes')->with('inscritos', $inscritos)->with('curso', $curso)->with('horarios', $horarios);
     }
 
 
@@ -116,12 +142,10 @@ class CursosController extends Controller
     {
 
     $cursos= Cursos::findOrFail($id);
-    $niveles = Nivel::all();
-    $edad = EdadDirigida::all();
     $docente = User::role('Docente')->get();
     $horario = Horario::all();
 
-    return view('Administrador.EditarCursos')->with('docente', $docente)->with('horario', $horario)->with('edad', $edad)->with('niveles', $niveles)->with('cursos', $cursos);
+    return view('Administrador.EditarCursos')->with('docente', $docente)->with('horario', $horario)->with('cursos', $cursos);
 
 
     }
@@ -132,12 +156,7 @@ class CursosController extends Controller
             'nombre' => 'required',
             'fecha_ini' => 'required',
             'fecha_fin' => 'required',
-            'formato' => 'required',
-            'Dias' => [
-                'array', // Asegura que sea un arreglo
-                'required', // Asegura que al menos un checkbox esté seleccionado
-                // Rule::in(['Domingo','Lunes', 'Martes', 'Miercoles','Jueves','Viernes','Sabado']), // Verifica que los valores sean válidos
-            ],
+            'formato' => 'required'
         ]);
 
 
@@ -148,10 +167,11 @@ class CursosController extends Controller
         $curso->fecha_fin = date("Y-m-d", strtotime($request->fecha_fin));
         $curso->formato = $request->formato;
         $curso->docente_id = $request->docente_id;
-        $curso->edadDir_id = $request->edad_id;
-        $curso->niveles_id = $request->nivel_id;
+        $curso->edad_dirigida = $request->edad_id;
+        $curso->nivel = $request->nivel_id;
         $curso->estado = ($curso->fecha_fin < now()) ? 'Finalizado' : 'Activo';
         $curso->notaAprobacion = $request->nota;
+        $curso->tipo = $request->tipo;
 
         if ($request->hasFile('archivo')) {
             // Elimina el archivo anterior si existe

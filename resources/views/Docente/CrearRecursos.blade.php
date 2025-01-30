@@ -1,6 +1,3 @@
-
-
-
 @section('nav')
     @if (auth()->user()->hasRole('Administrador'))
         <ul class="navbar-nav">
@@ -76,231 +73,179 @@
     @endif
 @endsection
 
+<style>
+    .icon-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .icon-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100px;
+        padding: 10px;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .icon-option:hover {
+        background-color: #f0f0f0;
+    }
+
+    .icon-option.selected {
+        border-color: #007bff;
+        background-color: #e7f1ff;
+    }
+
+    .icon-option img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        margin-bottom: 8px;
+    }
+
+    .icon-option p {
+        margin: 0;
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-input,
+    .form-button {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .form-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .form-button:hover {
+        background-color: #0056b3;
+    }
+</style>
 @section('content')
-<div class="border p-3">
-<a href="javascript:history.back()" class="btn btn-primary">
-    &#9668; Volver
-</a>
-<br>
+    <div class="border p-3">
+        <a href="{{ route('Curso', ['id' => $curso->id]) }}" class="btn btn-primary">
+            &#9668; Volver
+        </a>
+        <br>
 
-<div class="recursoscrear-container">
-<div class="title">
-
-                <h2>Subir Recurso (Docente)</h2>
-                <p>Curso: {{$curso->nombreCurso}}</p> <!-- Reemplaza "Curso de Ejemplo" con el nombre real del curso -->
-            </div>
-
-        <div class="form">
-            <form method="POST" enctype="multipart/form-data" action="{{route('CrearRecursosPost', $curso->id)}}">
-                <input type="text" value="{{$curso->id}}" name="cursos_id" hidden>
+        <div class="container">
+            <form id="resourceForm" action="{{route('CrearRecursosPost', ['id' => $curso->id])}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
-                    <label for="tituloRecurso" class="form-label">Título del Recurso:</label>
-                    <input type="text" id="fileTitle" name="tituloRecurso" class="form-input" required>
+                    <label for="fileTitle">Título del Recurso:</label>
+                    <input type="text" id="fileTitle" name="tituloRecurso" class="form-input" required minlength="3"
+                        maxlength="100">
                 </div>
+
                 <div class="form-group">
-                    <label for="fileDescription" class="form-label">Descripción del Recurso:</label>
-                    <br>
-                    <textarea id="fileDescription" name="descripcionRecurso" rows="4" class="form-input" required></textarea>
+                    <label for="fileDescription">Descripción del Recurso:</label>
+                    <textarea id="fileDescription" name="descripcionRecurso" class="form-input" rows="4" required minlength="10"
+                        maxlength="500"></textarea>
                 </div>
+
                 <div class="form-group">
-                    <label for="fileUpload" class="form-label">Seleccionar Archivo:</label>
-                    <input type="file" id="fileUpload" name="archivo" class="form-input">
+                    <label for="fileUpload">Seleccionar Archivo:</label>
+                    <input type="file" id="fileUpload" name="archivo" class="form-input" >
                 </div>
 
+                <h3>Elige el tipo de Recurso</h3>
 
-                <h2>Elige el tipo de Recurso</h2>
+                <!-- Replace the icon gallery with a select dropdown -->
+                <select id="resourceSelect" name="tipoRecurso">
+                    <option value="" disabled selected>Selecciona un recurso</option>
+                    <option value="word">Word</option>
+                    <option value="excel">Excel</option>
+                    <option value="powerpoint">PowerPoint</option>
+                    <option value="pdf">PDF</option>
+                    <option value="archivos-adjuntos">Archivos Adjuntos</option>
+                    <option value="docs">Docs</option>
+                    <option value="forms">Forms</option>
+                    <option value="drive">Drive</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="kahoot">Kahoot</option>
+                    <option value="canva">Canva</option>
+                    <option value="zoom">Zoom</option>
+                    <option value="meet">Meet</option>
+                    <option value="teams">Teams</option>
+                    <option value="enlace">Enlace</option>
+                    <option value="imagen">Imagen</option>
+                    <option value="video">Video</option>
+                    <option value="audio">Audio</option>
+                </select>
 
-                <div class="icon-gallery">
+                <p id="selected-icon">Seleccionado: Ninguno</p>
 
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/word.png')}}" alt="word" data-value="word" height="50px" width: auto>
-                        <p>Word</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/excel.png')}}" alt="excel" data-value="excel" height="50px">
-                        <p>Excel</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/powerpoint.png')}}" alt="powerpoint" data-value="powerpoint" height="50px">
-                        <p>PowerPoint</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/pdf.png')}}" alt="pdf" data-value="pdf" height="50px">
-                        <p>PDF</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/archivos-adjuntos.png')}}" alt="archivos-adjuntos" data-value="archivos-adjuntos" height="50px">
-                        <p>Archivos Adjuntos</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/doc.png')}}" alt="docs" data-value="docs" height="50px">
-                        <p>Docs</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/forms.png')}}" alt="forms" data-value="forms" height="50px">
-                        <p>Forms</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/drive.png')}}" alt="drive" data-value="drive" height="50px">
-                        <p>Drive</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/youtube.png')}}" alt="youtube" data-value="youtube" height="50px">
-                        <p>YouTube</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/kahoot.png')}}" alt="kahoot" data-value="kahoot" height="50px">
-                        <p>Kahoot</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/canva.png')}}" alt="canva" data-value="canva" height="50px">
-                        <p>Canva</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/zoom.png')}}" alt="zoom" data-value="zoom" height="50px">
-                        <p>Zoom</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/meet.png')}}" alt="meet" data-value="meet" height="50px">
-                        <p>Meet</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/teams.png')}}" alt="teams" data-value="teams" height="30px" width = "auto">
-                        <p>Teams</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/enlace.png')}}" alt="enlace" data-value="enlace" height="50px">
-                        <p>Enlace</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/imagen.png')}}" alt="imagen" data-value="imagen" height="50px">
-                        <p>Imagen</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/video.png')}}" alt="video" data-value="video" height="50px">
-                        <p>Video</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/audio.png')}}" alt="audio" data-value="audio" height="50px">
-                        <p>Audio</p>
-                    </div>
-                    <!-- Agrega más opciones de iconos según sea necesario -->
-                </div>
-                <input id="input-seleccionado" type="text" name="tipoRecurso" value="" hidden >
-                 <p id="icono-seleccionado">Seleccionado: Ninguno</p>
-
-            <script>
-                const iconOptions = document.querySelectorAll('.icon-option');
-                const iconoSeleccionado = document.getElementById('icono-seleccionado');
-                const inputSeleccionado = document.getElementById('input-seleccionado');
-                iconOptions.forEach((option) => {
-                    option.addEventListener('click', () => {
-                        const valorSeleccionado = option.querySelector('img').getAttribute('data-value');
-                        iconoSeleccionado.textContent = `Seleccionado: ${valorSeleccionado}`;
-                        inputSeleccionado.value = valorSeleccionado;
-
-                    });
-                });
-            </script>
-
-
-
-                <button type="submit" class="form-button">Guardar</button>
+                <button type="submit" class="form-button">Guardar Recurso</button>
             </form>
         </div>
 
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const resourceSelect = document.getElementById('resourceSelect');
+                const selectedIcon = document.getElementById('selected-icon');
+
+                // Update the text when a new option is selected
+                resourceSelect.addEventListener('change', function() {
+                    const selectedValue = this.value;
+                    const selectedOption = this.options[this.selectedIndex];
+
+                    // Update the selection text
+                    selectedIcon.textContent = `Seleccionado: ${selectedOption.textContent}`;
+
+                    // Debugging
+                    console.log('Selected Resource Type:', selectedValue);
+                });
+
+                // Validation on form submission
+                const form = document.querySelector('form');
+                if (form) {
+                    form.addEventListener('submit', function(event) {
+                        // Check if the user has selected a resource
+                        if (!resourceSelect.value) {
+                            event.preventDefault();
+                            alert('Por favor, seleccione un tipo de recurso.');
+                        } else {
+                            console.log('Formulario enviado con tipo de recurso:', resourceSelect.value);
+                        }
+                    });
+                }
+            });
+        </script>
+
+
+
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+
     </div>
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-<style>
-
-        .recursoscrear-container {
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px;
-        }
-
-        .title {
-            text-align: left;
-        }
-
-        .task-form {
-            width: 100%;
-            max-width: 400px;
-            text-align: left;
-            margin-top: 20px;
-        }
-
-    .task-form h2 {
-        margin-bottom: 20px;
-        font-size: 24px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    input[type="text"],
-    textarea,
-    input[type="date"],
-    input[type="number"],
-    input[type="file"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 16px;
-    }
-
-    input[type="checkbox"] {
-        margin-top: 5px;
-    }
-
-    button {
-        background-color: #007BFF;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background-color: #0056b3;
-    }
-    .icon-option {
-        text-align: center; /* Alinear el contenido al centro */
-        width: 100px; /* Ancho fijo para todos los iconos */
-    }
-
-    .icon-option img {
-        height: 50px; /* Altura fija para todos los iconos */
-        width: auto; /* Hacer que el ancho se ajuste automáticamente */
-    }
-</style>
-
-
-</div>
 @endsection
 
 @include('layout')
-

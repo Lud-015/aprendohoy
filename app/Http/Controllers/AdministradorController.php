@@ -292,9 +292,10 @@ class AdministradorController extends Controller
         $curso->fecha_ini = date("Y-m-d", strtotime($request->fecha_ini));
         $curso->fecha_fin = date("Y-m-d", strtotime($request->fecha_fin));
         $curso->formato = $request->formato;
+        $curso->tipo = $request->tipo;
         $curso->docente_id = $request->docente_id;
-        $curso->edadDir_id = $request->edad_id;
-        $curso->niveles_id = $request->nivel_id;
+        $curso->edad_dirigida = $request->edad_id;
+        $curso->nivel = $request->nivel_id;
         $curso->notaAprobacion = 51;
         $curso->estado = ($curso->fecha_fin < now()) ? 'Finalizado' : 'Activo';
 

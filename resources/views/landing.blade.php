@@ -10,7 +10,7 @@
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="assets/img/logoedin " rel="icon">
+    <link href="assets/img/Acceder" rel="icon">
     <link href="assets2/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
@@ -37,9 +37,7 @@
         <div class="container d-flex align-items-center justify-content-between">
 
             <div class="">
-                {{-- <h1><a href="index.html">Appland</a></h1> --}}
-                <!-- Uncomment below if you prefer to use an image logo -->
-                <a href="index.html"><img src="assets/img/logoedin.png" alt="" style=" height: 105px;"></a>
+                <a href="index.html"><img src="assets/img/Acceder.png" alt="" style=" height: 105px;"></a>
             </div>
 
             <nav id="navbar" class="navbar">

@@ -4,23 +4,19 @@
 
 @section('nav2')
     <nav id="header"
-        class=" fixed w-full z-12  shadow header header-main header-expand-lg header-transparent header-light py-5 mb-10">
-
-
+        class="fixed w-full z-12 shadow header header-main header-expand-lg header-transparent header-light py-5 mb-10">
 
         <div class="header-container">
             <div class="header-brand logo-izquierdo">
                 <img src="{{ asset('./resources/img/logof.png') }}" class="w-24 lg:w-32 xl:w-40 h-auto">
             </div>
             <div class="header-brand logo-derecho">
-                <img src="{{ asset('./resources/img/logoedin.png') }}" class="w-20 lg:w-24 xl:w-32 h-auto">
+                <img src="{{ asset('./assets/img/Acceder.png') }}" class="w-20 lg:w-24 xl:w-32 h-auto">
             </div>
         </div>
+
         <div class="w-full container mx-auto flex flex-wrap items-right mt-0 pt-3 mb-12 pb-20 md:pb-1">
-
-
-
-            <div class=" lg:hidden ml-10">
+            <div class="lg:hidden ml-10">
                 <button id="nav-toggle"
                     class="flex items-center px-3 py-2 border rounded text-blue-500 border-blue-200 hover:text-gray-900 hover:border-teal-500 appearance-none focus:outline-none">
                     <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -30,12 +26,9 @@
                 </button>
             </div>
 
-
-
-            <div class="w-full lg:flex lg:items-center  bg-white z-10" id="nav-content">
-                <div class="flex relative pull-right pl-2 pr-2 md:pr-0 ">
-
-                    <div class="list-reset lg:flex flex-1 items-center px-4 mr-6 my-2 md:my-0 ">
+            <div class="w-full lg:flex lg:items-center bg-white z-10" id="nav-content">
+                <div class="flex relative pull-right pl-2 pr-2 md:pr-0">
+                    <div class="list-reset lg:flex flex-1 items-center px-4 mr-6 my-2 md:my-0">
                         <button id="userButton" class="flex items-center focus:outline-none mr-3">
                             @if (auth()->user()->avatar == '')
                                 <img class="w-8 h-8 rounded-full mr-4" src="{{ asset('./assets/img/user.png') }}"
@@ -45,7 +38,7 @@
                                     src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar of User">
                             @endif
                             <span class="hidden md:inline-block atma">Bienvenid@, {{ auth()->user()->name }}
-                                {{ auth()->user()->lastname1 }} </span>
+                                {{ auth()->user()->lastname1 }}</span>
                             <svg class="pl-2 h-2" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 129 129"
                                 xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 129 129">
                                 <g>
@@ -68,17 +61,13 @@
                                 </li>
                                 <li><a href="{{ route('logout') }}"
                                         class="px-4 py-2 block text-gray-900 hover:bg-gray-400 no-underline hover:no-underline">Cerrar
-                                        Sesion</a>
-                                </li>
+                                        Sesion</a></li>
                             </ul>
                         </div>
                     </div>
-
-
-
                 </div>
 
-                <ul class="list-reset lg:flex flex-1 items-center px-4 md:px-0 ">
+                <ul class="list-reset lg:flex flex-1 items-center px-4 md:px-0">
                     <li class="mr-6 my-2 md:my-0">
                         <a href="{{ route('Inicio') }}"
                             class="block py-1 md:py-3 pl-1 align-middle text-blue-900 no-underline hover:text-gray-900 border-b-2 border-orange-600 hover:border-orange-600">
@@ -114,11 +103,9 @@
                     </li>
                 </ul>
 
-
                 <div class="relative pull-right pl-3 pr-5 md:pr-0">
-
                     <input type="search" placeholder="Search"
-                        class=" bg-gray-100 text-sm mr-4 text-gray-800 transition border focus:outline-none focus:border-gray-700 rounded py-1 px-2 pl-10 appearance-none leading-normal">
+                        class="bg-gray-100 text-sm mr-4 text-gray-800 transition border focus:outline-none focus:border-gray-700 rounded py-1 px-2 pl-10 appearance-none leading-normal">
                     <div class="absolute search-icon" style="top: 0.375rem;left: 1.75rem;">
                         <svg class="fill-current pointer-events-none text-gray-800 w-4 h-4"
                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -130,7 +117,6 @@
                 </div>
 
             </div>
-
         </div>
     </nav>
 @endsection
@@ -180,7 +166,7 @@
                     <i class="ni ni-circle-08 text-green"></i> Mi perfil
                 </a>
             </li>
-            <li class="nav-item  active ">
+            <li class="nav-item   ">
                 <a class="nav-link  active " href="{{ route('Inicio') }}">
                     <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
                 </a>
@@ -200,7 +186,7 @@
     @endif
 
     @if (auth()->user()->hasRole('Estudiante'))
-        <ul class="navbar-nav active">
+        <ul class="navbar-nav ">
             <li class="nav-item">
                 <a class="nav-link active" href="{{ route('Miperfil') }}">
                     <i class="ni ni-circle-08 text-green"></i> Mi perfil
@@ -243,27 +229,12 @@
 
 
 @section('avatar')
-
-
-    <br><br>
-
-
-
-
-
-
-
     @if (auth()->user()->avatar == '')
         <img id="avatar" src="{{ asset('./assets/img/user.png') }}" class="rounded-circle">
     @else
         <img id="avatar" src="{{ asset('storage/' . auth()->user()->avatar) }}" class="rounded-circle"
             height="200px" width="200px">
     @endif
-
-
-
-
-
 
     <form method="POST" class="" enctype="multipart/form-data" id="uploadForm">
         @csrf
@@ -279,18 +250,12 @@
     </form>
 
     <canvas id="canvas" style="display: none;"></canvas>
-
-
-
 @endsection
 
 @section('contentPerfil')
     <div class="row">
 
     </div>
-    <br>
-    <br>
-    <br>
     <div class="text-center">
         <h3>
             {{ auth()->user()->name }} {{ auth()->user()->lastname1 }}<span class="font-weight-light"></span>
@@ -315,16 +280,15 @@
 @endsection
 
 @section('container')
-    <div class="flex container w-full mx-auto pt-20">
+    <div class="flex flex-wrap container w-full mx-auto pt-20">
+        <div class="flex flex-wrap w-full px-4 md:px-0 md:mt-8 mb-16 text-gray-800 leading-normal">
 
-        <div class="flex w-full px-4 md:px-0 md:mt-8 mb-16 text-gray-800 leading-normal">
-
-            <div class="m-10 max-w-sm">
+            <div class="m-4 w-full sm:w-1/2 lg:w-1/3">
                 <div class="rounded-lg border bg-white px-4 pt-8 pb-10 shadow-lg">
-                    <div class=" mx-auto w-36 rounded-full">
+                    <div class="mx-auto w-36 rounded-full">
                         @if (auth()->user()->avatar == '')
-                            <img id="avatar" class="mx-auto h-auto w-full aspect-square rounded-full" src="{{ asset('./assets/img/user.png') }}"
-                                alt="">
+                            <img id="avatar" class="mx-auto h-auto w-full aspect-square rounded-full"
+                                src="{{ asset('./assets/img/user.png') }}" alt="">
                         @else
                             <img id="avatar" class="mx-auto h-auto w-full aspect-square rounded-full"
                                 src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="">
@@ -333,28 +297,25 @@
                         <form method="POST" class="" enctype="multipart/form-data" id="uploadForm">
                             @csrf
                             <div class="align-content-start">
-                                <input type="text" name="id" value="{{ auth()->user()->id }}" hidden readonly disabled>
+                                <input type="text" name="id" value="{{ auth()->user()->id }}" hidden readonly
+                                    disabled>
                                 <label for="avatarInput" class="btn button"><i class="fa fa-image"></i></label>
                                 <input type="file" id="avatarInput" name="avatar" accept="image/*">
                                 <label for="submitInput" class="btn button">
                                     <i class="fa fa-upload"></i>
-                                    <input id="submitInput" type="submit" onclick="resizeAndSubmit()" style="display: none;">
+                                    <input id="submitInput" type="submit" onclick="resizeAndSubmit()"
+                                        style="display: none;">
                                 </label>
                             </div>
                         </form>
 
                         <canvas id="canvas" style="display: none;"></canvas>
 
-
                     </div>
                     <h1 class="my-1 text-center text-xl font-bold leading-8 text-gray-900">{{ auth()->user()->name }}
                         {{ auth()->user()->lastname1 }} {{ auth()->user()->lastname2 }}</h1>
                     <h3 class="font-lg text-semibold text-center leading-6 text-gray-600">
-                        {{ auth()->user()->roles->pluck('name')[0] }}
-
-                    </h3>
-                    <p class="text-center text-sm leading-6 text-gray-500 hover:text-gray-600">
-                        ____________________________________________________________</p>
+                        {{ auth()->user()->roles->pluck('name')[0] }}</h3>
                     <ul
                         class="mt-3 divide-y rounded bg-gray-100 py-2 px-3 text-gray-600 shadow-sm hover:text-gray-700 hover:shadow">
                         <li class="flex items-center py-3 text-sm">
@@ -370,128 +331,111 @@
                             <span class="ml-auto">{{ auth()->user()->Celular }}</span>
                         </li>
                         <li class="flex items-center py-3 text-sm">
-                            <span>Se unío el</span>
+                            <span>Se unió el</span>
                             <span class="ml-auto">{{ auth()->user()->created_at }}</span>
-
                         </li>
                     </ul>
                 </div>
-
-
-
-
             </div>
-            <div class="m-10 max-w-sm">
+
+            <div class="m-4 w-full sm:w-1/2 lg:w-1/3">
                 <div class="rounded-lg border bg-white px-4 pt-8 pb-10 shadow-lg">
-                    <h1 class="my-1 text-center text-xl font-bold leading-8 text-gray-900">
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mas Información&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h1>
-                    <p class="text-center text-sm leading-6 text-gray-500 hover:text-gray-600">
-                        ____________________________________________________</p>
+                    <h1 class="my-1 text-center text-xl font-bold leading-8 text-gray-900">Más Información</h1>
                     <ul
                         class="mt-3 divide-y rounded bg-gray-100 py-2 px-3 text-gray-600 shadow-sm hover:text-gray-700 hover:shadow">
-
                         <li class="flex items-center py-3 text-sm">
                             <span>País origen</span>
-                            <span class="ml-auto"> {{ auth()->user()->PaisReside }}</span>
+                            <span class="ml-auto">{{ auth()->user()->PaisReside }}</span>
                         </li>
                         <li class="flex items-center py-3 text-sm">
                             <span>Ciudad origen</span>
                             <span class="ml-auto">{{ auth()->user()->CiudadReside }}</span>
-
                         </li>
                         <li class="flex items-center py-3 text-sm">
                             <span>Correo Electrónico: </span>
-                            &nbsp;
-                            <span class="ml-auto"> {{ auth()->user()->email }}</span>
-
+                            <span class="ml-auto">{{ auth()->user()->email }}</span>
                         </li>
-                        @if (auth()->user()->hasRole('Docente'))
-                            @forelse ($atributosD as $atributosD)
-                                <li class="flex items-center py-3 text-sm">
-                                    <span>Profesion: </span>
-                                    &nbsp;
-                                    <span class="ml-auto"> {{ $atributosD->formacion }}</span>
 
+                        @if (auth()->user()->hasRole('Docente'))
+                            @forelse ($atributosD as $atributo)
+                                <li class="flex items-center py-3 text-sm">
+                                    <span>Profesión: </span>
+                                    <span class="ml-auto">{{ $atributo->formacion }}</span>
                                 </li>
                                 <li class="flex items-center py-3 text-sm">
-                                    <span>Especializacion: </span>
-                                    &nbsp;
-                                    <span class="ml-auto"> {{ $atributosD->Especializacion }}</span>
-
+                                    <span>Especialización: </span>
+                                    <span class="ml-auto">{{ $atributo->Especializacion }}</span>
                                 </li>
                                 <li class="flex items-center py-3 text-sm">
                                     <span>Experiencia Laboral: </span>
-                                    &nbsp;
-                                    <span class="ml-auto"> {{ $atributosD->ExperienciaL }}</span>
-
+                                    <span class="ml-auto">{{ $atributo->ExperienciaL }}</span>
                                 </li>
-
-
                             @empty
                             @endforelse
 
                             <li class="flex items-center py-3 text-sm">
                                 <span>Hoja de vida: </span>
-                                &nbsp;
                                 @if (auth()->user()->cv_file == '')
                                     <h3>Aún no se ha subido una hoja de vida</h3>
                                 @else
-                                    <a href="{{ asset('storage/' . auth()->user()->cv_file) }}"> Ver hoja de vida </a>
+                                    <a href="{{ asset('storage/' . auth()->user()->cv_file) }}">Ver hoja de vida</a>
                                 @endif
                             </li>
                         @endif
                     </ul>
-
                 </div>
-
-
             </div>
-            <div class="m-10  max-w-sm">
-                <div class="rounded-lg border bg-white px-8 pt-10 pb-12 shadow-lg">
 
-                    @if (auth()->user()->hasRole('Docente'))
+            @if (auth()->user()->hasRole('Docente'))
+                <div class="m-4 w-full lg:w-1/2">
+                    <div class="rounded-lg border bg-white px-8 pt-10 pb-12 shadow-lg">
                         <h1 class="my-1 text-center text-xl font-bold leading-8 text-gray-900">Tus últimas 4 experiencias
                             laborales</h1>
-                        <table>
-                            <tr>
-                                <th>Lugar de Trabajo</th>
-                                <th>Cargo</th>
-                                <th>Fecha Inicio</th>
-                                <th>Fecha Fin</th>
-                                <th>Contacto de Referencia</th>
-                            </tr>
-                            @forelse ($trabajos as $trabajos)
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td>{{ $trabajos->empresa }}</td>
-                                    <td>{{ $trabajos->cargo }}</td>
-                                    <td>{{ $trabajos->fecha_inicio }}</td>
-                                    <td>{{ $trabajos->fecha_fin }}</td>
-                                    <td>{{ $trabajos->contacto_ref }}</td>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Lugar de Trabajo</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Cargo</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Fecha Inicio</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Fecha Fin</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Contacto de Referencia</th>
                                 </tr>
-                            @empty
-
-                                <tr class="">
-                                    <td></td>
-                                    <td></td>
-                                    <td >
-
-                                        <h1 class="">No se han registrado tus trabajos más recientes</h1>
-                                    </td>
-                                    <td></td>
-                                    <td></td>
-
-                                </tr>
-                            @endforelse
-
-
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse ($trabajos as $trabajo)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $trabajo->empresa }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $trabajo->cargo }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $trabajo->fecha_inicio }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $trabajo->fecha_fin }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $trabajo->contacto_ref }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5"
+                                            class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">No se han
+                                            registrado tus trabajos más recientes</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
                         </table>
-                    @endif
-
-
+                    </div>
                 </div>
-            </div>
+            @endif
+
         </div>
     </div>
+
 @endsection
 
 

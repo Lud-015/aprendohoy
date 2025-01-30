@@ -263,6 +263,10 @@
             </div>
         </div>
     </div>
+
+
+
+
 @endsection
 @endif
 
@@ -272,6 +276,7 @@
 
     @include('FundacionPlantillaUsu.index')
 @endif
+
 
 
 

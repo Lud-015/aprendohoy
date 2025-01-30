@@ -6,6 +6,8 @@ use App\Events\RecursosEvent;
 use App\Models\Cursos;
 use App\Models\Recursos;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 
 class RecursosController extends Controller
 {
@@ -29,41 +31,73 @@ class RecursosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $id)
     {
         $messages = [
             'tituloRecurso.required' => 'El campo título del recurso es obligatorio.',
             'descripcionRecurso.required' => 'El campo descripción del recurso es obligatorio.',
-            'tipoRecurso.required' => 'Elige un tipo de Recurso.',
         ];
 
-        $request->validate([
-            'tituloRecurso' => 'required',
-            'descripcionRecurso' => 'required',
-            'tipoRecurso' => 'required',
+        // Validar los datos del formulario
+        $validatedData = $request->validate([
+            'tituloRecurso' => 'required|string|max:255',
+            'descripcionRecurso' => 'required|string',
+            'tipoRecurso' => 'nullable|string',
+            'archivo' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip|max:2048',
         ], $messages);
 
+        // Crear una nueva instancia del modelo Recursos
         $recurso = new Recursos();
+        $recurso->nombreRecurso = $validatedData['tituloRecurso'];
+        $recurso->cursos_id = $id;
 
-        $recurso->nombreRecurso = $request->tituloRecurso;
-        $recurso->cursos_id = $request->cursos_id;
+        // Procesar la descripción para detectar y manejar enlaces de YouTube
+        $descripcion = $validatedData['descripcionRecurso'];
+        $recurso->descripcionRecursos = $this->procesarDescripcionConIframe($descripcion);
 
-        $recurso->descripcionRecursos = $request->descripcionRecurso;
-        $recurso->tipoRecurso = $request->tipoRecurso;
+        // Asignar el tipo de recurso si existe
+        $recurso->tipoRecurso = $validatedData['tipoRecurso'] ?? null;
 
+        // Procesar archivo adjunto si se incluye
         if ($request->hasFile('archivo')) {
-            $recursosPath = $request->file('archivo')->store('archivo', 'public');
-            $recurso->archivoRecurso = $recursosPath;
+            $recurso->archivoRecurso = $request->file('archivo')->store('archivo', 'public');
         }
 
-        event(new RecursosEvent($recurso, 'crear'));
-
+        // Guardar el recurso en la base de datos
         $recurso->save();
 
-
-        return redirect(route('Curso', $request->cursos_id))->with('success', 'Recurso creado Con éxito');
-
+        // Redirigir con un mensaje de éxito
+        return redirect(route('Curso', $id))->with('success', 'Recurso creado con éxito');
     }
+
+
+    private function procesarDescripcionConIframe(string $descripcion): string
+    {
+        $iframe = '';
+
+        if (Str::contains($descripcion, ['youtube.com', 'youtu.be'])) {
+            $videoId = '';
+
+            if (Str::contains($descripcion, 'youtu.be')) {
+                $videoId = Str::after($descripcion, 'youtu.be/');
+            } elseif (Str::contains($descripcion, 'youtube.com')) {
+                $videoId = Str::between($descripcion, 'v=', '&') ?: Str::after($descripcion, 'v=');
+            }
+
+            if ($videoId) {
+                $iframe = '<iframe width="560" height="315" src="https://www.youtube.com/embed/' . $videoId . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+
+                // Eliminar el enlace de YouTube del texto para evitar duplicados
+                $descripcion = Str::replace([
+                    'https://www.youtube.com/watch?v=' . $videoId,
+                    'https://youtu.be/' . $videoId
+                ], '', $descripcion);
+            }
+        }
+
+        return $descripcion . ($iframe ? "\n\n" . $iframe : '');
+    }
+
 
     public function descargar($nombreArchivo)
     {
@@ -81,42 +115,56 @@ class RecursosController extends Controller
 
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-
         $messages = [
             'tituloRecurso.required' => 'El campo título del recurso es obligatorio.',
             'descripcionRecurso.required' => 'El campo descripción del recurso es obligatorio.',
         ];
 
-        $request->validate([
-            'tituloRecurso' => 'required',
-            'descripcionRecurso' => 'required',
+        // Validar los datos del formulario
+        $validatedData = $request->validate([
+            'tituloRecurso' => 'required|string|max:255',
+            'descripcionRecurso' => 'required|string',
+            'tipoRecurso' => 'nullable|string',
+            'archivo' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip|max:2048',
+            'cursos_id' => 'required|integer',
+            'idRecurso' => 'required|integer',
         ], $messages);
 
+        // Buscar el recurso a editar
+        $recurso = Recursos::findOrFail($validatedData['idRecurso']);
 
+        // Actualizar los campos del recurso
+        $recurso->nombreRecurso = $validatedData['tituloRecurso'];
+        $recurso->cursos_id = $validatedData['cursos_id'];
 
-        $recurso = Recursos::findOrFail($request->idRecurso);
+        // Procesar la descripción para detectar y manejar enlaces de YouTube
+        $descripcion = $validatedData['descripcionRecurso'];
+        $recurso->descripcionRecursos = $this->procesarDescripcionConIframe($descripcion);
 
-        $recurso->nombreRecurso = $request->tituloRecurso;
-        $recurso->cursos_id = $request->cursos_id;
+        // Actualizar el tipo de recurso si se proporciona
+        $recurso->tipoRecurso = $validatedData['tipoRecurso'] ?? $recurso->tipoRecurso;
 
-        $recurso->descripcionRecursos = $request->descripcionRecurso;
-        $recurso->tipoRecurso = $request->tipoRecurso;
-
+        // Procesar archivo si se incluye uno nuevo
         if ($request->hasFile('archivo')) {
+            // Opcional: eliminar el archivo anterior si aplica
+            if ($recurso->archivoRecurso && \Storage::disk('public')->exists($recurso->archivoRecurso)) {
+                \Storage::disk('public')->delete($recurso->archivoRecurso);
+            }
+
+            // Guardar el nuevo archivo
             $recursosPath = $request->file('archivo')->store('archivo', 'public');
             $recurso->archivoRecurso = $recursosPath;
         }
 
+        // Guardar los cambios en la base de datos
         $recurso->save();
 
-
-        return redirect(route('Curso', $request->cursos_id))->with('success', 'Editado con éxito');
-
-
-
+        // Redirigir con un mensaje de éxito
+        return redirect(route('Curso', $validatedData['cursos_id']))->with('success', 'Recurso editado con éxito');
     }
+
 
     public function delete($id)
     {

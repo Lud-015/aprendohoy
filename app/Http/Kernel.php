@@ -23,6 +23,8 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\NoCacheMiddleware::class,
         \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \App\Http\Middleware\DisableCache::class,
+
     ];
 
     /**

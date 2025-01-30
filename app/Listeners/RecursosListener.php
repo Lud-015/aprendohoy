@@ -35,7 +35,9 @@ class RecursosListener
 
         $administradores = User::role('Administrador')->get();
 
-        $estudianteIds = Inscritos::where('cursos_id', $recurso->cursos->id)->pluck('estudiante_id');
+        
+
+        $estudianteIds = Inscritos::where('cursos_id', $recurso->cursos->id)->withoutTrashed()->pluck('estudiante_id');
 
         $estudiantes = User::whereIn('id', $estudianteIds)->get();
 

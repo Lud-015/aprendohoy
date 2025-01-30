@@ -1,164 +1,136 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Certificado</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado de Participación</title>
     <style>
         @page {
-            margin: 0;
-            padding: 0;
-            size: A4 landscape;
+            size: 11in 8.5in; /* Tamaño de hoja carta en orientación horizontal */
+            margin: 0; /* Eliminar márgenes predeterminados */
         }
 
         body {
-            font-family: 'Montserrat', 'Arial', sans-serif;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #ffffff;
+            background-color: #f8f9fa;
         }
 
         .container {
             width: 100%;
-            max-width: 1050px;
+            height: 100%;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             margin: 0 auto;
-            padding: 20px;
-            box-sizing: border-box;
         }
 
-        .certificate {
-            position: relative;
-            padding: 30px;
-            border: 4px double #1a4789;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .certificate-header {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logo-container {
-            display: inline-block;
-            width: 45%;
-            height: 80px;
-            text-align: center;
-            vertical-align: middle;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .logo {
-            max-height: 80px;
-            max-width: 100%;
+            max-width: 120px;
         }
 
-        .certificate-title {
-            font-family: 'Georgia', serif;
-            font-size: 28pt;
-            color: #1a4789;
-            text-align: center;
-            margin: 20px 0;
+        .titulo {
+            font-size: 32px;
             font-weight: bold;
-            text-transform: uppercase;
-            border-bottom: 2px solid #1a4789;
-            padding-bottom: 10px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        }
-
-        .certificate-content {
-            margin: 20px 40px;
-        }
-
-        .certificate-text {
-            font-size: 14pt;
-            color: #1a4789;
-            margin: 10px 0;
-            line-height: 1.6;
-            text-align: justify;
-        }
-
-        .student-name {
-            font-family: 'Georgia', serif;
-            font-size: 22pt;
-            color: #1a4789;
-            font-weight: bold;
-            text-align: center;
-            margin: 20px 0;
-            padding-bottom: 5px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        }
-
-        .certificate-footer {
-            text-align: right;
-            font-size: 10pt;
-            color: #1a4789;
+            color: #2C3E50;
             margin-top: 20px;
-            padding-top: 10px;
         }
 
-        .signature {
-            text-align: center;
-            margin-top: 60px;
-            position: relative;
+        .detalle {
+            font-size: 18px;
+            margin: 15px 0;
         }
 
-        .signature-line {
-            width: 200px;
-            height: 1px;
-            background-color: #1a4789;
-            margin: 10px auto;
-        }
-
-        .signature p {
-            margin: 5px 0;
-            font-size: 10pt;
-            color: #1a4789;
-        }
-
-        strong {
+        .nombre {
+            font-size: 34px;
             font-weight: bold;
+            color: #2980B9;
+        }
+
+        .firmas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 80px;
+            margin-top: 40px;
+        }
+
+        .firma {
+            text-align: center;
+        }
+
+        .firma-img {
+            max-width: 180px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .nombre-firma {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .qr-container {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+
+        .qr-code {
+            width: 120px;
+        }
+
+        .codigo {
+            font-size: 14px;
+            color: gray;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <div class="certificate">
-            <div class="certificate-header">
-                <div class="logo-container">
-                    <img src="data:image/png;base64,{{ $logoF }}" alt="Logo F" class="logo">
-                </div>
-                <div class="logo-container">
-                    <img src="data:image/png;base64,{{ $logoEdin }}" alt="Logo Edin" class="logo">
-                </div>
+        <div class="header">
+            <img src="{{ storage_path('app/public/'.$logo) }}" alt="Logo" class="logo">
+        </div>
+
+        <h1 class="titulo">Certificado de Participación</h1>
+
+        <p class="detalle">Se otorga el presente certificado a:</p>
+        <p class="nombre">{{ $inscrito->estudiantes->name }}  {{ $inscrito->estudiantes->lastname1 }} {{ $inscrito->estudiantes->lastname2 }}</p>
+
+        <p class="detalle">Por haber completado exitosamente el curso/congreso: <strong>{{ $curso }}</strong></p>
+
+        <p class="detalle">Fecha de emisión: <strong>{{ $fecha_emision }}</strong></p>
+        <p class="detalle">Fecha de finalización del curso: <strong>{{ $fecha_finalizacion }}</strong></p>
+
+        <div class="firmas-container">
+            <div class="firma">
+                {{-- <img src="{{ storage_path('app/public/'.$firma1) }}" alt="Firma 1" class="firma-img"> --}}
+                <p class="nombre-firma">Sara Doe</p>
             </div>
-
-            <h1 class="certificate-title">CERTIFICADO</h1>
-
-            <div class="certificate-content">
-                <p class="certificate-text">Se otorga el presente certificado a:</p>
-                <h2 class="student-name">{{ $estudiante->name }} {{ $estudiante->lastname1 }} {{ $estudiante->lastname2 }}</h2>
-                <p class="certificate-text">
-                    Por haber completado con éxito el curso de <strong>{{ $curso->nombreCurso }}</strong>.
-                    Este certificado se otorga en reconocimiento a su dedicación y logros al haber obtenido como
-                    promedio final: <strong>100</strong>.
-                    En un periodo de tiempo de <strong>{{ $curso->fecha_ini }}</strong> a
-                    <strong>{{ $curso->fecha_fin }}</strong>.
-                </p>
-                <p class="certificate-footer">
-                    Fecha de emisión: <strong>{{ $fecha }}</strong><br>
-                    Código de validación: <strong>{{ $codigo }}</strong>
-                </p>
-            </div>
-
-            <div class="signature">
-                <img src="data:image/png;base64,{{ $firma }}" alt="Firma Digital" style="max-height: 55px;">
-                <p>Mba. Roxana Araujo Romay</p>
-                <p>Directora Ejecutiva</p>
-            </div>
-
-            <div>
-                <img src="data:image/png;base64,{{ $qrCode }}" alt="Código QR">
+            <div class="firma">
+                {{-- <img src="{{ storage_path('app/public/'.$firma2) }}" alt="Firma 2" class="firma-img"> --}}
+                <p class="nombre-firma">Jhon Doe</p>
             </div>
         </div>
+
+        <p class="codigo">Código de Certificado: <strong>{{ $codigo_certificado }}</strong></p>
+
+        <div class="qr-container">
+            <img src="{{ storage_path('app/public/'.$qr) }}" alt="Código QR" class="qr-code">
+        </div>
     </div>
+
 </body>
 </html>

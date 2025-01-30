@@ -26,12 +26,11 @@ return new class extends Migration
             $table->integer('notaAprobacion')->nullable();
             $table->string('formato');
             $table->string('estado')->default('Activo');
+            $table->enum('tipo', ['curso', 'congreso'])->default('curso');
             $table->unsignedBigInteger('docente_id');
             $table->foreign('docente_id')->references('id')->on('users');
-            $table->unsignedBigInteger('edadDir_id');
-            $table->foreign('edadDir_id')->references('id')->on('edad_dirigidas');
-            $table->unsignedBigInteger('niveles_id');
-            $table->foreign('niveles_id')->references('id')->on('nivel');
+            $table->string('edad_dirigida')->nullable(); // Puede contener valores como "Niños", "Adolescentes", "Adultos"
+            $table->string('nivel')->nullable(); // Puede contener valores como "Básico", "Intermedio", "Avanzado"
             $table->timestamps();
             $table->softDeletes();
         });

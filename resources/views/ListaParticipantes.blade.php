@@ -1,7 +1,5 @@
 @section('titulo')
-
-Lista de Paticipantes {{$cursos->nombreCurso}}
-
+    Lista de Paticipantes {{ $cursos->nombreCurso }}
 @endsection
 
 @section('nav')
@@ -93,165 +91,190 @@ Lista de Paticipantes {{$cursos->nombreCurso}}
 
 
 @section('content')
-<div class="col-xl-12">
-    <a href="{{route('Curso', ['id' => $cursos->id])}}" class="btn btn-primary">
-    &#9668; Volver
-    </a>
-@if (auth()->user()->hasRole('Docente')|| auth()->user()->hasRole('Administrador'))
+    <div class="col-xl-12">
+        <a href="{{ route('Curso', ['id' => $cursos->id]) }}" class="btn btn-primary">
+            &#9668; Volver
+        </a>
+        @if (auth()->user()->id == $cursos->docente_id || auth()->user()->hasRole('Administrador'))
+            <a class="btn btn-warning" href="{{ route('listaretirados', $cursos->id) }}">Lista Retirados</a>
+            <a class="btn btn-warning" href="{{ route('certificadosCongreso.generar', $cursos->id) }}">Generar Certificado</a>
+            <a class="btn btn-dark" href="{{ route('lista', $cursos->id) }}">Descargar Lista</a>
+        @endif
+        <br>
+        <br>
+        <div class="">
 
-<a class="btn btn-warning" href="{{route('listaretirados', $cursos->id)}}">Lista Retirados</a>
-<a class="btn btn-dark" href="{{route('lista', $cursos->id)}}">Descargar Lista</a>
+            <div class="col-lg-12 row">
+                <form class="navbar-search navbar-search form-inline mr-3 d-none d-md-flex ml-lg-auto">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input class="form-control search-input" placeholder="Buscar" type="text" id="searchInput">
+                    </div>
+                </form>
+            </div>
 
-@endif
-<br>
-<br>
-<div class="">
+            <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Nro</th>
+                        <th scope="col">Nombre y Apellidos</th>
+                        <th scope="col">Celular</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
 
-<div class="col-lg-12 row">
-    <form class="navbar-search navbar-search form-inline mr-3 d-none d-md-flex ml-lg-auto">
-        <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-search"></i></span>
-              <input class="form-control search-input" placeholder="Buscar" type="text" id="searchInput">
-        </div>
-    </form>
-    </div>
-
-                <table class="table align-items-center table-flush">
-                    <thead class="thead-light">
-                        <tr>
-                            <th scope="col">Nro</th>
-                            <th scope="col">Nombre y Apellidos</th>
-                            <th scope="col">Celular</th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        @forelse ($inscritos as $inscritos)
+                    @forelse ($inscritos as $inscritos)
                         @if ($inscritos->cursos_id == $cursos->id)
-                        <tr>
+                            <tr>
 
-                            <td scope="row">
+                                <td scope="row">
 
-                                {{ $loop->iteration }}
+                                    {{ $loop->iteration }}
 
-                            </td>
-                            <td scope="row">
-                                {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->name : 'Estudiante Eliminado' }}
-                                {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->lastname1 : '' }}
-                                {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->lastname2 : '' }}
-                            </td>
-                            <td>
-                                {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->Celular : '' }}
-                            </td>
-                            <td>
+                                </td>
+                                <td scope="row">
+                                    {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->name : 'Estudiante Eliminado' }}
+                                    {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->lastname1 : '' }}
+                                    {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->lastname2 : '' }}
+                                </td>
+                                <td>
+                                    {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->Celular : '' }}
+                                </td>
+                                <td>
 
-                                <a class="btn btn-sm btn-info" href="{{ route('perfil', [$inscritos->estudiantes->id])}}">Ver Más</a>
-                            @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Administrador'))
-                                <a class="btn btn-sm btn-danger" href="{{ route('quitar', [$inscritos->id])}}" onclick="mostrarAdvertencia(event)">Quitar incscripción</a>
-                                @if ($cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($cursos->fecha_fin))
+                                    <a class="btn btn-sm btn-info"
+                                        href="{{ route('perfil', [$inscritos->estudiantes->id]) }}">Ver Más</a>
+                                    @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Administrador'))
+                                        <a class="btn btn-sm btn-danger" href="{{ route('quitar', [$inscritos->id]) }}"
+                                            onclick="mostrarAdvertencia(event)">Quitar incscripción</a>
+                                        @if ($cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($cursos->fecha_fin))
+                                            <a class="btn btn-sm btn-info"
+                                                href="{{ route('boletin', [$inscritos->id]) }}">Ver Boletín</a>/
+                                            <a class="btn btn-sm btn-info"
+                                                href="{{ route('verBoletin2', [$inscritos->id]) }}"> Ver Calificaciones
+                                                Finales</a>
+                                        @else
+                                        @endif
 
-                                <a class="btn btn-sm btn-info" href="{{ route('boletin', [$inscritos->id])}}">Ver Boletín</a>/
-                                <a class="btn btn-sm btn-info" href="{{route('verBoletin2', [$inscritos->id])}}"> Ver Calificaciones Finales</a>
 
-                                @else
-                                @endif
-
-                                <a class="btn btn-sm btn-info" href="{{ route('certificados.generar', ['id' => $inscritos->id ]) }}"> Ver Certificado</a>
-
-                                <a class="btn btn-sm btn-success" href="{{ route('completado', ['curso_id' => $inscritos->cursos_id, 'estudiante_id' => $inscritos->id]) }}"> Completado</a>
-
-                                @endif
-                            </td>
+                                    @endif
+                                    @if (auth()->user()->hasRole('Administrador') && $cursos->tipo == 'curso')
+                                    <form action="{{ route('curso.actualizarPago', ['inscrito' => $inscritos->id]) }}" method="POST" id="paymentForm">
+                                        @csrf
+                                        @method('put') <!-- Asegúrate de usar PUT si estás actualizando un recurso -->
+                                        <input type="hidden" name="pago_completado" id="pago_completado" value="{{ $inscritos->pago_completado ? 'true' : 'false' }}">
+                                        <button type="submit" class="btn btn-primary" id="updateButton">
+                                            Cambiar Estado de Pago
+                                        </button>
+                                    </form>
+                                    @endif
+                                </td>
+                        </td>
                         </tr>
-                        @endif
+                    @endif
 
 
-                        @empty
-                        <tr>
+                @empty
+                    <tr>
 
-                            <td>
+                        <td>
 
-                                <h4>NO HAY ALUMNOS INSCRITOS</h4>
+                            <h4>NO HAY ALUMNOS INSCRITOS</h4>
 
-                            </td>
-                        </tr>
-
-
-
-
-                        @endforelse
+                        </td>
+                    </tr>
+                    @endforelse
 
 
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
+
+            <script>
+                // JavaScript para alternar entre true y false al hacer clic en el botón
+                document.getElementById('updateButton').addEventListener('click', function(event) {
+                    event.preventDefault();  // Evita el envío inmediato del formulario
+
+                    // Obtén el campo oculto y verifica su valor
+                    var pagoCompletadoInput = document.getElementById('pago_completado');
+                    var currentValue = pagoCompletadoInput.value;
+
+                    // Alterna el valor entre 'true' y 'false'
+                    if (currentValue === 'true') {
+                        pagoCompletadoInput.value = 'false';
+                    } else {
+                        pagoCompletadoInput.value = 'true';
+                    }
+
+                    // Envía el formulario después de cambiar el valor
+                    document.getElementById('paymentForm').submit();
+                });
+            </script>
+
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
+            <script>
+                function mostrarAdvertencia(event) {
+                    event.preventDefault();
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
-    <script>
-        function mostrarAdvertencia(event) {
-            event.preventDefault();
-
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: 'Esta acción retirara a este estudiante. ¿Estás seguro de que deseas continuar?, Esta opcion contrae problemas todavia y se esta revisando para que sea funcional totalmente',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, continuar',
-                cancelButtonText: 'Cancelar',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Redirige al usuario al enlace original
-                    window.location.href = event.target.getAttribute('href');
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: 'Esta acción retirara a este estudiante. ¿Estás seguro de que deseas continuar?, Esta opcion contrae problemas todavia y se esta revisando para que sea funcional totalmente',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, continuar',
+                        cancelButtonText: 'Cancelar',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Redirige al usuario al enlace original
+                            window.location.href = event.target.getAttribute('href');
+                        }
+                    });
                 }
-            });
-        }
-    </script>
+            </script>
 
 
-    <!-- Agrega esto en tu archivo Blade antes de </body> -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+            <!-- Agrega esto en tu archivo Blade antes de </body> -->
+            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-    <script>
-        $(document).ready(function() {
-            // Manejo del evento de entrada en el campo de búsqueda
-            $('input[type="text"]').on('input', function() {
-                var searchText = $(this).val().toLowerCase();
+            <script>
+                $(document).ready(function() {
+                    // Manejo del evento de entrada en el campo de búsqueda
+                    $('input[type="text"]').on('input', function() {
+                        var searchText = $(this).val().toLowerCase();
 
-                // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
-                $('tbody tr').filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                        // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
+                        $('tbody tr').filter(function() {
+                            $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                        });
+                    });
                 });
-            });
-        });
-    </script>
+            </script>
 
 
-    <script>
-        $(document).ready(function() {
-            // Manejo del evento de entrada en el campo de búsqueda
-            $('.search-input').on('input', function() {
-                var searchText = $(this).val().toLowerCase();
+            <script>
+                $(document).ready(function() {
+                    // Manejo del evento de entrada en el campo de búsqueda
+                    $('.search-input').on('input', function() {
+                        var searchText = $(this).val().toLowerCase();
 
-                // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
-                $('tbody tr').filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                        // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
+                        $('tbody tr').filter(function() {
+                            $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+                        });
+                    });
                 });
-            });
-        });
-    </script>
+            </script>
 
-@if(session('success'))
-<div class="alert alert-success">
-    {{ session('success') }}
-</div>
-@endif
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
 
 
 
-@endsection
+        @endsection
 
-@include('layout')
+        @include('layout')

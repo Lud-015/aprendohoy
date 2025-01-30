@@ -27,7 +27,7 @@ class TareasController extends Controller
 
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $id)
     {
         $messages = [
             'tituloTarea.required' => 'El campo título de la tarea es obligatorio.',
@@ -48,27 +48,24 @@ class TareasController extends Controller
 
         $tareas = new Tareas();
         $tareas->titulo_tarea =  $request->tituloTarea;
-        $tareas->descripcionTarea =  $request->tareaDescripcion;
-        $tareas->descripcionTarea =  $request->tareaDescripcion;
-
+        $tareas->descripcion_tarea =  $request->tareaDescripcion;
         $tareas->fecha_habilitacion =  date("Y-m-d", strtotime($request->fechaHabilitacion));
         $tareas->fecha_vencimiento =  date("Y-m-d", strtotime($request->fechaVencimiento));
-        $tareas->cursos_id = $request->cursos_id;
-        $tareas->tipo_tarea = $request->tipo;
-        $tareas->puntos = floatval($request->puntos);
+        $tareas->subtema_id = $id;
+        $tareas->puntos = doubleval($request->puntos);
 
         if ($request->hasFile('tareaArchivo')) {
             $tareaArchivo = $request->file('tareaArchivo')->store('tareaArchivo', 'public');
             $tareas->archivoTarea = $tareaArchivo;
         }else {
             // Establecer un valor predeterminado o null en caso de archivo vacío
-            $tareas->archivoTarea = ''; // o $tareas->archivoTarea = null;
+            $tareas->archivo_requerido = ''; // o $tareas->archivoTarea = null;
         }
 
-        event(new TareaEvent($tareas, 'crear'));
+        // event(new TareaEvent($tareas, 'crear'));
         $tareas->save();
 
-        return redirect(route('Curso', $request->cursos_id))->with('success', 'Tarea creada con éxito');
+        return redirect()->back()->with('success', 'Tarea creada con éxito');
 
 
 

@@ -19,7 +19,10 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
 
-
+    public function routeNotificationForMail()
+    {
+        return $this->email; // Devuelve el correo electrónico del estudiante
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -65,9 +68,6 @@ class User extends Authenticatable
         return $this->hasOne(AtributosDocente::class, 'docente_id');
     }
 
-    public function trabajosDocente(): HasMany {
-        return $this->hasMany(TrabajosDocente::class, 'docente_id');
-    }
 
     public function tutor(): HasOne {
         return $this->hasOne(TutorRepresentanteLegal::class, 'estudiante_id');

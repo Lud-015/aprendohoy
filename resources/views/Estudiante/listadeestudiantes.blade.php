@@ -186,7 +186,7 @@
                 <img src="{{asset('assets/img/logof.png')}}" style="width: auto; height: 80px;">
             </a>
             <a class="header-brand logo-derecho" href="../index.html">
-                <img src="{{asset('assets/img/logoedin.png')}}" style="width: auto; height: 125px;">
+                <img src="{{asset('assets/img/Acceder.png')}}" style="width: auto; height: 125px;">
             </a>
         </div>
     </header>
@@ -201,11 +201,13 @@
         </div>
         <div>
             <p>Curso: {{ ucfirst(strtolower($curso->nombreCurso))}}</p>
-            <p>Nivel: {{ ucfirst(strtolower($curso->nivel->nombre)) }}</p>
-            <p>Horario: @foreach(json_decode($curso->horarios->dias) as $dia)
-                {{ $dia }},
-                @endforeach
-                De {{ $curso->horarios->hora_ini }} a {{ $curso->horarios->hora_fin }}</p>
+            <p>Nivel: {{ ucfirst(strtolower($curso->nivel)) }}</p>
+            <p>Horario: @foreach ($horarios as $horarios)
+                {{$horarios->horario->dia}}
+                {{Carbon\Carbon::parse($horarios->horario->hora_inicio)->format('h:i A') }} a
+                {{Carbon\Carbon::parse($horarios->horario->hora_fin)->format('h:i A') }}
+                <br>
+            @endforeach
         </div>
     </div>
     <div class="table-container">

@@ -89,12 +89,12 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $cursos->nombreCurso }}</td>
-                                <td>{{ $cursos->nivel ? $cursos->nivel->nombre : 'N/A' }}</td>
+                                <td>{{ $cursos->nivel ? $cursos->nivel : 'N/A' }}</td>
                                 <td>{{ $cursos->docente->name }} {{ $cursos->docente->lastname1 }}
                                     {{ $cursos->docente->lastname2 }}</td>
-                                <td
-                                    title="{{ $cursos->edad_dirigida ? $cursos->edad_dirigida->edad1 : 'N/A' }} - {{ $cursos->edad_dirigida ? $cursos->edad_dirigida->edad2 : 'N/A' }}">
-                                    {{ $cursos->edad_dirigida ? $cursos->edad_dirigida->nombre : 'N/A' }}</td>
+                                <td>
+                                    {{ $cursos->edad_dirigida ? $cursos->edad_dirigida : 'N/A' }}
+                                </td>
                                 <td>{{ $cursos->fecha_ini ? $cursos->fecha_ini : 'N/A' }}</td>
                                 <td>{{ $cursos->fecha_fin ? $cursos->fecha_fin : 'N/A' }}</td>
                                 <td>{{ $cursos->formato ? $cursos->formato : 'N/A' }}</td>

@@ -20,6 +20,14 @@ class Tareas extends Model
     }
 
 
+    public function subtema()
+    {
+        return $this->belongsTo(Subtema::class);
+    }
+
+
+
+
     public function entregatarea(): HasMany
     {
         return $this->hasMany(TareasEntrega::class, 'tarea_id');
