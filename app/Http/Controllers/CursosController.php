@@ -95,7 +95,11 @@ class CursosController extends Controller
         $urlInscripcion = route('inscribirse.qr', ['id' => $id, 'token' => $token->token]);
 
         // Generar el QR
-        $qrCode = base64_encode(QrCode::format('png')->size(300)->generate($urlInscripcion));
+
+        $qrCodeSvg = QrCode::format('svg')->size(300)->generate($urlInscripcion);
+        $qrCode = 'data:image/svg+xml;base64,' . base64_encode($qrCodeSvg);
+
+
 
         return view('Cursos', [
             'foros' => $foros,

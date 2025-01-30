@@ -38,7 +38,8 @@ class CertificadoController extends Controller
         }
 
         $codigo = strtoupper(Str::random(10));
-        $qrCode = base64_encode(QrCode::format('png')->size(100)->generate($codigo));
+        $qrCodeSvg = QrCode::format('svg')->size(300)->generate($codigo);
+        $qrCode = 'data:image/svg+xml;base64,' . base64_encode($qrCodeSvg);
 
         return view('certificados.plantilla', [
             'curso' => $inscritos->cursos,

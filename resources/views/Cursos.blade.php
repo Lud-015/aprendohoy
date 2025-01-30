@@ -317,11 +317,11 @@
                                                     <div class="modal-body text-center">
                                                         <h6>Escanea este código QR para inscribirte:</h6>
                                                         <!-- Mostrar el QR -->
-                                                        <img src="data:image/png;base64,{{ $qrCode }}"
+                                                        <img src="{{ $qrCode }}"
                                                             alt="QR Code" class="img-fluid mt-3">
 
                                                         <!-- Enlace para descargar el QR -->
-                                                        <a href="data:image/png;base64,{{ $qrCode }}"
+                                                        <a href="{{ $qrCode }}"
                                                             download="codigo_qr_curso.png" class="btn btn-success mt-4">
                                                             Descargar Código QR
                                                         </a>
