@@ -29,4 +29,20 @@ class Subtema extends Model
     {
         return $this->hasMany(Tareas::class);
     }
+
+    public function recursos()
+    {
+        return $this->hasMany(RecursoSubtema::class, 'subtema_id');
+    }
+
+    public function isDisponible()
+{
+    return !$this->bloqueado;
+}
+
+
+
+
+
+
 }

@@ -9,13 +9,7 @@
         </div>
     @endif
 
-    @if ($intentosPrevios >= 2)
-        <div class="alert alert-info">
-            <p>Has alcanzado el máximo número de intentos permitidos.</p>
-            <p>Tu nota final: <strong>{{ session('nota_final', 'No disponible') }}</strong></p>
-        </div>
-    @else
-        <p>Intentos realizados: {{ $intentosPrevios }} de 2</p>
+
         <form action="{{ route('cuestionario.responder', $cuestionario->id ) }}" method="POST">
             @csrf
             <input type="hidden" name="inscrito_id" value="{{ $inscripcion->id }}">
@@ -61,7 +55,6 @@
 
             <button type="submit" class="btn btn-primary">Enviar respuestas</button>
         </form>
-    @endif
 </div>
 
 @endsection

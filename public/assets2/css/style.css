@@ -5,7 +5,7 @@
 * Author: BootstrapMade.com
 * License: https://bootstrapmade.com/license/
 */
-
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/
@@ -13,6 +13,10 @@ body {
   font-family: "Open Sans", sans-serif;
   color: #585a61;
 }
+
+
+
+
 
 a {
   color: #5777ba;
@@ -30,7 +34,7 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: 'Alegreya', serif;
+    font-family: 'Montserrat', weight;
 }
 
 /*--------------------------------------------------------------
@@ -387,7 +391,7 @@ h6 {
 
   line-height: 56px;
   color: #5777ba;
-  font-family: "Atma", system-ui;
+  font-family: "Montserrat", weight;
   font-weight: 600;
   font-style: normal;
 }
@@ -490,7 +494,7 @@ section {
   margin-bottom: 20px;
   padding-bottom: 0;
   color: #5777ba;
-  font-family: "Atma", sans-serif;
+  font-family: "Montserrat", italic;
 }
 
 .section-title p {
@@ -900,7 +904,7 @@ section {
 .faq .accordion-list a {
   display: block;
   position: relative;
-  font-family: "Atma", system-ui;
+  font-family: "Montserrat", italic;
   font-size: 16px;
   line-height: 24px;
   font-weight: 500;
@@ -979,7 +983,7 @@ section {
   font-size: 16px;
   font-weight: 600;
   text-transform: uppercase;
-  font-family: "Atma", sans-serif;
+  font-family: "Montserrat", italic;
 }
 
 .contact .info p {
@@ -1032,7 +1036,7 @@ section {
 }
 
 .contact .php-email-form label {
-  font-family: "Atma", sans-serif;
+  font-family: "Montserrat", italic;
   margin-bottom: 5px;
   color: #8a8c95;
 }

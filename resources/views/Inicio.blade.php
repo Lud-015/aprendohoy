@@ -88,62 +88,71 @@
         </div>
     @endif
 
+    @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Estudiante'))
 
-    @if (auth()->user()->hasRole('Estudiante'))
-        @forelse ($inscritos as $inscrito)
-            @if (auth()->user()->id == $inscrito->estudiante_id && $inscrito->cursos && $inscrito->cursos->deleted_at === null)
-                <div class="w-full md:w-1/2 xl:w-1/3 p-3">
+    <div class="container mx-auto p-4">
+        <h2 class="text-2xl font-bold mb-4">Vista general de curso</h2>
 
-                    <a href="{{ route('Curso', $inscrito->cursos_id) }}" class="block bg-white border rounded shadow p-2">
-                        <div class="flex flex-row items-center">
-                            <div class="flex-shrink pr-4">
-                                <div class="rounded p-3 bg-blue-400"><i class="fa fa-bars fa-2x fa-fw fa-inverse"></i>
+        <div class="flex items-center mb-4 space-x-2">
+            <select class="border p-2 rounded">
+                <option value="all">Todos</option>
+            </select>
+            <input type="text" placeholder="Buscar" class="border p-2 rounded w-1/3">
+            <button class="border p-2 rounded bg-gray-200">Ordenar por nombre del curso</button>
+            <button class="border p-2 rounded bg-gray-200">Tarjeta</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @if (auth()->user()->hasRole('Estudiante'))
+                @forelse ($inscritos as $inscrito)
+                    @if (auth()->user()->id == $inscrito->estudiante_id && $inscrito->cursos && $inscrito->cursos->deleted_at === null)
+                        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                            <img src="{{ asset('./assets/img/course-default.jpg') }}" class="w-full h-40 object-cover" alt="Imagen curso">
+                            <div class="p-4">
+                                <span class="text-sm bg-blue-500 text-white px-2 py-1 rounded">
+                                    {{ $inscrito->cursos->institucion ?? 'Nombre Institución' }}
+                                </span>
+                                <h3 class="text-xl font-semibold mt-2">{{ $inscrito->cursos->nombreCurso }}</h3>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $inscrito->progreso }}%;"></div>
                                 </div>
-                            </div>
-                            <div class="flex-1 text-right md:text-center">
-                                <h3 class="atma text-3xl">{{ $inscrito->cursos->nombreCurso }} <span
-                                        class="text-green-500"></span></h3>
-                                <h5 class="alegreya uppercase"></h5>
-                                <span class="inline-block mt-2">IR</span>
+                                <p class="text-sm text-gray-500 mt-1">{{ $inscrito->progreso }}% completado</p>
+
+                                <a href="{{ route('Curso', $inscrito->cursos_id) }}" class="block text-center mt-4 bg-blue-500 text-white py-2 rounded">
+                                    IR AL CURSO
+                                </a>
                             </div>
                         </div>
-                    </a>
-                </div>
+                    @endif
+                @empty
+                    <p class="col-span-3 text-center text-gray-500">No tienes cursos asignados.</p>
+                @endforelse
             @endif
-        @empty
-            <h1>NO TIENES CURSOS ASIGNADOS</h1>
-        @endforelse
-    @endif
 
-    @if (auth()->user()->hasRole('Docente'))
-        @forelse ($cursos2 as $cursos)
-            @if (auth()->user()->id == $cursos->docente_id)
-                <div class="w-full md:w-1/2 xl:w-1/3 p-3">
-
-                    {{-- <a href="{{ route('Curso', Crypt::encrypt($cursos->id)) }}" class="block bg-white border rounded shadow p-2"> --}}
-                    <a href="{{ route('Curso', $cursos->id) }}" class="block bg-white border rounded shadow p-2">
-                        <div class="flex flex-row items-center">
-                            <div class="flex-shrink pr-4">
-                                <div class="rounded p-3 bg-blue-400"><i class="fa fa-bars fa-2x fa-fw fa-inverse"></i>
-                                </div>
-                            </div>
-                            <div class="flex-1 text-right md:text-center">
-                                <h3 class="atma text-3xl">{{ $cursos->nombreCurso }} <span class="text-green-500"></span>
-                                </h3>
-                                <h5 class="alegreya uppercase"></h5>
-                                <span class="inline-block mt-2">IR</span>
+            @if (auth()->user()->hasRole('Docente'))
+                @forelse ($cursos2 as $cursos)
+                    @if (auth()->user()->id == $cursos->docente_id)
+                        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                            <img src="{{ asset('./assets/img/course-default.jpg') }}" class="w-full h-40 object-cover" alt="Imagen curso">
+                            <div class="p-4">
+                                <span class="text-sm bg-blue-500 text-white px-2 py-1 rounded">
+                                    Docente
+                                </span>
+                                <h3 class="text-xl font-semibold mt-2">{{ $cursos->nombreCurso }}</h3>
+                                <a href="{{ route('Curso', $cursos->id) }}" class="block text-center mt-4 bg-blue-500 text-white py-2 rounded">
+                                    IR AL CURSO
+                                </a>
                             </div>
                         </div>
-                    </a>
-                </div>
-            @else
+                    @endif
+                @empty
+                    <p class="col-span-3 text-center text-gray-500">No tienes cursos asignados.</p>
+                @endforelse
             @endif
-        @empty
-            <div class="card pb-3 pt-3 col-xl-12">
-                <h4>NO TIENES CURSOS ASIGNADOS</h4>
-            </div>
-        @endforelse
+        </div>
+    </div>
     @endif
+
 
 
     @if (session('success'))
@@ -263,15 +272,90 @@
             </div>
         </div>
     </div>
-
-
-
-
 @endsection
 @endif
 
 
 @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Estudiante'))
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.querySelector("input[placeholder='Buscar']");
+        const courseCards = document.querySelectorAll(".bg-white.shadow-lg");
+        const sortButton = document.querySelector("button:nth-child(3)");
+        const viewToggleButton = document.querySelector("button:nth-child(4)");
+        const selectFilter = document.querySelector("select");
+
+        let isAscending = true;
+        let currentView = "grid"; // Puede ser 'grid' o 'list'
+
+        // 🔍 Filtrar cursos por nombre en tiempo real
+        searchInput.addEventListener("input", function () {
+            const query = searchInput.value.toLowerCase();
+
+            courseCards.forEach(card => {
+                const title = card.querySelector("h3").textContent.toLowerCase();
+                card.style.display = title.includes(query) ? "block" : "none";
+            });
+        });
+
+        // 🔄 Ordenar los cursos al hacer clic en "Ordenar por nombre"
+        sortButton.addEventListener("click", function () {
+            const container = document.querySelector(".grid");
+            let coursesArray = Array.from(courseCards);
+
+            coursesArray.sort((a, b) => {
+                const titleA = a.querySelector("h3").textContent.toLowerCase();
+                const titleB = b.querySelector("h3").textContent.toLowerCase();
+
+                return isAscending ? titleA.localeCompare(titleB) : titleB.localeCompare(titleA);
+            });
+
+            isAscending = !isAscending; // Alternar el orden
+
+            container.innerHTML = ""; // Limpiar contenedor
+            coursesArray.forEach(course => container.appendChild(course));
+        });
+
+        // 🖼 Cambiar entre vista de Tarjeta y Lista
+        viewToggleButton.addEventListener("click", function () {
+            const container = document.querySelector(".grid");
+
+            if (currentView === "grid") {
+                container.classList.remove("grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3");
+                container.classList.add("flex", "flex-col", "space-y-4");
+                currentView = "list";
+                viewToggleButton.textContent = "Tarjeta";
+            } else {
+                container.classList.remove("flex", "flex-col", "space-y-4");
+                container.classList.add("grid", "grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3");
+                currentView = "grid";
+                viewToggleButton.textContent = "Lista";
+            }
+        });
+
+        // 🎯 Filtrar cursos según la selección
+        selectFilter.addEventListener("change", function () {
+            const filterValue = selectFilter.value; // Captura el valor del filtro
+
+            courseCards.forEach(card => {
+                if (filterValue === "all") {
+                    card.style.display = "block";
+                } else {
+                    const completionText = card.querySelector("p.text-sm").textContent;
+                    const isCompleted = completionText.includes("100%");
+
+                    if (filterValue === "completados" && isCompleted) {
+                        card.style.display = "block";
+                    } else if (filterValue === "activos" && !isCompleted) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                }
+            });
+        });
+    });
+</script>
 
 
     @include('FundacionPlantillaUsu.index')

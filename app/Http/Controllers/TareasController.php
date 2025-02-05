@@ -56,7 +56,7 @@ class TareasController extends Controller
 
         if ($request->hasFile('tareaArchivo')) {
             $tareaArchivo = $request->file('tareaArchivo')->store('tareaArchivo', 'public');
-            $tareas->archivoTarea = $tareaArchivo;
+            $tareas->archivo_requerido = $tareaArchivo;
         }else {
             // Establecer un valor predeterminado o null en caso de archivo vacío
             $tareas->archivo_requerido = ''; // o $tareas->archivoTarea = null;

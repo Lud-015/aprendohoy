@@ -29,6 +29,7 @@ use App\Charts\BartChart;
 use App\Events\CursoEvent;
 use App\Helpers\TextHelper;
 use App\Models\Tema;
+use App\Services\QrTokenService;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -39,78 +40,68 @@ class CursosController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     */
+     */protected $qrTokenService;
+
+    public function __construct(QrTokenService $qrTokenService)
+    {
+        $this->qrTokenService = $qrTokenService;
+    }
+
     public function index($id)
     {
+        // Obtener el curso
         $cursos = Cursos::findOrFail($id);
-        $recursos = Recursos::where('cursos_id', $id)->get();
 
-        // Generar o buscar un token válido
-        $token = DB::table('qr_tokens')
-            ->where('curso_id', $id)
-            ->where('expiracion', '>=', now()) // Asegurar que no esté expirado
-            ->whereColumn('usos_actuales', '<', 'limite_uso') // Límite no alcanzado
-            ->first();
 
-        foreach ($recursos as $recurso) {
-            $recurso->descripcionRecursos = TextHelper::createClickableLinksAndPreviews($recurso->descripcionRecursos);
-        }
 
-        $inscritos = DB::table('inscritos')
-            ->where('cursos_id', $id)
+        $inscritos = Inscritos::where('cursos_id', $id)
             ->where('estudiante_id', auth()->user()->id)
             ->pluck('estudiante_id');
 
-        if (Auth::user()->hasRole('Administrador') || Auth::user()->hasRole('Docente')) {
-            $horarios = Cursos_Horario::where('curso_id', $id)->withTrashed()->get();
-        } else {
-            $horarios = Cursos_Horario::where('curso_id', $id)->get();
+        if ($inscritos->isEmpty() && Auth::user()->hasRole('Estudiante')) {
+            return redirect()->back()->with('error', 'No estás inscrito en este curso.');
         }
 
-        $foros = Foro::where('cursos_id', $id)->get();
+        // Obtener recursos, temas, evaluaciones, foros y horarios
+        $recursos = Recursos::where('cursos_id', $id)->get();
         $temas = Tema::where('curso_id', $id)->get();
         $evaluaciones = Evaluaciones::where('cursos_id', $id)->get();
+        $foros = Foro::where('cursos_id', $id)->get();
 
+        $horarios = Auth::user()->hasRole(['Administrador', 'Docente'])
+            ? Cursos_Horario::where('curso_id', $id)->withTrashed()->get()
+            : Cursos_Horario::where('curso_id', $id)->get();
+
+        // Obtener el boletín del usuario
         $inscritos2 = Inscritos::where('cursos_id', $id)
             ->where('estudiante_id', auth()->user()->id)
             ->first();
 
+
         $boletin = $inscritos2 ? Boletin::where('inscripcion_id', $inscritos2->id)->first() : null;
 
-        if (!$token) {
-            // Crear un nuevo token si no existe o los anteriores han expirado
-            $token = DB::table('qr_tokens')->insertGetId([
-                'curso_id' => $id,
-                'token' => Str::random(32), // Token único
-                'limite_uso' => 5, // Ejemplo: máximo 5 usos
-                'expiracion' => Carbon::now()->addHours(24), // Expira en 24 horas
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // Generar el token y el código QR
+        $token = $this->qrTokenService->generarToken($id);
+        $urlInscripcion = route('inscribirse.qr', ['id' => $id, 'token' => $token->token]);
+        $qrCode = $this->qrTokenService->generarQrCode($urlInscripcion);
 
-            $token = DB::table('qr_tokens')->find($token);
+        // Procesar descripciones de recursos
+        foreach ($recursos as $recurso) {
+            $recurso->descripcionRecursos = TextHelper::createClickableLinksAndPreviews($recurso->descripcionRecursos);
         }
 
-        // Generar la URL con el token
-        $urlInscripcion = route('inscribirse.qr', ['id' => $id, 'token' => $token->token]);
-
-        // Generar el QR
-
-        $qrCodeSvg = QrCode::format('svg')->size(300)->generate($urlInscripcion);
-        $qrCode = 'data:image/svg+xml;base64,' . base64_encode($qrCodeSvg);
-
-
-
+        // Retornar la vista con los datos
         return view('Cursos', [
             'foros' => $foros,
             'recursos' => $recursos,
             'temas' => $temas,
             'cursos' => $cursos,
             'inscritos' => $inscritos,
+            'inscritos2' => $inscritos2,
             'evaluaciones' => $evaluaciones,
             'boletin' => $boletin,
             'horarios' => $horarios,
-            'qrCode' => $qrCode, // Pasar el QR a la vista
+            'qrCode' => $qrCode,
         ]);
     }
 
@@ -347,7 +338,9 @@ class CursosController extends Controller
         $cursos = Cursos::findorFail($id);
 
         $asistencias = Asistencia::where('curso_id', $id)->get();
-        $tareas = Tareas::where('cursos_id', $id)->get();
+
+        $temas = Tema::where('curso_id', $id)->with(['subtemas.tareas', 'subtemas.cuestionarios'])->get();
+
         $evaluaciones = Evaluaciones::where('cursos_id', $id)->get();
         $asistencias = Asistencia::where('curso_id', $id)->get();
         $foros = Foro::where('cursos_id', $id)->get();
@@ -414,7 +407,7 @@ class CursosController extends Controller
                     ->with('inscritos', $inscritos)
                     ->with('foros', $foros)
                     ->with('recursos', $recursos)
-                    ->with('tareas', $tareas)
+                    ->with('temas', $temas)
                     ->with('evaluaciones', $evaluaciones);
 
 

@@ -160,7 +160,7 @@
                 <img src="{{asset('assets/img/logof.png')}}" style="width: auto; height: 80px;">
             </div>
             <div class="header-brand logo-derecho" >
-                <img src="{{asset('assets/img/logoedin.png')}}" style="width: auto; height: 125px;">
+                <img src="{{asset('assets/img/Acceder.png')}}" style="width: auto; height: 125px;">
             </div>
         </div>
     </header>
@@ -174,24 +174,24 @@
             <p>Periodo: {{ $cursos->fecha_ini }} al {{ $cursos->fecha_fin }}</p>
         </div>
         <div>
-            <p>Nivel: {{ $cursos->nivel->nombre }}</p>
-            <p>Horario: @foreach(json_decode($cursos->horarios->dias) as $dia)
-                {{ $dia }},
-                @endforeach
-                De {{ $cursos->horarios->hora_ini }} a {{ $cursos->horarios->hora_fin }}</p>
+            <p>Nivel: {{ $cursos->nivel }}</p>
+            <p>Horario:
+
             <p>Estudiantes Inscritos: {{$inscritos->count()}}</p>
         </div>
     </div>
     <h3>CONTENIDO</h3>
     <div class="two-column-container">
         <div style="margin-left: 100px ">
-            <p>Tareas: {{$tareas->count()}}</p>
+            <p>Temas: {{$temas->count()}}</p>
+            <p>Subtemas:</p>
+            <p>Tareas: </p>
             <p>Evaluaciones: {{$evaluaciones->count()}}</p>
             <p>Foros: {{ $foros->count() }}</p>
         </div>
         <div style="margin-right: 100px ">
             <p>Recursos: {{ $recursos->count() }}</p>
-            <p>Cuestionarios: 5</p>
+            <p>cuestionarios: </p>
             <p>Asistencias: {{$asistencias->count()}}</p>
         </div>
     </div>

@@ -33,4 +33,26 @@ class Cuestionario extends Model
     {
         return $this->hasMany(Pregunta::class);
     }
+
+
+    // Relación polimórfica con completions
+    public function completions()
+    {
+        return $this->morphMany(ActividadCompletion::class, 'completable');
+    }
+
+    public function actividadCompletions()
+    {
+        return $this->hasMany(ActividadCompletion::class, 'completable_id')
+            ->where('completable_type', self::class);
+    }
+
+    // Verificar si está completada por un usuario
+    public function isCompletedByInscrito($inscritosId)
+    {
+        return $this->completions()
+            ->where('inscritos_id', $inscritosId)
+            ->where('completed', true)
+            ->exists();
+    }
 }

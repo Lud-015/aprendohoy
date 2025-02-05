@@ -22,19 +22,25 @@ class InscritosController extends Controller
      */
     public function index()
     {
-
+        // Obtener todos los estudiantes
         $estudiantes = User::role('Estudiante')->get();
+
+        // Obtener todos los cursos activos
         $cursos = Cursos::where('fecha_fin', '>=', now())->get();
-        $inscritos = Inscritos::all();
 
-        # code...
+        // Obtener la lista de estudiantes inscritos en cada curso
+        $inscritos = Inscritos::pluck('estudiante_id')->toArray();
 
-        return (view('Administrador.AsignarCursos')->with('estudiantes', $estudiantes)->with('cursos', $cursos));
+        // Filtrar estudiantes que no están inscritos en ningún curso
+        $estudiantesDisponibles = $estudiantes->reject(function ($estudiante) use ($inscritos) {
+            return in_array($estudiante->id, $inscritos);
+        });
 
-
-
+        return view('Administrador.AsignarCursos', [
+            'estudiantes' => $estudiantesDisponibles,
+            'cursos' => $cursos,
+        ]);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -184,9 +190,9 @@ class InscritosController extends Controller
 
         $usuario = auth()->user();
         if ($usuario->hasRole('Administrador') || $usuario->hasRole('Docente')) {
-            return route('Inicio')->withErrors('No puedes inscribirte es este curso siendo docente o administrador porfavor crear otra cuenta.');
+            return redirect()->route('Inicio')->with('errors' ,'No puedes inscribirte es este curso siendo docente o administrador porfavor crear otra cuenta.');
         }elseif ($usuario->id == $curso->docente_id) {
-            return route('Inicio')->withErrors('Ya eres Docente en este curso.');
+            return redirect()->route('Inicio')->withErrors('Ya eres Docente en este curso.');
         }
 
         $inscripcion = Inscritos::withTrashed() // Incluir registros eliminados

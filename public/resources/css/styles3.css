@@ -1,22 +1,5 @@
-.atma {
-    font-family: 'Atma';
-    src: url(../fonts/Atma-SemiBold.ttf) format('ttf');
-    font-weight: bold;
-    font-style: italic;
-    /* Add additional font properties here if needed */
-}
-.alegreya {
-    font-family: 'Alegreya-Sans-Black';
-    src: url(../fonts/AlegreyaSans-BlackItalic.ttf) format('ttf');
-    font-weight: bold;
-    font-style: italic;
-    /* Add additional font properties here if needed */
-}
-.oilvarebase {
-    font-family: 'OilvareBase';
-    src: url(../fonts/OilvareBase-Regular.ttf) format('ttf');
-    /* Add additional font properties here if needed */
-}
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 
 
 .icon-gallery {
@@ -47,21 +30,15 @@
 
 
 
-@font-face{
-    font-family:AB;
-    src: url(../fonts/AB.ttf);
-}
+
 h1{
-    font-family: 'AB', sans-serif;
+    font-family: 'Montserrat', weight;
     font-size: 20px;
     margin-left: 20px;
 }
-@font-face{
-    font-family: 'ASB', sans-serif;
-    src: url(../fonts/ASB.ttf);
-}
+
 h2{
-    font-family: 'ASB', sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 /* Estilos para el body */
 body {
@@ -72,7 +49,7 @@ body {
 /* Estilos para el encabezado */
 .header-main {
     background: rgb(26,71,137);
-    background: linear-gradient(145deg, rgba(26,71,137,1) 40%, rgba(34,77,141,1) 53%, rgba(255,255,255,1) 53%); 
+    background: linear-gradient(145deg, rgba(26,71,137,1) 40%, rgba(34,77,141,1) 53%, rgba(255,255,255,1) 53%);
     top: -30px;
     bottom: -15px;
     height: 130px;

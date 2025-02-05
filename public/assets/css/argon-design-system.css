@@ -1,31 +1,7 @@
-/*!
-=========================================================
-*  Argon Design System  - v 1.2.2
-=========================================================
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-* Product Page:  https://www.creative-tim.com/product/argon-design-system
-* Copyright  2020  Creative Tim (http://www.creative-tim.com)
 
-Coded by www.creative-tim.com
 
-=========================================================
-
-* The above copyright notice and this permission notice .shadow--hover:hoverl be included in all copies or substantial portions of the Software.
-
- */
-/*!
- * Bootstrap v4.3.1 (https://getbootstrap.com/)
- * Copyright 2011-2020 The Bootstrap Authors
- * Copyright 2011-2020 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- */
-
-@font-face {
-    font-family: AB;
-    src: url('../fonts/AB.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
 :root {
   --blue: #5e72e4;
   --indigo: #5603ad;
@@ -59,8 +35,8 @@ Coded by www.creative-tim.com
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
-  --font-family-sans-serif: 'AB', sans-serif;
-  --font-family-monospace: 'AB', sans-serif;
+  --font-family-sans-serif: 'Montserrat', sans-serif;
+  --font-family-monospace: 'Montserrat', sans-serif;
 }
 
 *,
@@ -70,7 +46,7 @@ Coded by www.creative-tim.com
 }
 
 html {
-  font-family: 'AB', sans-serif;
+  font-family: 'Montserrat', weight;
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -91,7 +67,7 @@ section {
 
 body {
   margin: 0;
-  font-family: 'AB', sans-serif;
+  font-family: 'Montserrat', weight;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;

@@ -16,11 +16,24 @@ class Tema extends Model
 
     public function subtemas()
     {
-        return $this->hasMany(Subtema::class);
+        return $this->hasMany(Subtema::class,'tema_id','id');
     }
-
     public function curso()
-    {
-        return $this->belongsTo(Cursos::class);
-    }
+{
+    return $this->belongsTo(Cursos::class, 'curso_id'); // Asegura que el campo sea correcto
+}
+
+public function isDisponible()
+{
+    return !$this->bloqueado;
+}
+
+
+
+
+
+
+
+
+
 }

@@ -42,25 +42,36 @@ class HorarioController extends Controller
         return view('horarios.edit', compact('horario'));
     }
 
-    /**
-     * Actualizar un horario.
-     */
-    public function update(Request $request)
+
+    public function update(Request $request, $id)
     {
+
+
+        // Validar los datos del formulario
         $request->validate([
-            'dia' => 'required|string|in:Lunes,Martes,Miércoles,Jueves,Viernes,Sábado,Domingo',
-            'hora_inicio' => 'required|date_format:H:i',
-            'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
+            'dia' => 'required|string|in:lunes,martes,miércoles,jueves,viernes,sábado,domingo',
+            'hora_inicio' => 'required',
+            'hora_fin' => 'required|after:hora_inicio',
+        ], [
+            'dia.required' => 'El campo Día es obligatorio.',
+            'dia.in' => 'El Día seleccionado no es válido.',
+
+            'hora_inicio.required' => 'La Hora de Inicio es obligatoria.',
+
+            'hora_fin.required' => 'La Hora de Fin es obligatoria.',
+            'hora_fin.after' => 'La Hora de Fin debe ser posterior a la Hora de Inicio.',
         ]);
 
-        $horario = Horario::findOrFail($request->horario_id);
-        $horario->update([
-            'dia' => $request->dia,
-            'hora_inicio' => $request->hora_inicio,
-            'hora_fin' => $request->hora_fin,
-        ]);
+            $horario = Horario::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Horario actualizado correctamente.');
+            $horario->dia = $request->dia;
+            $horario->hora_inicio = $request->hora_inicio;
+            $horario->hora_fin = $request->hora_fin;
+            $horario->save();
+
+            // Redireccionar con un mensaje de éxito
+            return redirect()->back()->with('success', 'Horario actualizado correctamente.');
+            // Manejar cualquier excepción que ocurra durante el proceso
     }
 
     /**

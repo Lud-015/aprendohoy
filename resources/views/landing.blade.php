@@ -10,15 +10,13 @@
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="assets/img/Acceder" rel="icon">
-    <link href="assets2/img/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="{{asset('assets/img/Acceder.png')}}" rel="icon">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atma:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=alegreya:900" rel="stylesheet" />
     <link href="assets2/vendor/aos/aos.css" rel="stylesheet">
     <link href="assets2/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets2/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -51,6 +49,7 @@
                         <li><a class="getstarted scrollto" href="{{ route('Inicio') }}">Ir a Inicio</a></li>
                     @else
                         <li><a class="getstarted scrollto" href="{{ route('login.signin') }}">Iniciar Sesión</a></li>
+                        <li><a class="getstarted scrollto" href="{{ route('signin') }}">Registrarse</a></li>
                     @endif
                     <li class="">
                         <a href="index.html"><img src="assets/img/logof.png" alt="" class="img-fluid"
@@ -71,7 +70,8 @@
                 <div class="col-lg-6 d-lg-flex flex-lg-column justify-content-center align-items-stretch pt-5 pt-lg-0 order-2 order-lg-1"
                     data-aos="fade-up">
                     <div>
-                        <h1>Bienvenid@ a la Plataforma Educativa de la Fundacion Educar Para la Vida</h1>
+                        <h1>"Aprende a tu
+                            ritmo, donde quieras y cuando quieras. ¡Tu futuro comienza aquí!"</h1>
                         {{-- <h2>Lorem ipsum dolor sit amet, tota senserit percipitur ius ut, usu et fastidii forensibus voluptatibus. His ei nihil feugait</h2> --}}
                         {{-- <a href="#" class="download-btn"><i class="bx bxl-play-store"></i> Google Play</a>
             <a href="#" class="download-btn"><i class="bx bxl-apple"></i> App Store</a> --}}
@@ -468,7 +468,7 @@
                 <div class="row">
 
                     <div class="col-lg-3 col-md-6 footer-contact">
-                        <h3>Fundvida</h3>
+                        <h3>Aprendo Hoy</h3>
                         <p>
 
                             Bolivia <br><br>
@@ -481,7 +481,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-6 footer-links">
-                        <h4>Useful Links</h4>
+                        <h4>Links Asociados</h4>
                         <ul>
                             <li><i class="bx bx-chevron-right"></i> <a href="https://educarparalavida.org.bo/web/Inicio.html">Inicio</a></li>
                             <li><i class="bx bx-chevron-right"></i> <a href="https://educarparalavida.org.bo/web/Quienes-somos.html">Quienes Somos</a></li>

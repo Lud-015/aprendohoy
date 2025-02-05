@@ -122,7 +122,6 @@
                                 <select class="form-control" id="preguntaTipo" name="tipo_preg" required>
                                     <option value="multiple">Opción Múltiple</option>
                                     <option value="abierta">Respuesta Abierta</option>
-                                    <option value="verdadero_falso">Verdadero / Falso</option>
                                 </select>
                             </div>
                             <label for="preguntaTipo">Puntos</label>

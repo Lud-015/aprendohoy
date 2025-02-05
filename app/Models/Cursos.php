@@ -59,6 +59,15 @@ class Cursos extends Model
         return $this->hasMany(Evaluaciones::class,  'id' , 'curso_id');
     }
 
+    public function temas()
+    {
+        return $this->hasMany(Tema::class, 'curso_id'); // Asegura que el campo sea correcto
+    }
+
+
+
+
+
 
 
 }

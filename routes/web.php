@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActividadCompletionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdministradorController;
@@ -39,6 +40,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
 use App\Models\Certificado;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\RecursoSubtemaController;
+use App\Models\ActividadCompletion;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +63,7 @@ Route::get('/reciboprueba', function () {
 
 Route::get('/login', function () {
     return view('login');
-})->middleware('noCache');
+})->middleware('noCache')->name('login');
 
 
 Route::get('/signin', function () {
@@ -182,24 +185,18 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/validar-certificado/{codigo}', [CertificadoController::class, 'validarCertificado']);
         Route::put('/listaParticipantes/{inscrito}/actualizar-pago', [InscritosController::class, 'actualizarPago'])->name('curso.actualizarPago');
-
-
-
-
-
-
     });
 
 
     //DOCENTE
-    Route::group(['middleware' => ['role:Docente|Administrador' ]], function () {
+    Route::group(['middleware' => ['role:Docente|Administrador']], function () {
         Route::get('/sumario',  [MenuController::class, 'analytics'])->name('sumario');
-        Route::prefix('horarios')->group(function () {
-            Route::post('/store', [HorarioController::class, 'store'])->name('horarios.store');
-            Route::post('/horarios/update', [HorarioController::class, 'update'])->name('horarios.update');
-            Route::delete('/horarios/{id}', [HorarioController::class, 'delete'])->name('horarios.delete');
-            Route::post('/horarios/{id}/restore', [HorarioController::class, 'restore'])->name('horarios.restore');
-        });
+
+        //HORARIO
+        Route::post('/store', [HorarioController::class, 'store'])->name('horarios.store');
+        Route::post('/horarios/{id}', [HorarioController::class, 'update'])->name('horarios.update');
+        Route::delete('/horarios/{id}', [HorarioController::class, 'delete'])->name('horarios.delete');
+        Route::post('/horarios/{id}/restore', [HorarioController::class, 'restore'])->name('horarios.restore');
 
         //Cuestionarios
 
@@ -273,17 +270,21 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 
-        //Recursos
+        //RecursosGlobal
+
         Route::get('CrearRecurso/cursoid={id}', [RecursosController::class, 'index'])->name('CrearRecursos');
         Route::post('CrearRecurso/cursoid={id}', [RecursosController::class, 'store'])->name('CrearRecursosPost');
         Route::get('ModificarRecurso/cursoid={id}', [RecursosController::class, 'edit'])->name('editarRecursos');
         Route::post('ModificarRecurso/cursoid={id}', [RecursosController::class, 'update'])->name('editarRecursosPost');
         Route::get('QuitarRecurso/{id}', [RecursosController::class, 'delete'])->name('quitarRecurso');
         Route::get('RecursosEliminados/cursoid={id}', [RecursosController::class, 'indexE'])->name('ListaRecursosEliminados');
-
         Route::get('RestaurarRecurso/{id}', [RecursosController::class, 'restore'])->name('RestaurarRecurso');
 
-
+        //RecursosSubtema
+        Route::post('CrearRecursoSubtema/cursoid={id}', [RecursoSubtemaController::class, 'store'])->name('CrearRecursosSubtemaPost');
+        Route::post('ModificarRecursoSubtema/cursoid={id}', [RecursoSubtemaController::class, 'update'])->name('editarRecursosSubtemaPost');
+        Route::get('QuitarRecursoSubtema/{id}', [RecursoSubtemaController::class, 'delete'])->name('quitarRecursoSubtema');
+        Route::get('RestaurarRecursoSubtema/{id}', [RecursoSubtemaController::class, 'restore'])->name('restaurarRecursoSubtema');
 
         //AsignarCursos
         Route::get('/AsignarCursos', [InscritosController::class, 'index'])->name('AsignarCurso');
@@ -313,13 +314,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('Reportes/{id}', [CursosController::class, 'ReporteFinal'])->name('repF');
 
         //BOLETIN
-        Route::get('/boletinDeCalificaciones/{id}', [BoletinController::class , 'boletin'])->name('boletin');
-        Route::post('/boletinDeCalificaciones/{id}', [BoletinController::class , 'guardar_boletin'])->name('boletinPost');
+        Route::get('/boletinDeCalificaciones/{id}', [BoletinController::class, 'boletin'])->name('boletin');
+        Route::post('/boletinDeCalificaciones/{id}', [BoletinController::class, 'guardar_boletin'])->name('boletinPost');
 
         //Lista
-        Route::get('/listaGeneral/{id}', [CursosController::class , 'imprimir'])->name('lista');
+        Route::get('/listaGeneral/{id}', [CursosController::class, 'imprimir'])->name('lista');
         //REPORTE GENERAL
-        Route::get('/reportegeneralCurso/{id}', [CursosController::class , 'ReporteFinalCurso'])->name('rfc');
+        Route::get('/reportegeneralCurso/{id}', [CursosController::class, 'ReporteFinalCurso'])->name('rfc');
 
 
         Route::post('/enviar-boletin/{id}', [BoletinController::class, 'enviarBoletin'])->name('enviarBoletinPost');
@@ -329,9 +330,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('certificados/generar/{id}/', [CertificadoController::class, 'generarCertificado'])->name('certificados.generar');
         Route::get('certificadosCongreso/generar/{id}/', [CertificadoController::class, 'generarCertificadoCongreso'])->name('certificadosCongreso.generar');
         Route::get('completado/{curso_id}/{estudiante_id}', [InscritosController::class, 'completado'])->name('completado');
-
-
-
     });
     //ENDDOCENTE
 
@@ -362,35 +360,26 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/foro/mensaje/delete/{id}', [ForoController::class, 'deleteMensaje'])->name('foro.mensaje.delete');
         Route::post('/foro/respuesta/edit/{id}', [ForoController::class, 'editRespuesta'])->name('foro.respuesta.edit');
         Route::post('/foro/respuesta/delete/{id}', [ForoController::class, 'deleteRespuesta'])->name('foro.respuesta.delete');
-
         //RECURSOS
         Route::get('VerRecursos/cursoid={id}', [RecursosController::class, 'showRecurso'])->name('VerRecursos');
-
-
-
-
         //TAREA
         Route::get('VerTarea/{id}', [TareasController::class, 'show'])->name('VerTarea');
-        Route::post('VerTarea/{id}', [TareasEntregaController::class , 'store'])->name('subirTarea');
-        Route::get('QuitarEntrega/{id}', [TareasEntregaController::class , 'delete'])->name('quitarEntrega');
+        Route::post('VerTarea/{id}', [TareasEntregaController::class, 'store'])->name('subirTarea');
+        Route::get('QuitarEntrega/{id}', [TareasEntregaController::class, 'delete'])->name('quitarEntrega');
         //Evaluaciones
         Route::get('VerEvaluacion/{id}', [EvaluacionesController::class, 'show'])->name('VerEvaluacion');
-        Route::post('VerEvaluacion/{id}', [EvaluacionEntregaController::class , 'store'])->name('subirEvaluacion');
-        Route::get('QuitarEntrega/{id}', [EvaluacionEntregaController::class , 'delete'])->name('quitarEntrega');
-
-        Route::get('/descargar-archivo/{nombreArchivo}', [CursosController::class , 'descargar'])->name('descargas');
-
-        Route::get('/verBoletin/{id}', [BoletinController::class , 'boletinEstudiantes'])->name('verBoletin');
-        Route::get('/verCalificacionFinal/{id}', [BoletinController::class , 'boletinEstudiantes2'])->name('verBoletin2');
-
+        Route::post('VerEvaluacion/{id}', [EvaluacionEntregaController::class, 'store'])->name('subirEvaluacion');
+        Route::get('QuitarEntrega/{id}', [EvaluacionEntregaController::class, 'delete'])->name('quitarEntrega');
+        Route::get('/descargar-archivo/{nombreArchivo}', [CursosController::class, 'descargar'])->name('descargas');
+        Route::get('/verBoletin/{id}', [BoletinController::class, 'boletinEstudiantes'])->name('verBoletin');
+        Route::get('/verCalificacionFinal/{id}', [BoletinController::class, 'boletinEstudiantes2'])->name('verBoletin2');
         Route::get('/validar-certificado/{codigo}', [CertificadoController::class, 'validarCertificado']);
-
-
-        Route::get('/ResolverCuestionario/{id}', [CuestionarioController::class , 'cuestionarioTSolve'])->name('resolvercuestionario');
-
-
+        Route::get('/ResolverCuestionario/{id}', [CuestionarioController::class, 'cuestionarioTSolve'])->name('resolvercuestionario');
+        //MarcarCompleto
+        Route::post('/tarea/{tarea}/completar', [ActividadCompletionController::class, 'marcarTareaCompletada'])->name('tarea.completar');
+        Route::post('/cuestionario/{cuestionario}/completar', [ActividadCompletionController::class, 'marcarCuestionarioCompletado'])->name('cuestionario.completar');
         //ENDESTUDIANTE
-        Route::post('/guardar-resultados', [NotaEntregaController::class , 'CuestionarioResultado'])->name('guardar.resultados');
+        Route::post('/guardar-resultados', [NotaEntregaController::class, 'CuestionarioResultado'])->name('guardar.resultados');
 
         //CAMBIARcONTRASEÑA
         Route::get('CambiarContrasena/{id}', [UserController::class, 'EditPasswordIndex'])->name('CambiarContrasena');
@@ -401,13 +390,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/cuestionario/{id}/responder', [CuestionarioController::class, 'mostrarCuestionario'])->name('cuestionario.mostrar');
         Route::post('/cuestionario/{id}/responder', [CuestionarioController::class, 'procesarRespuestas'])->name('cuestionario.responder');
         Route::get('/verificar-certificado/{codigo}', [CertificadoController::class, 'verificarCertificado'])->name('verificar.certificado');
-
     });
-        Route::get('certificado/qr/{codigo}', [CertificadoController::class, 'descargarQR'])->name('descargar.qr');
+    Route::get('certificado/qr/{codigo}', [CertificadoController::class, 'descargarQR'])->name('descargar.qr');
     //QR
     // Ruta para inscribirse utilizando el QR
     Route::get('/inscribirse/{id}/{token}', [InscritosController::class, 'inscribirse'])->name('inscribirse.qr');
-
-
-
 });

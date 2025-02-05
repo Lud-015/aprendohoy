@@ -21,13 +21,17 @@ return new class extends Migration
             $table->date('fecha_vencimiento');
             $table->string('archivoEvaluacion');
             $table->double('puntos');
+            $table->boolean('bloqueado')->default(true);
             $table->enum('tipo_evaluacion', ['subida_archivo', 'cuestionario']);
-            $table->enum('estado', ['pendiente', 'en_progreso', 'completada'])->default('pendiente'); // Sin 'after'
+            $table->enum('estado', ['pendiente', 'en_progreso', 'completada'])->default('pendiente');
             $table->unsignedBigInteger('cursos_id');
             $table->foreign('cursos_id')->references('id')->on('cursos');
+            $table->unsignedBigInteger('temas_id'); // Clave foránea para la tabla temas
+            $table->foreign('temas_id')->references('id')->on('temas');
             $table->timestamps();
             $table->softDeletes();
         });
+
     }
 
     /**
