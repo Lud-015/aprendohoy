@@ -19,17 +19,6 @@
                             <h5 class="text-white">Iniciar Sesión</h5>
                         </div>
 
-                        <!-- Mensajes de error -->
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
                         <!-- Formulario -->
                         <form role="form" method="POST" action="{{ route('login.signin') }}">
                             @csrf

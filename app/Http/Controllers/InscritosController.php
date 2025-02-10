@@ -24,20 +24,16 @@ class InscritosController extends Controller
     {
         // Obtener todos los estudiantes
         $estudiantes = User::role('Estudiante')->get();
-
         // Obtener todos los cursos activos
         $cursos = Cursos::where('fecha_fin', '>=', now())->get();
 
         // Obtener la lista de estudiantes inscritos en cada curso
         $inscritos = Inscritos::pluck('estudiante_id')->toArray();
 
-        // Filtrar estudiantes que no están inscritos en ningún curso
-        $estudiantesDisponibles = $estudiantes->reject(function ($estudiante) use ($inscritos) {
-            return in_array($estudiante->id, $inscritos);
-        });
+
 
         return view('Administrador.AsignarCursos', [
-            'estudiantes' => $estudiantesDisponibles,
+            'estudiantes' => $estudiantes,
             'cursos' => $cursos,
         ]);
     }
@@ -50,60 +46,45 @@ class InscritosController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar que 'estudiantes' es un array y 'curso' es requerido
+
+        // Validar los datos de entrada
         $request->validate([
-            'estudiantes' => 'required|array',
-            'curso' => 'required|exists:cursos,id',
+            'curso_id' => [
+                'required'
+            ],
+            'estudiante_id' => [
+                'required'
+            ]
+        ], [
+            'curso.required' => 'El campo curso es obligatorio.',
+            'estudiante_id.required' => 'El campo estudiante es obligatorio.',
         ]);
 
-        $cursoId = $request->curso;
-        $estudiantes = $request->estudiantes;
+        $cursoId = $request->curso_id;
+        $estudianteId = $request->estudiante_id;
 
-        // Verificar si alguno de los estudiantes ya está inscrito
-        $estudiantesConInscripcion = Inscritos::whereIn('estudiante_id', $estudiantes)
-            ->where('cursos_id', $cursoId)
-            ->withTrashed()
-            ->pluck('estudiante_id')
-            ->toArray();
 
-        if (!empty($estudiantesConInscripcion)) {
-            // Obtener los nombres de los estudiantes que ya están inscritos
-            $nombresEstudiantes = User::whereIn('id', $estudiantesConInscripcion)
-                ->pluck('name')
-                ->toArray();
-
-            // Redirigir con un error si uno o más estudiantes ya están inscritos
-            return redirect()->route('AsignarCurso')->withErrors([
-                'msg' => 'Uno o más estudiantes ya están asignados a este curso: ' . implode(', ', $nombresEstudiantes)
-            ]);
+        // Verificar si el estudiante ya está inscrito en el curso
+        if (Inscritos::where('cursos_id', $cursoId)->where('estudiante_id', $estudianteId)->exists()) {
+            // Redirigir con un mensaje de error si ya está inscrito
+            return back()->with('error','El estudiante ya está inscrito en este curso.');
         }
 
-        // Usar una transacción para asegurar la atomicidad
-        DB::transaction(function () use ($estudiantes, $cursoId) {
-            foreach ($estudiantes as $estudianteId) {
-                // Crear una nueva inscripción
-                $inscribir = new Inscritos();
-                $inscribir->estudiante_id = $estudianteId;
-                $inscribir->cursos_id = $cursoId;
-                $inscribir->created_at = now();
+        // Crear una nueva inscripción
+        $inscribir = new Inscritos();
+        $inscribir->cursos_id = $cursoId;
+        $inscribir->estudiante_id = $estudianteId;
+        $inscribir->save();
 
-                // Guardar la inscripción
-                $inscribir->save();
+        // Obtener el estudiante y el curso para la notificación
+        $estudiante = User::find($estudianteId);
+        $curso = Cursos::find($cursoId);
 
-                // Obtener el objeto Estudiante
-                $estudiante = User::find($estudianteId);
+        // Disparar el evento de inscripción
+        event(new InscritoEvent($estudiante, $curso, 'inscripcion'));
 
-                // Obtener el objeto Curso
-                $curso = Cursos::find($cursoId);
-
-                if ($estudiante && $curso) {
-                    // Enviar la notificación a través del evento
-                    event(new InscritoEvent($estudiante, $curso, 'inscripcion'));
-                }
-            }
-        });
-
-        return back()->with('success', 'Estudiantes inscritos exitosamente!');
+        // Redirigir con un mensaje de éxito
+        return back()->with('success', 'Estudiante inscrito exitosamente!');
     }
 
 

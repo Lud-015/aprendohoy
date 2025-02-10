@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Support\Facades\DB;
 
 class Inscritos extends Model
 {
@@ -15,7 +15,8 @@ class Inscritos extends Model
 
 
     protected $fillable = [
-        'progreso', 'completado'
+        'progreso',
+        'completado'
     ];
     protected $softDelete = true;
 
@@ -73,52 +74,48 @@ class Inscritos extends Model
         });
     }
 
+
     public function actividadCompletions()
     {
         return $this->hasMany(ActividadCompletion::class, 'inscritos_id');
     }
 
 
-    public function actualizarProgreso()
+    public static function desbloquearSiguienteSubtema($inscritoId, $subtemaId)
     {
-        $curso = $this->cursos;
-        $total_actividades = 0;
-        $actividades_completadas = 0;
+        $subtemaActual = Subtema::findOrFail($subtemaId);
 
-        foreach ($curso->temas as $tema) {
-            foreach ($tema->subtemas as $subtema) {
-                $total_actividades += $subtema->tareas->count() + $subtema->cuestionarios->count();
-
-                foreach ($subtema->tareas as $tarea) {
-                    if ($tarea->isCompletedByInscrito($this->id)) {
-                        $actividades_completadas++;
-                    }
-                }
-
-                foreach ($subtema->cuestionarios as $cuestionario) {
-                    if ($cuestionario->isCompletedByInscrito($this->id)) {
-                        $actividades_completadas++;
-                    }
-                }
-            }
+        // Verificar si el subtema actual ya está completado
+        if (!$subtemaActual->estaCompletado($inscritoId)) {
+            return;
         }
 
-        // Calcular progreso
-        $this->progreso = $total_actividades > 0
-            ? ($actividades_completadas * 100) / $total_actividades
-            : 0;
+        // Marcar el subtema como completado en la tabla intermedia
+        DB::table('subtema_inscritos')
+            ->where('inscrito_id', $inscritoId)
+            ->where('subtema_id', $subtemaId)
+            ->update(['completado' => true]);
 
-        $this->completado = $this->progreso >= 100;
+        // Buscar el siguiente subtema del mismo tema
+        $siguienteSubtema = Subtema::where('tema_id', $subtemaActual->tema_id)
+            ->where('id', '>', $subtemaActual->id)
+            ->orderBy('id', 'asc')
+            ->first();
 
-        dd([
-            'total_actividades' => $total_actividades,
-            'actividades_completadas' => $actividades_completadas,
-            'progreso' => $this->progreso,
-            'completado' => $this->completado
-        ]);
+        if ($siguienteSubtema) {
+            // Crear un registro en subtema_inscritos para desbloquearlo
+            DB::table('subtema_inscritos')->updateOrInsert([
+                'inscrito_id' => $inscritoId,
+                'subtema_id' => $siguienteSubtema->id
+            ], [
+                'completado' => false
+            ]);
+        }
 
-        // Guardar en la base de datos
-        $this->save();
+        // Actualizar el progreso general
+        $inscrito = Inscritos::find($inscritoId);
+        $inscrito->actualizarProgreso();
     }
+
 
 }

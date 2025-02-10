@@ -35,7 +35,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
-                                <h5 class="card-title text-uppercase text-muted mb-0">Alumnos</h5>
+                                <h5 class="card-title text-uppercase text-muted mb-0">Usuarios Estudiantes</h5>
                                 <span class="h2 font-weight-bold mb-0">{{ count($estudiantes) }}</span>
                             </div>
                             <div class="col-auto">
@@ -53,7 +53,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
-                                <h5 class="card-title text-uppercase text-muted mb-0">Docentes</h5>
+                                <h5 class="card-title text-uppercase text-muted mb-0">Usuarios Docentes</h5>
                                 <span class="h2 font-weight-bold mb-0">{{ count($docentes) }}</span>
                             </div>
                             <div class="col-auto">
@@ -71,7 +71,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
-                                <h5 class="card-title text-uppercase text-muted mb-0">Inscripciones</h5>
+                                <h5 class="card-title text-uppercase text-muted mb-0">Inscripciones de cursos</h5>
                                 <span class="h2 font-weight-bold mb-0">{{ count($inscritos) }}</span>
                             </div>
                             <div class="col-auto">
@@ -151,14 +151,6 @@
             @endif
         </div>
     </div>
-    @endif
-
-
-
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
     @endif
 
 

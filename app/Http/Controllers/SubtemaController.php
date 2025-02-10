@@ -16,9 +16,10 @@ class SubtemaController extends Controller
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Obtener el último número de orden dentro del mismo tema
+        $ultimoOrden = Subtema::where('tema_id', $temaId)->max('orden') ?? 0;
 
         $rutaImagen = null;
-
         if ($request->hasFile('imagen')) {
             $rutaImagen = $request->file('imagen')->store('subtemas', 'public');
         }
@@ -28,10 +29,12 @@ class SubtemaController extends Controller
             'descripcion' => $request->descripcion,
             'tema_id' => $temaId,
             'imagen' => $rutaImagen, // Guarda la ruta de la imagen
+            'orden' => $ultimoOrden + 1, // Asignar el siguiente número de orden
         ]);
 
         return back()->with('success', 'Subtema creado correctamente.');
     }
+
 
 
     // Actualiza un subtema existente

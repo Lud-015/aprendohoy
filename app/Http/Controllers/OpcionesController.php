@@ -63,7 +63,7 @@ class OpcionesController extends Controller
     }
     public function restore($id)
     {
-        $opcion = Opcion::onlyTrashed()->findOrFail($id); 
+        $opcion = Opcion::onlyTrashed()->findOrFail($id);
         $opcion->restore();
         return back()->with('success', 'Pregunta restaurada correctamente.');
     }

@@ -8,6 +8,7 @@
     <title>Inicio</title>
     <meta name="description" content="description here">
     <meta name="keywords" content="keywords,here">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="{{ asset('./resources/css/styles3.css') }}">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"/>
@@ -27,43 +28,7 @@
     @yield('nav2')
     @yield('container')
 
-    <div class="bg-white border-gray-400 shadow bottom-0 w-full">
-        <div class="container max-w-md mx-auto flex py-8">
 
-            <div class="w-full mx-auto flex flex-wrap">
-                <div class="flex w-full md:w-1/2">
-                    <div class="px-2">
-                        <p class="py-7 text-gray-600 text-sm">
-                            <script>
-                                document.write("&copy; " + new Date().getFullYear() + " <a href='' target='_blank'>Fundación para educar la vida</a>.");
-                            </script>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex w-full md:w-1/2">
-                    <div class="px-2">
-                        <h3 class="font-bold text-gray-900">Redes</h3>
-                        <ul class="list-none pt-3">
-                            <li class="flex items-center">
-                                <img src="{{ asset('assets/icons/fb.png') }}" alt="Facebook Icon" class="w-6 mr-2">
-                                <a href="https://www.facebook.com/profile.php?id=100063510101095&mibextid=ZbWKwL" class="text-sm">Facebook</a>
-                            </li>
-                            <li class="flex items-center pt-2">
-                                <img src="{{ asset('assets/icons/tk.png') }}" alt="TikTok Icon" class="w-6 mr-2">
-                                <a href="https://www.tiktok.com/@educarparalavida?_t=8fbFcMbWOGo&_r=1" class="text-sm">TikTok</a>
-                            </li>
-                            <li class="flex items-center pt-2">
-                                <img src="{{ asset('assets/icons/ig.png') }}" alt="Instagram Icon" class="w-6 mr-2">
-                                <a href="https://instagram.com/fundeducarparalavida?igshid=MzRlODBiNWFlZA==" class="text-sm">Instagram</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
 
     @if ($errors->any())
         <script>
@@ -74,61 +39,114 @@
             });
         </script>
     @endif
-
+    @if (session('success'))
     <script>
-        /*Toggle dropdown list*/
-        /*https://gist.github.com/slavapas/593e8e50cf4cc16ac972afcbad4f70c8*/
-
-        var userMenuDiv = document.getElementById("userMenu");
-        var userMenu = document.getElementById("userButton");
-
-        var navMenuDiv = document.getElementById("nav-content");
-        var navMenu = document.getElementById("nav-toggle");
-
-        document.onclick = check;
-
-        function check(e) {
-            var target = (e && e.target) || (event && event.srcElement);
-
-            //User Menu
-            if (!checkParent(target, userMenuDiv)) {
-                // click NOT on the menu
-                if (checkParent(target, userMenu)) {
-                    // click on the link
-                    if (userMenuDiv.classList.contains("invisible")) {
-                        userMenuDiv.classList.remove("invisible");
-                    } else { userMenuDiv.classList.add("invisible"); }
-                } else {
-                    // click both outside link and outside menu, hide menu
-                    userMenuDiv.classList.add("invisible");
-                }
-            }
-
-            //Nav Menu
-            if (!checkParent(target, navMenuDiv)) {
-                // click NOT on the menu
-                if (checkParent(target, navMenu)) {
-                    // click on the link
-                    if (navMenuDiv.classList.contains("hidden")) {
-                        navMenuDiv.classList.remove("hidden");
-                    } else { navMenuDiv.classList.add("hidden"); }
-                } else {
-                    // click both outside link and outside menu, hide menu
-                    navMenuDiv.classList.add("hidden");
-                }
-            }
-
-        }
-
-        function checkParent(t, elm) {
-            while (t.parentNode) {
-                if (t == elm) { return true; }
-                t = t.parentNode;
-            }
-            return false;
-        }
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 3000
+        });
     </script>
+@endif
+
+
+    <footer class="bg-white shadow-md border-t border-gray-300">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+
+                <!-- Sección de Información -->
+                <div class="text-center md:text-left mb-6 md:mb-0">
+                    <h3 class="text-lg font-semibold text-gray-900">Fundación para Educar la Vida</h3>
+                    <p class="text-gray-600 text-sm mt-2">
+                        Inspirando el aprendizaje y el crecimiento personal.
+                    </p>
+                </div>
+
+                <!-- Redes Sociales -->
+                <div class="mb-6 md:mb-0">
+                    <h3 class="font-semibold text-gray-900 text-center">Síguenos en:</h3>
+                    <div class="flex justify-center space-x-4 mt-3">
+                        <a href="https://www.facebook.com/profile.php?id=100063510101095&mibextid=ZbWKwL" target="_blank"
+                            class="flex items-center text-gray-600 hover:text-blue-600 transition">
+                            <img src="{{ asset('assets/icons/fb.png') }}" alt="Facebook" class="w-6 h-6">
+                        </a>
+                        <a href="https://www.tiktok.com/@educarparalavida?_t=8fbFcMbWOGo&_r=1" target="_blank"
+                            class="flex items-center text-gray-600 hover:text-black transition">
+                            <img src="{{ asset('assets/icons/tk.png') }}" alt="TikTok" class="w-6 h-6">
+                        </a>
+                        <a href="https://instagram.com/fundeducarparalavida?igshid=MzRlODBiNWFlZA==" target="_blank"
+                            class="flex items-center text-gray-600 hover:text-pink-500 transition">
+                            <img src="{{ asset('assets/icons/ig.png') }}" alt="Instagram" class="w-6 h-6">
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Derechos de autor -->
+                <div class="text-gray-600 text-sm text-center">
+                    <script>
+                        document.write("&copy; " + new Date().getFullYear() + " Fundación para Educar la Vida. Todos los derechos reservados.");
+                    </script>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
 
 </body>
+<script>
+    /*Toggle dropdown list*/
+    /*https://gist.github.com/slavapas/593e8e50cf4cc16ac972afcbad4f70c8*/
 
+    var userMenuDiv = document.getElementById("userMenu");
+    var userMenu = document.getElementById("userButton");
+
+    var navMenuDiv = document.getElementById("nav-content");
+    var navMenu = document.getElementById("nav-toggle");
+
+    document.onclick = check;
+
+    function check(e) {
+        var target = (e && e.target) || (event && event.srcElement);
+
+        //User Menu
+        if (!checkParent(target, userMenuDiv)) {
+            // click NOT on the menu
+            if (checkParent(target, userMenu)) {
+                // click on the link
+                if (userMenuDiv.classList.contains("invisible")) {
+                    userMenuDiv.classList.remove("invisible");
+                } else { userMenuDiv.classList.add("invisible"); }
+            } else {
+                // click both outside link and outside menu, hide menu
+                userMenuDiv.classList.add("invisible");
+            }
+        }
+
+        //Nav Menu
+        if (!checkParent(target, navMenuDiv)) {
+            // click NOT on the menu
+            if (checkParent(target, navMenu)) {
+                // click on the link
+                if (navMenuDiv.classList.contains("hidden")) {
+                    navMenuDiv.classList.remove("hidden");
+                } else { navMenuDiv.classList.add("hidden"); }
+            } else {
+                // click both outside link and outside menu, hide menu
+                navMenuDiv.classList.add("hidden");
+            }
+        }
+
+    }
+
+    function checkParent(t, elm) {
+        while (t.parentNode) {
+            if (t == elm) { return true; }
+            t = t.parentNode;
+        }
+        return false;
+    }
+</script>
 </html>

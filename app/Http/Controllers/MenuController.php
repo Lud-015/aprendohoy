@@ -20,8 +20,8 @@ class MenuController extends Controller
 
     public function index(){
 
-        $cursos = Cursos::whereNull('deleted_at')->where('fecha_fin', '<=', now())->get();
         $cursos2 = Cursos::whereNull('deleted_at')->get();
+        $cursos = Cursos::whereNull('deleted_at')->get();
         $estudiantes = User::whereNull('deleted_at')->role('Estudiante')->get();
         $docentes = User::whereNull('deleted_at')->role('Docente')->get();
         $inscritos = Inscritos::whereNull('deleted_at')->get();

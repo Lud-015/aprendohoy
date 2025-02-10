@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RecursoSubtema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 class RecursoSubtemaController extends Controller
 {
@@ -58,28 +59,37 @@ class RecursoSubtemaController extends Controller
     private function procesarDescripcionConIframe(string $descripcion): string
     {
         $iframe = '';
+        $videoId = '';
 
         if (Str::contains($descripcion, ['youtube.com', 'youtu.be'])) {
-            $videoId = '';
 
+            // Extraer ID desde "youtu.be/VIDEO_ID"
             if (Str::contains($descripcion, 'youtu.be')) {
                 $videoId = Str::after($descripcion, 'youtu.be/');
-            } elseif (Str::contains($descripcion, 'youtube.com')) {
-                $videoId = Str::between($descripcion, 'v=', '&') ?: Str::after($descripcion, 'v=');
+            }
+            // Extraer ID desde "youtube.com/watch?v=VIDEO_ID"
+            elseif (Str::contains($descripcion, 'youtube.com/watch')) {
+                $videoId = Str::after($descripcion, 'v=');
+            }
+            // Extraer ID desde "youtube.com/shorts/VIDEO_ID"
+            elseif (Str::contains($descripcion, 'youtube.com/shorts/')) {
+                $videoId = Str::after($descripcion, 'youtube.com/shorts/');
             }
 
-            if ($videoId) {
+            // Limpiar el ID eliminando parámetros adicionales (&list=, &index=, etc.)
+            $videoId = strtok($videoId, '&');
+
+            if (!empty($videoId)) {
                 $iframe = '<iframe width="560" height="315" src="https://www.youtube.com/embed/' . $videoId . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
 
-                // Eliminar el enlace de YouTube del texto para evitar duplicados
-                $descripcion = Str::replace([
-                    'https://www.youtube.com/watch?v=' . $videoId,
-                    'https://youtu.be/' . $videoId
-                ], '', $descripcion);
+                // Eliminar enlaces de YouTube del texto original
+                $descripcion = Str::replaceMatches('/https?:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+(&[\w=]*)*/', '', $descripcion);
+                $descripcion = Str::replaceMatches('/https?:\/\/youtu\.be\/[\w-]+(&[\w=]*)*/', '', $descripcion);
+                $descripcion = Str::replaceMatches('/https?:\/\/(www\.)?youtube\.com\/shorts\/[\w-]+/', '', $descripcion);
             }
         }
 
-        return $descripcion . ($iframe ? "\n\n" . $iframe : '');
+        return trim($descripcion) . ($iframe ? "\n\n" . $iframe : '');
     }
 
 

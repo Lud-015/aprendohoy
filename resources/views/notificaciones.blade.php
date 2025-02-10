@@ -276,19 +276,6 @@
             </thead>
             <tbody>
 
-                @foreach (auth()->user()->notifications()->paginate(4) as $notification)
-                                <tr>
-                                    <th scope="row">
-                                        {{$loop->iteration}}
-                                    </th>
-                                    <th scope="row">
-                                        <p>{{ $notification->data['message'] }}</p>
-                                    </th>
-                                    <td>
-                                        <p>{{ $notification->created_at->diffForHumans() }}</p>
-                                    </td>
-                                </tr>
-                @endforeach
 
 
             </tbody>

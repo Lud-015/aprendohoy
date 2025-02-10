@@ -23,6 +23,9 @@ public function store(Request $request, $cursoId)
         'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
+    $ultimoOrden = Tema::where('curso_id', $cursoId)->max('orden') ?? 0;
+
+
 
     $rutaImagen = null;
 
@@ -35,6 +38,7 @@ public function store(Request $request, $cursoId)
         'descripcion' => $request->descripcion,
         'imagen' => $rutaImagen, // Guarda la ruta de la imagen
         'curso_id' => $cursoId,
+        'orden' => $ultimoOrden+1,
     ]);
 
     return back()->with('success', 'Tema creado correctamente.');

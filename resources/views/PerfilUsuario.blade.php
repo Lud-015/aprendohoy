@@ -188,12 +188,12 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
 
         @if (auth()->user()->hasRole('Administrador'))
         <a href="{{route('EditarperfilUser', [$usuario->id])}}" class="btn btn-sm btn-warning">Editar</a>
-        {{-- <button type="button" class="btn btn-sm btn-darker" data-toggle="modal" data-target="#exampleModal">Ver Credenciales</button> --}}
+        <button type="button" class="btn btn-sm btn-darker" data-toggle="modal" data-target="#exampleModal">Ver Credenciales</button>
         @endif
         </div>
 
 
-        {{-- <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
 
@@ -243,9 +243,9 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
               </div>
             </div>
           </div>
-        </div> --}}
+        </div>
 
-          {{-- <script>
+          <script>
             // Escuchar el envío del formulario
             document.getElementById("adminPasswordForm").addEventListener("submit", function(event) {
               event.preventDefault(); // Evitar que se envíe el formulario
@@ -262,7 +262,7 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
                 alert("Contraseña incorrecta"); // Muestra un mensaje de error si la contraseña es incorrecta
               }
             });
-          </script> --}}
+          </script>
 
 
       </div>

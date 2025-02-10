@@ -7,11 +7,12 @@
     <title>Reporte Final </title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
         /* Estilos CSS aquí */
         body {
             background-color: #a1a3a7;
             color: #000; /* Cambié el color del texto a negro */
-            font-family: 'AB', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             text-align: center;
             margin: 0; /* Asegúrate de que el margen del cuerpo sea 0 para evitar espacios innecesarios */
             padding: 0;
@@ -46,13 +47,10 @@
             align-items: center;
         }
 
-        @font-face {
-            font-family: AB;
-            src: url({{asset('assets/fonts/AB.ttf')}});
-        }
+
 
         h1 {
-            font-family: 'AB', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 20px;
             margin-left: 20px;
         }

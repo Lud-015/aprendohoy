@@ -58,11 +58,10 @@
 
 
 
-<body class="">
+<body >
 
 
     <nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
-
         <div class="container-fluid">
             <!-- Toggler -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidenav-collapse-main"
@@ -70,22 +69,12 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-
-
-            <!-- Brand -->
-
-            <!-- User -->
-
-
-            <!-- Collapse -->
-
+            <!-- Contenedor del Navbar -->
             <div class="collapse navbar-collapse" id="sidenav-collapse-main">
-                <!-- Collapse header -->
+                <!-- Header del Navbar en modo colapsado -->
                 <div class="navbar-collapse-header d-md-none">
                     <div class="row">
-                        <div class="col-6 collapse-brand">
-
-                        </div>
+                        <div class="col-6 collapse-brand"></div>
                         <div class="col-6 collapse-close">
                             <button type="button" class="navbar-toggler" data-toggle="collapse"
                                 data-target="#sidenav-collapse-main" aria-controls="sidenav-main" aria-expanded="false"
@@ -97,8 +86,10 @@
                     </div>
                 </div>
 
+                <!-- Perfil de Usuario -->
                 <li class="dropdown col-3">
-                    <a class="nav-item " href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
+
+                    <a class="nav-item" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
                         <div class="media align-items-center">
                             <span class="avatar avatar-sm rounded-circle">
@@ -108,13 +99,12 @@
                                     <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar of User">
                                 @endif
                             </span>
-                            <span class="mb-0 "> {{ auth()->user()->name }}
-                                {{ auth()->user()->lastname1 }} &#9660
+                            <span class="mb-0"> {{ auth()->user()->name }} {{ auth()->user()->lastname1 }} &#9660
                             </span>
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-left">
-                        <div class=" dropdown-header noti-title">
+                        <div class="dropdown-header noti-title">
                             <h6 class="text-overflow m-0">Bienvenid@!</h6>
                         </div>
                         <a href="{{ route('Miperfil') }}" class="dropdown-item">
@@ -124,119 +114,90 @@
                         <div class="dropdown-divider"></div>
                         <a href="{{ route('logout') }}" class="dropdown-item">
                             <i class="ni ni-user-run"></i>
-                            <span>Cerrar Sesion</span>
+                            <span>Cerrar Sesión</span>
                         </a>
                     </div>
-
-
                 </li>
                 <hr>
 
+                <!-- Generar menú dinámico según el rol del usuario -->
                 @php
                     $navItems = [
                         'Administrador' => [
                             ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
-                            [
-                                'route' => 'Inicio',
-                                'icon' => 'ni ni-tv-2 text-primary',
-                                'text' => 'Inicio',
-                                'active' => true,
-                            ],
-                            [
-                                'route' => 'ListadeCursos',
-                                'icon' => 'ni ni-book-bookmark text-blue',
-                                'text' => 'Lista de Cursos',
-                            ],
-                            [
-                                'route' => 'ListaDocentes',
-                                'icon' => 'ni ni-single-02 text-blue',
-                                'text' => 'Lista de Docentes',
-                            ],
-                            [
-                                'route' => 'ListaEstudiantes',
-                                'icon' => 'ni ni-single-02 text-orange',
-                                'text' => 'Lista de Estudiantes',
-                            ],
+                            ['route' => 'Inicio', 'icon' => 'ni ni-tv-2 text-primary', 'text' => 'Inicio', 'active' => true],
+                            ['route' => 'ListadeCursos', 'icon' => 'ni ni-book-bookmark text-blue', 'text' => 'Lista de Cursos'],
+                            ['route' => 'ListaDocentes', 'icon' => 'ni ni-single-02 text-blue', 'text' => 'Lista de Docentes'],
+                            ['route' => 'ListaEstudiantes', 'icon' => 'ni ni-single-02 text-orange', 'text' => 'Lista de Estudiantes'],
                             ['route' => 'aportesLista', 'icon' => 'ni ni-bullet-list-67 text-red', 'text' => 'Aportes'],
-                            [
-                                'route' => 'AsignarCurso',
-                                'icon' => 'ni ni-key-25 text-info',
-                                'text' => 'Asignación de Cursos',
-                            ],
+                            ['route' => 'AsignarCurso', 'icon' => 'ni ni-key-25 text-info', 'text' => 'Asignación de Cursos'],
                         ],
                         'Docente' => [
                             ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
-                            [
-                                'route' => 'Inicio',
-                                'icon' => 'ni ni-tv-2 text-primary',
-                                'text' => 'Mis Cursos',
-                                'active' => true,
-                            ],
-                            [
-                                'route' => 'AsignarCurso',
-                                'icon' => 'ni ni-key-25 text-info',
-                                'text' => 'Asignación de Cursos',
-                            ],
+                            ['route' => 'Inicio', 'icon' => 'ni ni-tv-2 text-primary', 'text' => 'Mis Cursos', 'active' => true],
+                            ['route' => 'AsignarCurso', 'icon' => 'ni ni-key-25 text-info', 'text' => 'Asignación de Cursos'],
                         ],
                         'Estudiante' => [
                             ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
-                            [
-                                'route' => 'Inicio',
-                                'icon' => 'ni ni-tv-2 text-primary',
-                                'text' => 'Mis Cursos',
-                                'active' => true,
-                            ],
+                            ['route' => 'Inicio', 'icon' => 'ni ni-tv-2 text-primary', 'text' => 'Mis Cursos', 'active' => true],
                         ],
                     ];
                 @endphp
 
-                @foreach ($navItems[auth()->user()->getRoleNames()->first()] ?? [] as $item)
-                    <ul class="navbar-nav">
+                <ul class="navbar-nav">
+                    @foreach ($navItems[auth()->user()->getRoleNames()->first()] ?? [] as $item)
                         <li class="nav-item {{ $item['active'] ?? false ? 'active' : '' }}">
                             <a class="nav-link{{ $item['active'] ?? false ? ' active' : '' }}"
                                 href="{{ route($item['route']) }}">
                                 <i class="{{ $item['icon'] }}"></i> {{ $item['text'] }}
                             </a>
                         </li>
-                    </ul>
-                @endforeach
+                    @endforeach
+                </ul>
+
+                @if (auth()->user()->hasRole('Estudiante'))
+                @yield('nav')
+                @else
+
+                @endif
+
+
+
+
 
                 <!-- Divider -->
                 <hr class="my-3">
-                <!-- Heading -->
 
+                <!-- Espacios Sociales -->
                 <h6 class="navbar-heading text-muted">Nuestros Espacios</h6>
-                <!-- Navigation -->
                 <ul class="navbar-nav mb-md-3">
                     <li class="nav-item">
                         <a class="nav-link"
                             href="https://www.facebook.com/profile.php?id=100063510101095&mibextid=ZbWKwL">
-                            <img src="{{ asset('assets/icons/fb.png') }}" alt="TikTok Icon"
+                            <img src="{{ asset('assets/icons/fb.png') }}" alt="Facebook Icon"
                                 style="width: 24px; margin-right: 10px;">
                             Facebook
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="https://instagram.com/fundeducarparalavida?igshid=MzRlODBiNWFlZA==">
-                            <img src="{{ asset('assets/icons/ig.png') }}" alt="TikTok Icon"
+                            <img src="{{ asset('assets/icons/ig.png') }}" alt="Instagram Icon"
                                 style="width: 24px; margin-right: 10px;">
-
                             Instagram
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="https://www.tiktok.com/@educarparalavida?_t=8fbFcMbWOGo&_r=1">
                             <img src="{{ asset('assets/icons/tk.png') }}" alt="TikTok Icon"
                                 style="width: 24px; margin-right: 10px;">
-                            Tiktok
+                            TikTok
                         </a>
                     </li>
                 </ul>
-
             </div>
         </div>
     </nav>
+
     <div class="main-content">
 
 
@@ -369,6 +330,46 @@
                 application: "argon-dashboard-free"
             });
     </script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Restaurar la última pestaña activa
+        let activeTab = localStorage.getItem("activeTab");
+        if (activeTab) {
+            let tab = document.querySelector(`[data-bs-target="${activeTab}"]`);
+            if (tab) {
+                new bootstrap.Tab(tab).show();
+            }
+        }
+
+        // Guardar la pestaña seleccionada al hacer clic
+        document.querySelectorAll(".nav-link").forEach(tab => {
+            tab.addEventListener("click", function (event) {
+                let tabTarget = event.target.getAttribute("data-bs-target");
+                localStorage.setItem("activeTab", tabTarget);
+            });
+        });
+
+        // Restaurar la última sección del accordion activa
+        let activeAccordion = localStorage.getItem("activeAccordion");
+        if (activeAccordion) {
+            let accordionItem = document.querySelector(activeAccordion);
+            if (accordionItem) {
+                new bootstrap.Collapse(accordionItem, { toggle: true });
+            }
+        }
+
+        // Guardar la sección del accordion cuando se abre
+        document.querySelectorAll(".accordion-button").forEach(button => {
+            button.addEventListener("click", function () {
+                let accordionTarget = this.getAttribute("data-bs-target");
+                localStorage.setItem("activeAccordion", accordionTarget);
+            });
+        });
+    });
+    </script>
+
 
 <script>
     @if (session('success'))
