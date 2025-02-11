@@ -6,14 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 class Subtema extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = "subtemas";
 
-    protected $fillable = ['titulo_subtema', 'descripcion', 'tema_id','imagen', 'orden'];
+    protected $fillable = ['titulo_subtema', 'descripcion', 'tema_id', 'imagen', 'orden'];
 
     public function tema()
     {
@@ -22,18 +21,12 @@ class Subtema extends Model
 
     public function cuestionarios()
     {
-        return $this->hasMany(Cuestionario::class);
-    }
-
-    public function completions()
-    {
-        return $this->hasMany(ActividadCompletion::class, 'completable_id')
-            ->where('completable_type', Subtema::class);
+        return $this->hasMany(Cuestionario::class, 'subtema_id');
     }
 
     public function tareas()
     {
-        return $this->hasMany(Tareas::class);
+        return $this->hasMany(Tareas::class, 'subtema_id');
     }
 
     public function recursos()
@@ -56,39 +49,24 @@ class Subtema extends Model
             return false;
         }
 
-        // Obtener las actividades completadas del subtema anterior
-        $actividadesCompletadas = $subtemaAnterior->actividadesCompletadas($inscritoId);
-
-        // Calcular el total de actividades en el subtema anterior
-        $totalActividades = $subtemaAnterior->tareas()->count() + $subtemaAnterior->cuestionarios()->count();
-
-        // Si no hay actividades, el subtema actual está desbloqueado por defecto
-        if ($totalActividades === 0) {
-            return true;
-        }
-
-        // Verificar si todas las actividades del subtema anterior están completadas
-        return $actividadesCompletadas->count() === $totalActividades;
-    }
-
-    // Verificar si es el primer subtema
-    public function esPrimerSubtema()
-    {
-        // Obtener el primer subtema del tema actual
-        $primerSubtema = Subtema::where('tema_id', $this->tema_id)
-            ->orderBy('orden', 'asc')
-            ->first();
-
-        // Si no hay subtemas o el subtema actual no tiene orden, devolver false
-        if (!$primerSubtema || is_null($this->orden)) {
+        // Verificar si el subtema anterior está desbloqueado y completado
+        if (!$subtemaAnterior->estaDesbloqueado($inscritoId)) {
             return false;
         }
 
-        // Verificar si el subtema actual es el primero
-        return $this->orden === $primerSubtema->orden;
+        // Verificar si todas las actividades del subtema anterior están completadas
+        $actividadesCompletadas = $subtemaAnterior->actividadesCompletadas($inscritoId);
+        $totalActividades = $subtemaAnterior->tareas()->count() + $subtemaAnterior->cuestionarios()->count();
+        return $actividadesCompletadas->count() === $totalActividades;
     }
 
-    // Obtener el subtema anterior
+    public function esPrimerSubtema()
+    {
+        return $this->orden === Subtema::where('tema_id', $this->tema_id)
+            ->orderBy('orden', 'asc')
+            ->value('orden');
+    }
+
     public function obtenerSubtemaAnterior()
     {
         return Subtema::where('tema_id', $this->tema_id)
@@ -97,40 +75,26 @@ class Subtema extends Model
             ->first();
     }
 
-    // Obtener las actividades completadas por un estudiante
+    // En el modelo Subtema
+    public function actividadesCompletadas2()
+    {
+        return $this->hasMany(ActividadCompletion::class, 'completable_id')
+            ->where('completable_type', Subtema::class);
+    }
+
+    // Modifica el método actividadesCompletadas para que sea más consistente
     public function actividadesCompletadas($inscritoId)
     {
-        // Obtener los IDs de tareas y cuestionarios
-        $tareaIds = $this->tareas()->pluck('id');
-        $cuestionarioIds = $this->cuestionarios()->pluck('id');
+        $inscrito_id = is_object($inscritoId) ? $inscritoId->id : $inscritoId;
 
-        // Combinar los IDs en una sola colección
-        $completableIds = $tareaIds->merge($cuestionarioIds);
-
-        // Definir los tipos de actividades
-        $tiposActividades = [
-            Cuestionario::class,
-            Tareas::class,
-        ];
-
-        // Filtrar las actividades completadas
-        return ActividadCompletion::whereIn('completable_id', $completableIds)
-            ->whereIn('completable_type', $tiposActividades)
-            ->where('inscritos_id', $inscritoId)
+        return ActividadCompletion::where('inscritos_id', $inscrito_id)
+            ->where(function ($query) {
+                $query->whereIn('completable_id', $this->tareas()->pluck('id'))
+                    ->where('completable_type', Tareas::class)
+                    ->orWhereIn('completable_id', $this->cuestionarios()->pluck('id'))
+                    ->where('completable_type', Cuestionario::class);
+            })
             ->where('completed', true)
             ->get();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

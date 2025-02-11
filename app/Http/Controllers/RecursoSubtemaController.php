@@ -52,7 +52,7 @@ class RecursoSubtemaController extends Controller
         $recurso->save();
 
         // Redirigir con un mensaje de éxito
-        return redirect(route('Curso', $id))->with('success', 'Recurso creado con éxito');
+        return redirect(back())->with('success', 'Recurso creado con éxito');
     }
 
 
