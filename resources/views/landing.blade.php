@@ -5,12 +5,15 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Pagina Principal</title>
+    <title>Aprendo Hoy</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
+    @php
+        use Carbon\Carbon;
+    @endphp
     <!-- Favicons -->
-    <link href="{{asset('assets/img/Acceder.png')}}" rel="icon">
+    <link href="{{ asset('assets/img/Acceder.png') }}" rel="icon">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +21,8 @@
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="assets2/vendor/aos/aos.css" rel="stylesheet">
-    <link href="assets2/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
     <link href="assets2/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="assets2/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
     <link href="assets2/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
@@ -27,6 +31,22 @@
 
 
 </head>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Detectar cuando cualquier modal se oculta
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function () {
+                // Buscar y eliminar backdrop sobrante
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+
+                // Asegurar que el body no quede bloqueado
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = 'auto'; // Habilitar scroll si estaba bloqueado
+                document.body.style.paddingRight = ''; // Corregir desplazamiento
+            });
+        });
+    });
+</script>
 
 <body>
 
@@ -63,7 +83,7 @@
     </header><!-- End Header -->
 
     <!-- ======= Hero Section ======= -->
-    <section id="hero" class="d-flex align-items-center">
+    <section id="hero" class="d-flex align-items-center" >
 
         <div class="container">
             <div class="row">
@@ -73,8 +93,7 @@
                         <h1>"Aprende a tu
                             ritmo, donde quieras y cuando quieras. ¡Tu futuro comienza aquí!"</h1>
                         {{-- <h2>Lorem ipsum dolor sit amet, tota senserit percipitur ius ut, usu et fastidii forensibus voluptatibus. His ei nihil feugait</h2> --}}
-                        {{-- <a href="#" class="download-btn"><i class="bx bxl-play-store"></i> Google Play</a>
-            <a href="#" class="download-btn"><i class="bx bxl-apple"></i> App Store</a> --}}
+                        <a href="{{route('lista.cursos.congresos')}}" class="download-btn"><i class="bx bxl-graphql"></i> Ir a la lista de Cursos</a>
                     </div>
                 </div>
                 <div class="col-lg-6 d-lg-flex flex-lg-column align-items-stretch order-1 order-lg-2 hero-img"
@@ -88,69 +107,207 @@
 
     <main id="main">
 
-        <!-- ======= App Features Section ======= -->
-        <section id="features" class="features">
-            <div class="container">
+        <section id="congress-list" class="testimonials section-bg">
+            <div class="container" data-aos="fade-up">
 
                 <div class="section-title">
-                    <h2>Sistema de Cursos</h2>
-                    <p>Nuestro sistema de cursos está diseñado para satisfacer tus necesidades educativas, ofreciendo
-                        una experiencia de aprendizaje única y accesible para todos. Con características avanzadas y un
-                        enfoque en la interactividad y la seguridad, estamos aquí para ayudarte a alcanzar tus metas
-                        académicas y profesionales.</p>
+                    <h2>Ultimos Congresos</h2>
+                    <p>Explora los congresos próximos y regístrate para participar en eventos de alto impacto.</p>
                 </div>
 
-                <div class="row no-gutters">
-                    <div class="col-xl-7 d-flex align-items-stretch order-2 order-lg-1">
-                        <div class="content d-flex flex-column justify-content-center">
-                            <div class="row">
-                                <div class="col-md-6 icon-box" data-aos="fade-up">
-                                    <i class="bx bx-receipt"></i>
-                                    <h4>Evaluativo</h4>
-                                    <p>Proporciona una evaluación detallada y personalizada para cada estudiante,
-                                        ayudándolos a comprender mejor sus fortalezas y áreas de mejora.</p>
-                                </div>
-                                <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="100">
-                                    <i class="bx bx-cube-alt"></i>
-                                    <h4>Interfaz</h4>
-                                    <p>Ofrece una interfaz intuitiva y fácil de usar que facilita la navegación y el
-                                        acceso a todos los recursos educativos disponibles.</p>
-                                </div>
-                                <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="200">
-                                    <i class="bx bx-images"></i>
-                                    <h4>Recursos Eduactivos</h4>
-                                    <p>Accede a una amplia variedad de recursos educativos, incluyendo videos, lecturas,
-                                        y ejercicios prácticos diseñados por expertos en la materia.</p>
-                                </div>
-                                <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="300">
-                                    <i class="bx bx-shield"></i>
-                                    <h4>Seguridad</h4>
-                                    <p>Garantizamos la máxima seguridad de tus datos personales y académicos, utilizando
-                                        las últimas tecnologías en cifrado y protección de información.</p>
-                                </div>
-                                <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="400">
-                                    <i class="bx bx-atom"></i>
-                                    <h4>Interactividad</h4>
-                                    <p>Fomenta la interactividad a través de foros de discusión, sesiones en vivo, y
-                                        actividades colaborativas que enriquecen el proceso de aprendizaje.</p>
-                                </div>
-                                <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="500">
-                                    <i class="bx bx-id-card"></i>
-                                    <h4>Acceso a cursos</h4>
-                                    <p>Disfruta de acceso ilimitado a una vasta selección de cursos, disponibles en
-                                        cualquier momento y desde cualquier dispositivo.</p>
+                <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
+                    <div class="swiper-wrapper ">
+                        @forelse ($congresos as $congreso)
+                            @php
+                                $fecha_ini = Carbon::parse($congreso->fecha_ini);
+                                $fecha_fin = Carbon::parse($congreso->fecha_fin);
+                            @endphp
+                            <div class="swiper-slide  ">
+                                <div class="testimonial-item">
+                                    <img src="{{ asset('assets2/img/congress.jpg') }}" class="congress-img"
+                                        style="
+                                width: 100%;
+                                height: 150px;
+                                object-fit: cover;
+                                border-radius: 10px;
+                                margin-bottom: 15px;
+                            "
+                                        alt="Congreso Innovatech 2024">
+                                    <h3>{{ $congreso->nombreCurso }}</h3>
+                                    @if ($fecha_ini->month == $fecha_fin->month)
+                                        <h4>
+                                            📅 {{ $fecha_ini->format('d') }} - {{ $fecha_fin->format('d') }} de
+                                            {{ $fecha_ini->locale('es')->isoFormat('MMMM') }}
+                                        </h4>
+                                    @else
+                                        <h4>
+                                            📅 {{ $fecha_ini->format('d') }} de
+                                            {{ $fecha_ini->locale('es')->isoFormat('MMMM') }} -
+                                            {{ $fecha_fin->format('d') }} de
+                                            {{ $fecha_fin->locale('es')->isoFormat('MMMM') }}
+                                        </h4>
+                                    @endif
+                                    <p>
+                                        {{ $congreso->descripcionC }}
+                                    </p>
+                                    <!-- Botón que abre el Modal, enviando el id del congreso -->
+                                    <a href="{{ route('congreso.detalle', $congreso->id) }}">
+                                    Inscribirse
+                                    </a>
+
+
                                 </div>
                             </div>
-                        </div>
+
+
                     </div>
-                    <div class="image col-xl-5 d-flex align-items-stretch justify-content-center order-1 order-lg-2"
-                        data-aos="fade-left" data-aos-delay="100">
-                        <img src="assets2/img/features.svg" class="img-fluid" alt="">
+
+
+                    @empty
+                    <div class="section-title">
+                        <h2>No hay Congresos Disponibles</h2>
                     </div>
+                    @endforelse
+
+
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+
+            </div>
+        </section>
+
+        <section id="cursos" class="testimonials section-bg">
+            <div class="container" data-aos="fade-up">
+
+                <div class="section-title">
+                    <h2>Ultimos Cursos</h2>
+                    <p>Descubre tu potencial, aprende online.</p>
+                </div>
+
+                <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
+                    <div class="swiper-wrapper ">
+                        @forelse ($cursos as $curso)
+                            @php
+                                $fecha_ini = Carbon::parse($curso->fecha_ini);
+                                $fecha_fin = Carbon::parse($curso->fecha_fin);
+                            @endphp
+                            <div class="swiper-slide  ">
+                                <div class="testimonial-item">
+                                    <img src="{{ asset('assets/img/bg2.png') }}" class="congress-img"
+                                        style="
+                                width: 100%;
+                                height: 150px;
+                                object-fit: cover;
+                                border-radius: 10px;
+                                margin-bottom: 15px;
+                            "
+                                        alt="Congreso Innovatech 2024">
+                                    <h3>{{ $curso->nombreCurso }}</h3>
+                                    @if ($fecha_ini->month == $fecha_fin->month)
+                                        <h4>
+                                            📅 {{ $fecha_ini->format('d') }} - {{ $fecha_fin->format('d') }} de
+                                            {{ $fecha_ini->locale('es')->isoFormat('MMMM') }}
+                                        </h4>
+                                    @else
+                                        <h4>
+                                            📅 {{ $fecha_ini->format('d') }} de
+                                            {{ $fecha_ini->locale('es')->isoFormat('MMMM') }} -
+                                            {{ $fecha_fin->format('d') }} de
+                                            {{ $fecha_fin->locale('es')->isoFormat('MMMM') }}
+                                        </h4>
+                                    @endif
+                                    <p>
+                                        {{ $curso->descripcionC }}
+                                    </p>
+                                    <!-- Botón que abre el Modal, enviando el id del congreso -->
+                                    <a href="{{ route('congreso.detalle', $curso->id) }}">
+                                    Inscribirse
+                                    </a>
+
+
+                                </div>
+                            </div>
+
+
+                    </div>
+
+
+                    @empty
+                    <div class="section-title">
+                        <h2>No hay Congresos Disponibles</h2>
+                    </div>
+                    @endforelse
+
+
                 </div>
 
             </div>
-        </section><!-- End App Features Section -->
+        </section>
+
+               <!-- ======= App Features Section ======= -->
+               <section id="features" class="features">
+                <div class="container">
+
+                    <div class="section-title">
+                        <h2>Sistema de Cursos</h2>
+                        <p>Nuestro sistema de cursos está diseñado para satisfacer tus necesidades educativas, ofreciendo
+                            una experiencia de aprendizaje única y accesible para todos. Con características avanzadas y un
+                            enfoque en la interactividad y la seguridad, estamos aquí para ayudarte a alcanzar tus metas
+                            académicas y profesionales.</p>
+                    </div>
+
+                    <div class="row no-gutters">
+                        <div class="col-xl-7 d-flex align-items-stretch order-2 order-lg-1">
+                            <div class="content d-flex flex-column justify-content-center">
+                                <div class="row">
+                                    <div class="col-md-6 icon-box" data-aos="fade-up">
+                                        <i class="bx bx-receipt"></i>
+                                        <h4>Evaluativo</h4>
+                                        <p>Proporciona una evaluación detallada y personalizada para cada estudiante,
+                                            ayudándolos a comprender mejor sus fortalezas y áreas de mejora.</p>
+                                    </div>
+                                    <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="100">
+                                        <i class="bx bx-cube-alt"></i>
+                                        <h4>Interfaz</h4>
+                                        <p>Ofrece una interfaz intuitiva y fácil de usar que facilita la navegación y el
+                                            acceso a todos los recursos educativos disponibles.</p>
+                                    </div>
+                                    <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="200">
+                                        <i class="bx bx-images"></i>
+                                        <h4>Recursos Eduactivos</h4>
+                                        <p>Accede a una amplia variedad de recursos educativos, incluyendo videos, lecturas,
+                                            y ejercicios prácticos diseñados por expertos en la materia.</p>
+                                    </div>
+                                    <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="300">
+                                        <i class="bx bx-shield"></i>
+                                        <h4>Seguridad</h4>
+                                        <p>Garantizamos la máxima seguridad de tus datos personales y académicos, utilizando
+                                            las últimas tecnologías en cifrado y protección de información.</p>
+                                    </div>
+                                    <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="400">
+                                        <i class="bx bx-atom"></i>
+                                        <h4>Interactividad</h4>
+                                        <p>Fomenta la interactividad a través de foros de discusión, sesiones en vivo, y
+                                            actividades colaborativas que enriquecen el proceso de aprendizaje.</p>
+                                    </div>
+                                    <div class="col-md-6 icon-box" data-aos="fade-up" data-aos-delay="500">
+                                        <i class="bx bx-id-card"></i>
+                                        <h4>Acceso a cursos</h4>
+                                        <p>Disfruta de acceso ilimitado a una vasta selección de cursos, disponibles en
+                                            cualquier momento y desde cualquier dispositivo.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="image col-xl-5 d-flex align-items-stretch justify-content-center order-1 order-lg-2"
+                            data-aos="fade-left" data-aos-delay="100">
+                            <img src="assets2/img/features.svg" class="img-fluid" alt="">
+                        </div>
+                    </div>
+
+                </div>
+            </section><!-- End App Features Section -->
 
         <!-- ======= Details Section ======= -->
         <section id="details" class="details">
@@ -187,16 +344,20 @@
                     <div class="col-md-8 pt-5 order-2 order-md-1" data-aos="fade-up">
                         <h3>Beneficios adicionales</h3>
                         <p class="fst-italic">
-                            Participa en actividades colaborativas y discusiones en foros que fomentan la interactividad y el aprendizaje activo. Con acceso ilimitado a nuestros cursos, puedes estudiar cuando y donde quieras, adaptando tu educación a tu estilo de vida.
+                            Participa en actividades colaborativas y discusiones en foros que fomentan la interactividad
+                            y el aprendizaje activo. Con acceso ilimitado a nuestros cursos, puedes estudiar cuando y
+                            donde quieras, adaptando tu educación a tu estilo de vida.
                         </p>
                         <p>
-                            Nuestro compromiso es ofrecerte una educación de calidad, con un soporte constante y recursos actualizados que te ayudarán a alcanzar tus metas académicas y profesionales. Únete a nuestra comunidad de estudiantes y descubre una nueva forma de aprender.
+                            Nuestro compromiso es ofrecerte una educación de calidad, con un soporte constante y
+                            recursos actualizados que te ayudarán a alcanzar tus metas académicas y profesionales. Únete
+                            a nuestra comunidad de estudiantes y descubre una nueva forma de aprender.
                         </p>
 
                     </div>
                 </div>
 
-                <div class="row content">
+                {{-- <div class="row content">
                     <div class="col-md-4" data-aos="fade-right">
                         <img src="assets2/img/details-3.png" class="img-fluid" alt="">
                     </div>
@@ -249,97 +410,17 @@
                             </li>
                         </ul>
                     </div>
-                </div>
+                </div> --}}
 
             </div>
-        </section><!-- End Details Section -->
+        </section>
+        <!-- End Details Section -->
 
         <!-- ======= Gallery Section ======= -->
 
 
         <!-- ======= Testimonials Section ======= -->
-        {{-- <section id="testimonials" class="testimonials section-bg">
-      <div class="container" data-aos="fade-up">
 
-        <div class="section-title">
-          <h2>Testimonials</h2>
-          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
-        </div>
-
-        <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
-          <div class="swiper-wrapper">
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets2/img/testimonials/testimonials-1.jpg" class="testimonial-img" alt="">
-                <h3>Saul Goodman</h3>
-                <h4>Ceo &amp; Founder</h4>
-                <p>
-                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at semper.
-                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
-                </p>
-              </div>
-            </div>
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets2/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
-                <h3>Sara Wilsson</h3>
-                <h4>Designer</h4>
-                <p>
-                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Export tempor illum tamen malis malis eram quae irure esse labore quem cillum quid cillum eram malis quorum velit fore eram velit sunt aliqua noster fugiat irure amet legam anim culpa.
-                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
-                </p>
-              </div>
-            </div>
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets2/img/testimonials/testimonials-3.jpg" class="testimonial-img" alt="">
-                <h3>Jena Karlis</h3>
-                <h4>Store Owner</h4>
-                <p>
-                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim tempor labore quem eram duis noster aute amet eram fore quis sint minim.
-                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
-                </p>
-              </div>
-            </div>
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets2/img/testimonials/testimonials-4.jpg" class="testimonial-img" alt="">
-                <h3>Matt Brandon</h3>
-                <h4>Freelancer</h4>
-                <p>
-                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt elit fore quem dolore labore illum veniam.
-                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
-                </p>
-              </div>
-            </div>
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets2/img/testimonials/testimonials-5.jpg" class="testimonial-img" alt="">
-                <h3>John Larson</h3>
-                <h4>Entrepreneur</h4>
-                <p>
-                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam tempor noster veniam enim culpa labore duis sunt culpa nulla illum cillum fugiat legam esse veniam culpa fore nisi cillum quid.
-                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
-                </p>
-              </div>
-            </div>
-
-          </div>
-          <div class="swiper-pagination"></div>
-        </div>
-
-      </div>
-    </section> --}}
         <!-- End Testimonials Section -->
 
 
@@ -405,7 +486,7 @@
         </div>
 
       </div>
-    </section> --}}
+        </section> --}}
         <!-- End Frequently Asked Questions Section -->
 
         <!-- ======= Contact Section ======= -->
@@ -414,9 +495,9 @@
 
                 <div class="section-title">
                     <h2><i class="fas fa-comment-alt-exclamation"></i>CONTACTANOS</h2>
-                    <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit
+                    {{-- <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit
                         sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias
-                        ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
+                        ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p> --}}
                 </div>
 
                 <div class="row">
@@ -426,7 +507,8 @@
                                 <i class="bx bx-map"></i>
                                 <h4>Direcciones</h4>
                                 <p>
-                                    OFICINA CENTRAL: Av. Melchor Pérez de Olguín e Idelfonso Murgía Nro. 1253 Cochabamba - Bolivia
+                                    OFICINA CENTRAL: Av. Melchor Pérez de Olguín e Idelfonso Murgía Nro. 1253 Cochabamba
+                                    - Bolivia
                                 </p>
                                 <p>
                                     OFICINA REGIONAL: Calle Pinilla Edifico Arcadia Nro. 2588 La Paz - Bolivia
@@ -483,9 +565,14 @@
                     <div class="col-lg-3 col-md-6 footer-links">
                         <h4>Links Asociados</h4>
                         <ul>
-                            <li><i class="bx bx-chevron-right"></i> <a href="https://educarparalavida.org.bo/web/Inicio.html">Inicio</a></li>
-                            <li><i class="bx bx-chevron-right"></i> <a href="https://educarparalavida.org.bo/web/Quienes-somos.html">Quienes Somos</a></li>
-                            <li><i class="bx bx-chevron-right"></i> <a href="https://educarparalavida.org.bo/web/Proyectos-y-servicios.html">Servicios</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a
+                                    href="https://educarparalavida.org.bo/web/Inicio.html">Inicio</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a
+                                    href="https://educarparalavida.org.bo/web/Quienes-somos.html">Quienes Somos</a>
+                            </li>
+                            <li><i class="bx bx-chevron-right"></i> <a
+                                    href="https://educarparalavida.org.bo/web/Proyectos-y-servicios.html">Servicios</a>
+                            </li>
                             {{-- <li><i class="bx bx-chevron-right"></i> <a href="#">Terms of service</a></li>
                             <li><i class="bx bx-chevron-right"></i> <a href="#">Privacy policy</a></li> --}}
                         </ul>
@@ -507,9 +594,12 @@
                         {{-- <p>Cras fermentum odio eu feugiat lide par naso tierra videa magna derita valies</p> --}}
                         <div class="social-links mt-3">
                             <a href="https://x.com/FUNDVIDA2" class="twitter"><i class="bx bxl-twitter"></i></a>
-                            <a href="https://www.facebook.com/profile.php?id=100063510101095" class="facebook"><i class="bx bxl-facebook"></i></a>
-                            <a href="https://www.instagram.com/fundeducarparalavida/" class="instagram"><i class="bx bxl-instagram"></i></a>
-                            <a href="https://api.whatsapp.com/send?phone=%3C+59172087186%3E" class="whatsapp"><i class="bx bxl-whatsapp"></i></a>
+                            <a href="https://www.facebook.com/profile.php?id=100063510101095" class="facebook"><i
+                                    class="bx bxl-facebook"></i></a>
+                            <a href="https://www.instagram.com/fundeducarparalavida/" class="instagram"><i
+                                    class="bx bxl-instagram"></i></a>
+                            <a href="https://api.whatsapp.com/send?phone=%3C+59172087186%3E" class="whatsapp"><i
+                                    class="bx bxl-whatsapp"></i></a>
                         </div>
                     </div>
 
@@ -546,6 +636,32 @@
 
     <!-- Template Main JS File -->
     <script src="assets2/js/main.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Escuchar el evento cuando un modal se oculta
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function () {
+                    // Eliminar backdrop manualmente si aún existe
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                    document.body.classList.remove('modal-open'); // Eliminar clase modal-open
+                    document.body.style.paddingRight = ''; // Corregir posibles desplazamientos
+                });
+            });
+        });
+    </script>
+
+<script>
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('modal-backdrop')) {
+            document.querySelectorAll('.modal.show').forEach(modal => {
+                let modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) modalInstance.hide();
+            });
+        }
+    });
+</script>
+
 
 </body>
 

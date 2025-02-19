@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Charts\BartChart;
 use App\Events\CursoEvent;
 use App\Helpers\TextHelper;
+use App\Models\CertificateTemplate;
 use App\Models\Tema;
 use App\Services\QrTokenService;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -51,6 +52,8 @@ class CursosController extends Controller
     {
         // Obtener el curso
         $cursos = Cursos::findOrFail($id);
+
+        $certificado_template = CertificateTemplate::where('curso_id', $id)->first();
 
 
 
@@ -102,6 +105,7 @@ class CursosController extends Controller
             'boletin' => $boletin,
             'horarios' => $horarios,
             'qrCode' => $qrCode,
+            'template' => $certificado_template,
         ]);
     }
 

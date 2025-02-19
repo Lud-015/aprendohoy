@@ -19,12 +19,17 @@ class Cursos extends Model
         return $this->belongsTo(Nivel::class, 'niveles_id');
     }
 
+    public function certificateTemplate()
+    {
+        return $this->hasOne(CertificateTemplate::class, 'curso_id');
+    }
+
     public function docente(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function edad_dirigida():BelongsTo
+    public function edad_dirigida(): BelongsTo
     {
         return $this->belongsTo(EdadDirigida::class, 'edadDir_id');
     }
@@ -34,26 +39,26 @@ class Cursos extends Model
     }
     public function inscritos(): HasMany
     {
-        return $this->hasMany(Inscritos::class,  'id' , 'estudiante_id');
+        return $this->hasMany(Inscritos::class,  'id', 'estudiante_id');
     }
     public function foros(): HasMany
     {
-        return $this->hasMany(Foro::class,  'id' , 'cursos_id');
+        return $this->hasMany(Foro::class,  'id', 'cursos_id');
     }
 
     public function recursos(): HasMany
     {
-        return $this->hasMany(Recursos::class,  'id' , 'cursos_id');
+        return $this->hasMany(Recursos::class,  'id', 'cursos_id');
     }
     public function asistencia(): HasMany
     {
-        return $this->hasMany(Asistencia::class,  'id' , 'curso_id');
+        return $this->hasMany(Asistencia::class,  'id', 'curso_id');
     }
 
 
     public function evaluaciones(): HasMany
     {
-        return $this->hasMany(Evaluaciones::class,  'id' , 'curso_id');
+        return $this->hasMany(Evaluaciones::class,  'id', 'curso_id');
     }
 
     public function temas()
@@ -73,7 +78,8 @@ class Cursos extends Model
         $subtemas = $this->temas->flatMap(fn($tema) => $tema->subtemas);
 
         // Obtener todas las actividades (tareas + cuestionarios) de los subtemas
-        $actividades = $subtemas->flatMap(fn($subtema) =>
+        $actividades = $subtemas->flatMap(
+            fn($subtema) =>
             $subtema->tareas->pluck('id')->merge($subtema->cuestionarios->pluck('id'))
         );
 
@@ -97,12 +103,4 @@ class Cursos extends Model
 
         return $progreso;
     }
-
-
-
-
-
-
-
-
 }

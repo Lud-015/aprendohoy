@@ -71,17 +71,29 @@
     </div>
 
     <!-- Contenido del correo -->
-    <div class="email-content">
-        <h1>Restablecer Contraseña</h1>
-        <p>Hola,</p>
-        <p>Recibiste este correo porque solicitaste un restablecimiento de contraseña para tu cuenta.</p>
-        <p>Haz clic en el siguiente botón para restablecer tu contraseña:</p>
-        <p>
-            <a href="{{ $actionUrl }}" class="btn-reset">Restablecer Contraseña</a>
-        </p>
-        <p>Si no solicitaste este restablecimiento, ignora este mensaje.</p>
-        <p>Gracias,</p>
-        <p>El equipo de {{ config('app.name') }}</p>
-    </div>
+
+
+{{-- @if($esVerificacion) --}}
+    <h1>Verificación de Correo Electrónico</h1>
+    <p>Hola,</p>
+    <p>Gracias por registrarte. Para completar tu registro, verifica tu correo electrónico haciendo clic en el botón de abajo:</p>
+    <p>
+        <a href="{{ $actionUrl }}" class="btn">Verificar Correo</a>
+    </p>
+    <p>Si no creaste esta cuenta, ignora este mensaje.</p>
+    <p>Gracias,</p>
+    <p>El equipo de {{ config('app.name') }}</p>
+{{-- @else
+    <h1>Restablecer Contraseña</h1>
+    <p>Hola,</p>
+    <p>Recibiste este correo porque solicitaste un restablecimiento de contraseña para tu cuenta.</p>
+    <p>
+        <a href="{{ $actionUrl }}" class="btn">Restablecer Contraseña</a>
+    </p>
+    <p>Si no solicitaste este restablecimiento, ignora este mensaje.</p>
+    <p>Gracias,</p>
+    <p>El equipo de {{ config('app.name') }}</p>
+@endif --}}
+
 </body>
 </html>

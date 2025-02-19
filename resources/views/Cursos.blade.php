@@ -104,6 +104,31 @@
                                                                 <i class="fas fa-file"></i> Ver Plan Del Curso
                                                             </a>
                                                         </li>
+
+                                                    @endif
+                                                    @if (auth()->user()->hasRole('Administrador') )
+                                                    @if (!isset($template))
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                                            data-bs-target="#modalCertificado">
+                                                            <i class="fas fa-certificate"></i> Subir Plantilla de Certificado
+                                                        </a>
+                                                    </li>
+
+                                                    @else
+
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditarCertificado">
+                                                            <i class="fas fa-certificate"></i> Actualizar Plantilla de Certificado
+                                                        </a>
+                                                    </li>
+
+
+
+                                                    <!-- Modal -->
+
+                                                    @endif
+
                                                     @endif
                                                 </ul>
                                             </div>
@@ -118,6 +143,67 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Modal para editar plantilla -->
+
+    <div class="modal fade" id="modalCertificado" tabindex="-1" aria-labelledby="modalCertificadoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCertificadoLabel">Subir Plantilla Horario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('certificates.store', $cursos->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+
+                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Frontal del Certificado</label>
+                        <input type="file" name="template_front" class="w-full border rounded px-3 py-2" required>
+                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Trasera del Certificado</label>
+                        <input type="file" name="template_back" class="w-full border rounded px-3 py-2" required>
+                        <div class="flex justify-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                Subir
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalEditarCertificado" tabindex="-1" aria-labelledby="modalEditarCertificadoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarCertificadoLabel">Actualizar Plantilla de Certificado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('certificates.update', $cursos->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <!-- Mostrar imagen actual si existe -->
+                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Frontal del Certificado</label>
+                        <input type="file" name="template_front" class="w-full border rounded px-3 py-2" required>
+
+                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Trasera del Certificado</label>
+                        <input type="file" name="template_back" class="w-full border rounded px-3 py-2" required>
+
+                        <div class="flex justify-end mt-4">
+                            <button type="submit" class="btn btn-primary">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -1323,7 +1409,7 @@
                                                     <h1>{{ $tema->titulo_tema }}</h1>
                                                     @if ($tema->imagen)
                                                         <img class="img-fluid"
-                                                            src="{{ asset('storage/' . $tema->imagen) }}"
+                                                            src="w"
                                                             alt="Imagen del tema">
                                                     @endif
 

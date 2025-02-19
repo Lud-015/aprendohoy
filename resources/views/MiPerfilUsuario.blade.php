@@ -112,80 +112,82 @@
 
 
 @section('avatar')
+    <div class="container text-center">
+        @php
+            $avatarUrl = auth()->user()->avatar
+                ? asset('storage/' . auth()->user()->avatar)
+                : asset('./assets/img/user.png');
+        @endphp
 
-<div class="container text-center">
-    @php
-        $avatarUrl = auth()->user()->avatar
-            ? asset('storage/' . auth()->user()->avatar)
-            : asset('./assets/img/user.png');
-    @endphp
+        <!-- Imagen de perfil -->
+        <img id="avatar" src="{{ $avatarUrl }}" class="rounded-circle border border-secondary shadow-sm"
+            alt="Avatar del usuario" height="150" width="150" data-toggle="modal" data-target="#avatarModal">
 
-    <!-- Imagen de perfil -->
-    <img id="avatar" src="{{ $avatarUrl }}" class="rounded-circle border border-secondary shadow-sm"
-        alt="Avatar del usuario" height="150" width="150" data-toggle="modal" data-target="#avatarModal">
+        <!-- Botón para abrir el modal -->
 
-    <!-- Botón para abrir el modal -->
+    </div>
 
-</div>
-
-<!-- Modal para cambiar la foto -->
-<div class="modal fade" id="avatarModal" tabindex="-1" role="dialog" aria-labelledby="avatarModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="avatarModalLabel">Actualizar Foto de Perfil</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body text-center">
-                <!-- Vista previa de la imagen -->
-                <div class="mb-8">
-                    <img id="preview" class="rounded-circle border border-secondary mb-3"
-                    src="{{ $avatarUrl }}" width="120" height="120">
+    <!-- Modal para cambiar la foto -->
+    <div class="modal fade" id="avatarModal" tabindex="-1" role="dialog" aria-labelledby="avatarModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="avatarModalLabel">Actualizar Foto de Perfil</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
 
-                <!-- Formulario para subir la imagen -->
-                <form class="my-5" method="POST" action="{{ route('avatar') }}" enctype="multipart/form-data" id="uploadForm">
-                    @csrf
-                    <input type="hidden" name="id" value="{{ auth()->user()->id }}">
-
-                    <!-- Input para seleccionar imagen -->
-                    <div class="custom-file mb-3">
-                        <input type="file" class="custom-file-input" id="avatarInput" name="avatar" accept="image/*">
-                        <label class="custom-file-label" for="avatarInput">Elegir imagen...</label>
+                <div class="modal-body text-center">
+                    <!-- Vista previa de la imagen -->
+                    <div class="mb-8">
+                        <img id="preview" class="rounded-circle border border-secondary mb-3" src="{{ $avatarUrl }}"
+                            width="120" height="120">
                     </div>
 
-                    <!-- Botón para subir la imagen -->
-                    <button type="submit" class="btn btn-success btn-block">
-                        Subir Imagen
-                    </button>
-                </form>
+                    <!-- Formulario para subir la imagen -->
+                    <form class="my-5" method="POST" action="{{ route('avatar') }}" enctype="multipart/form-data"
+                        id="uploadForm">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ auth()->user()->id }}">
+
+                        <!-- Input para seleccionar imagen -->
+                        <div class="custom-file mb-3">
+                            <input type="file" class="custom-file-input" id="avatarInput" name="avatar"
+                                accept="image/*">
+                            <label class="custom-file-label" for="avatarInput">Elegir imagen...</label>
+                        </div>
+
+                        <!-- Botón para subir la imagen -->
+                        <button type="submit" class="btn btn-success btn-block">
+                            Subir Imagen
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Script para vista previa -->
-<script>
-    document.getElementById('avatarInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            if (!file.type.startsWith('image/')) {
-                alert('Por favor, selecciona una imagen válida.');
-                return;
+    <!-- Script para vista previa -->
+    <script>
+        document.getElementById('avatarInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    alert('Por favor, selecciona una imagen válida.');
+                    return;
+                }
+
+                // Mostrar la vista previa de la imagen
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
             }
-
-            // Mostrar la vista previa de la imagen
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('preview').src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-</script>
+        });
+    </script>
 @endsection
 
 @section('contentPerfil')
@@ -261,6 +263,14 @@
                                 class="ml-auto rounded-full bg-blue-200 py-1 px-2 text-xs font-medium text-yellow-700">Cambiar
                                 contraseña</a>
                         </li>
+                        @if (auth()->user()->email_verified_at === null)
+                            <form method="POST" action="{{ route('verification.send') }}">
+                                @csrf
+                                <button type="submit" class="btn btn-primary">Enviar correo de verificación</button>
+                            </form>
+                        @endif
+
+
 
                         <li class="flex items-center py-3 text-sm">
                             <span>Celular</span>

@@ -18,6 +18,25 @@ class MenuController extends Controller
 {
 
 
+    public function detalle($id) {
+        $curso = Cursos::findOrFail($id);
+        return view('layoutlanding')->with('cursos',$curso);
+    }
+
+
+    public function lista() {
+        $curso = Cursos::paginate(9); // 9 cursos por página
+        return view('listacursoscongresos')->with('cursos', $curso);
+    }
+
+
+    public function home(){
+
+        $congresos = Cursos::where('tipo', 'congreso')->get();
+        $cursos = Cursos::where('tipo', 'curso')->get();
+
+        return view('landing')->with('congresos',$congresos)->with('cursos',$cursos);
+    }
     public function index(){
 
         $cursos2 = Cursos::whereNull('deleted_at')->get();

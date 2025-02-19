@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="../assets/img/logoedin.png">
+    <link rel="icon" type="image/png" href="../assets/img/Acceder.png">
     <title>Iniciar Sesion</title>
     <!-- Fonts and icons -->
     <link rel="stylesheet" href="../assets/fonts/atma-gold.ttf">
@@ -108,17 +108,27 @@
         </div>
     </footer>
     <!-- Core JS Files -->
-    @if ($errors->any())
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: "{{ $errors->first('email') }}",
-                timer: 5000,
-                showConfirmButton: false,
-            });
-        </script>
-    @endif
+    @if (session('success'))
+    <script>
+        Swal.fire({
+            title: "¡Éxito!",
+            text: "{{ session('success') }}",
+            icon: "success",
+            confirmButtonText: "OK"
+        });
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        Swal.fire({
+            title: "Error",
+            text: "{{ session('error') }}",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    </script>
+@endif
     <script>
         function togglePasswordVisibility(button) {
             const passwordField = document.getElementById('password');

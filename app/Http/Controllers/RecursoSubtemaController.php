@@ -52,7 +52,7 @@ class RecursoSubtemaController extends Controller
         $recurso->save();
 
         // Redirigir con un mensaje de éxito
-        return redirect(back())->with('success', 'Recurso creado con éxito');
+        return back()->with('success', 'Recurso creado con éxito');
     }
 
 
@@ -144,7 +144,7 @@ class RecursoSubtemaController extends Controller
         $recurso->save();
 
         // Redirigir con un mensaje de éxito
-        return redirect()->back()->with('success', 'Recurso editado con éxito');
+        return back()->with('success', 'Recurso editado con éxito');
     }
 
     public function delete($id)

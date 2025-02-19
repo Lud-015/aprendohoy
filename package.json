@@ -1,20 +1,24 @@
 {
     "private": true,
+    "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "vite build"
     },
     "devDependencies": {
+        "autoprefixer": "^10.4.20",
         "axios": "^1.1.2",
-        "laravel-vite-plugin": "^0.7.2",
         "lodash": "^4.17.19",
-        "postcss": "^8.1.14",
-        "vite": "^4.0.0"
+        "postcss": "^8.5.2"
     },
     "dependencies": {
+        "@tailwindcss/vite": "^3.0.0",
         "flatpickr": "^4.6.13",
+        "laravel-vite-plugin": "^0.7.8",
         "nodemailer": "^6.9.7",
-        "sweetalert2": "^11.15.10",
-        "tui-calendar": "^1.15.3"
+        "sweetalert2": "^11.6.13",
+        "tailwindcss": "^4.0.6",
+        "tui-calendar": "^1.15.3",
+        "vite": "^6.1.0"
     }
 }

@@ -139,6 +139,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
 
                         <!-- Botón de envío -->
                         <div class="text-center">
@@ -154,7 +155,7 @@
             </div>
         </div>
     </div>
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script>
         function togglePasswordVisibility(button) {
             const inputGroup = button.closest('.input-group'); // Encuentra el contenedor padre más cercano

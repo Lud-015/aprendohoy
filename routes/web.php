@@ -40,8 +40,14 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
 use App\Models\Certificado;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use App\Http\Controllers\RecursoSubtemaController;
 use App\Models\ActividadCompletion;
+use App\Http\Controllers\BotManController;
+
+
+Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 
 /*
 |--------------------------------------------------------------------------
@@ -54,12 +60,29 @@ use App\Models\ActividadCompletion;
 |
 */
 
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect()->route('Inicio')->with('success', 'Tu Correo ha sido Verificada Correctamente.');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('success', 'Se ha enviado un nuevo enlace de verificación a tu correo.');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+Route::post('/email/resend-verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('resent', true);
+})->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 
 
 
-Route::get('/reciboprueba', function () {
-    return view('recibo');
-})->middleware('noCache');
+
+
 
 Route::get('/login', function () {
     return view('login');
@@ -70,12 +93,18 @@ Route::get('/signin', function () {
     return view('CrearUsuario.registrarse');
 })->middleware('noCache')->name('signin');
 
+Route::get('/registro-congreso', function () {
+    return view('CrearUsuario.registrarse');
+})->middleware('noCache')->name('signin');
+
 Route::post('/resgistrarse', [UserController::class, 'storeUsuario'])->name('registrarse');
 
 
-Route::get('/home', function () {
-    return view('landing');
-})->middleware('noCache')->name('home');
+Route::get('/congreso/detalle/{id}', [MenuController::class, 'detalle'])->name('congreso.detalle');
+Route::get('/Lista', [MenuController::class, 'lista'])->name('lista.cursos.congresos');
+
+Route::get('/home', [MenuController::class, 'home'])->middleware('noCache')->name('home');
+
 
 
 
@@ -127,6 +156,15 @@ Route::post('/login', [UserController::class, 'authenticate'])->name('login.sign
 
 Route::group(['middleware' => ['auth']], function () {
 
+
+
+    Route::group(['middleware' => ['role:Estudiante']], function () {
+        // Inscribirse a un congreso
+        Route::post('/Inscribirse-Curso/{id}', [InscritosController::class, 'storeCongreso'])
+            ->name('inscribirse_congreso');
+    });
+
+
     //Ver perfil del usuario logueado
 
     Route::get('/Miperfil', [UserController::class, 'UserProfile'])->name('Miperfil');
@@ -144,6 +182,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/Inicio', [MenuController::class, 'index'])->name('Inicio');
 
     Route::group(['middleware' => ['role:Administrador']], function () {
+
+
+
+        // Route::get('/certificates', [cer::class, 'index'])->name('certificates.index');
+        Route::post('/certificates/{id}', [CertificadoController::class, 'store'])->name('certificates.store');
+        Route::post('/certificates/update/{id}', [CertificadoController::class, 'update'])->name('certificates.update');
+        Route::delete('/certificates-delete/{id}', [CertificadoController::class, 'destroy'])->name('certificates.destroy');
+
 
         //Pagos
         Route::get('/CrearPagos', [AportesController::class, 'indexAdmin'])->name('registrarpagoadmin');

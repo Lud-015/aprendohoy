@@ -22,7 +22,7 @@ class QrTokenService
             $tokenId = DB::table('qr_tokens')->insertGetId([
                 'curso_id' => $cursoId,
                 'token' => Str::random(32),
-                'limite_uso' => 5,
+                'limite_uso' => 300,
                 'expiracion' => Carbon::now()->addHours(24),
                 'created_at' => now(),
                 'updated_at' => now(),

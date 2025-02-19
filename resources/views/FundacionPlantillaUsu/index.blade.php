@@ -16,7 +16,7 @@
                 </div>
                 <!-- Right logo - Aprendo Hoy -->
                 <div class="flex-shrink-0 z-10">
-                    <img src="{{ asset('./assets/img/Acceder.png') }}" class="w-28 lg:w-32 xl:w-36 h-auto" alt="Aprendo Hoy">
+                    <img src="{{ asset('./assets/img/Acceder.png') }}" class="w-32 lg:w-40 xl:w-64 h-auto" alt="Aprendo Hoy">
                 </div>
             </div>
         </div>
@@ -105,6 +105,20 @@
                                         class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform">
                                     </div>
                                 </a>
+                            @endif
+                            @if (auth()->user()->hasRole('Estudiante'))
+
+                            <a href="{{route('lista.cursos.congresos')}}"
+                            class="group flex items-center px-3 py-4 text-sm font-medium text-gray-700 hover:text-blue-600 relative">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            <span>Lista de Cursos/Congresos</span>
+                            <div
+                                class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform">
+                            </div>
+                            </a>
                             @endif
 
                             <a href="{{ route('pagos') }}"

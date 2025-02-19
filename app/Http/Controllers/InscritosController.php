@@ -88,6 +88,39 @@ class InscritosController extends Controller
     }
 
 
+    public function storeCongreso($id)
+    {
+
+
+
+        $cursoId = $id;
+        $estudianteId = auth()->user()->id;
+
+
+        // Verificar si el estudiante ya está inscrito en el curso
+        if (Inscritos::where('cursos_id', $cursoId)->where('estudiante_id', $estudianteId)->exists()) {
+            // Redirigir con un mensaje de error si ya está inscrito
+            return back()->with('error','Ya estás inscrito en este curso.');
+        }
+
+        // Crear una nueva inscripción
+        $inscribir = new Inscritos();
+        $inscribir->cursos_id = $cursoId;
+        $inscribir->estudiante_id = $estudianteId;
+        $inscribir->save();
+
+        // Obtener el estudiante y el curso para la notificación
+        $estudiante = User::find($estudianteId);
+        $curso = Cursos::find($cursoId);
+
+        // Disparar el evento de inscripción
+        event(new InscritoEvent($estudiante, $curso, 'inscripcion'));
+
+        // Redirigir con un mensaje de éxito
+        return back()->with('success', 'Estudiante inscrito exitosamente!');
+    }
+
+
 
     /**
      * Remove the specified resource from storage.

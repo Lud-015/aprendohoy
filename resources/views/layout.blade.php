@@ -9,7 +9,7 @@
     </title>
     <!-- Favicon -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="{{ asset('./assets/img/logof.png') }}" rel="icon" type="image/png">
+    <link href="{{ asset('./assets/img/Acceder.png') }}" rel="icon" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.5/perfect-scrollbar.min.js"></script>
 
     <!-- Fonts -->
@@ -199,23 +199,6 @@
     </nav>
 
     <div class="main-content">
-
-
-        <!-- Navbar -->
-        {{-- <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
-      <div class="container-fluid">
-
-
-        <!-- Brand -->
-        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="./index.html">@yield('titulo')</a>
-        <!-- Form search -->
-
-        <!-- User -->
-
-      </div>
-    </nav> --}}
-        <!-- End Navbar -->
-        <!-- Header -->
 
         <div class="header pb-6 pt-2 pt-md-4">
             <div class="container-fluid">

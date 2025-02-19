@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Events\EstudianteEvent;
+use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {
@@ -181,6 +182,26 @@ class UserController extends Controller
             'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
+        if (!app()->environment('local')) {
+            $request->validate([
+                'g-recaptcha-response' => 'required|captcha',
+            ], [
+                'g-recaptcha-response.required' => 'Debes completar el reCAPTCHA.',
+                'captcha' => 'Error en la validación de reCAPTCHA.',
+            ]);
+
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => env('RECAPTCHA_SECRET_KEY'),
+                'response' => $request->input('g-recaptcha-response')
+            ]);
+
+            $success = $response->json()['success'] ?? false;
+
+            if (!$success) {
+                return back()->withErrors(['g-recaptcha-response' => 'ReCAPTCHA no válido, intenta de nuevo.']);
+            }
+        }
+
 
         $user = new User();
         $user->name = $request->name;
@@ -194,13 +215,12 @@ class UserController extends Controller
         $user->password = bcrypt($request->password);
 
         $estudiante =  $user;
-
         event(new EstudianteEvent($estudiante,'', 'registro'));
         $user->save();
-
+        
         $user->assignRole('Estudiante');
 
-        return redirect()->route('Inicio');
+        return redirect()->route('login')->with('success', 'Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.');
 
 
     }
