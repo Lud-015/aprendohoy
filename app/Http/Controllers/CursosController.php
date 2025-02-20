@@ -41,7 +41,7 @@ class CursosController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     */protected $qrTokenService;
+     */ protected $qrTokenService;
 
     public function __construct(QrTokenService $qrTokenService)
     {
@@ -140,13 +140,11 @@ class CursosController extends Controller
     public function EditCIndex($id)
     {
 
-    $cursos= Cursos::findOrFail($id);
-    $docente = User::role('Docente')->get();
-    $horario = Horario::all();
+        $cursos = Cursos::findOrFail($id);
+        $docente = User::role('Docente')->get();
+        $horario = Horario::all();
 
-    return view('Administrador.EditarCursos')->with('docente', $docente)->with('horario', $horario)->with('cursos', $cursos);
-
-
+        return view('Administrador.EditarCursos')->with('docente', $docente)->with('horario', $horario)->with('cursos', $cursos);
     }
     public function EditC($id, Request $request)
     {
@@ -188,17 +186,17 @@ class CursosController extends Controller
         }
 
         $curso->updated_at = now();
-        event(new CursoEvent($curso ,'modificado'));
+        event(new CursoEvent($curso, 'modificado'));
         $curso->save();
 
         return back()->with('success', 'El curso ha sido editado correctamente');
-
     }
 
-    public function eliminarCurso($id){
+    public function eliminarCurso($id)
+    {
 
-        $cursos= Cursos::findOrFail($id);
-        event(new CursoEvent($cursos ,'borrado'));
+        $cursos = Cursos::findOrFail($id);
+        event(new CursoEvent($cursos, 'borrado'));
 
         $cursos->delete();
 
@@ -207,26 +205,21 @@ class CursosController extends Controller
 
 
     public function ReporteAsistencia($id)
-{
-    $asistencia = Asistencia::where('curso_id', $id)->get();
+    {
+        $asistencia = Asistencia::where('curso_id', $id)->get();
 
-    $writer = SimpleExcelWriter::streamDownload('report.xlsx');
+        $writer = SimpleExcelWriter::streamDownload('report.xlsx');
 
-    $writer->addRow(['Curso', 'Nombre','Apellido Paterno','Apellido Materno', 'Fecha', 'Tipo Asistencia']);
+        $writer->addRow(['Curso', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Fecha', 'Tipo Asistencia']);
 
-    foreach ($asistencia as $asistencia) {
-        $writer->addRow([$asistencia->cursos->nombreCurso, $asistencia->inscritos->estudiantes->name,$asistencia->inscritos->estudiantes->lastname1,$asistencia->inscritos->estudiantes->lastname2 , $asistencia->fechaasistencia,$asistencia->tipoAsitencia]);
+        foreach ($asistencia as $asistencia) {
+            $writer->addRow([$asistencia->cursos->nombreCurso, $asistencia->inscritos->estudiantes->name, $asistencia->inscritos->estudiantes->lastname1, $asistencia->inscritos->estudiantes->lastname2, $asistencia->fechaasistencia, $asistencia->tipoAsitencia]);
+        }
+
+
+
+        $writer->toBrowser();
     }
-
-
-
-    $writer->toBrowser();
-
-
-}
-
-
-
     public function ReporteFinal($id)
     {
         $asistencias = Asistencia::where('curso_id', $id)->get();
@@ -258,7 +251,6 @@ class CursosController extends Controller
                 $asistencia->fechaasistencia,
                 $asistencia->tipoAsitencia
             ]);
-
         }
 
         // Hoja de Tareas
@@ -266,7 +258,7 @@ class CursosController extends Controller
         $tareasSheet->addRow(['Nombre Tarea', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA', 'RETROALIMENTACION']);
 
         foreach ($notasTareas as $notaTarea) {
-            if($notaTarea->tarea->cursos_id == $id){
+            if ($notaTarea->tarea->cursos_id == $id) {
                 $tareasSheet->addRow([
                     // $notaTarea->tarea->titulo_tarea,
                     $notaTarea->tarea->titulo_tarea,
@@ -276,10 +268,7 @@ class CursosController extends Controller
                     $notaTarea->nota,
                     $notaTarea->retroalimentacion
                 ]);
-
-
             }
-
         }
 
         // Hoja de Evaluaciones
@@ -304,14 +293,14 @@ class CursosController extends Controller
         $promfinalSheet->addRow(['Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA PROMEDIO TAREAS', 'NOTA PROMEDIO EVALUAICIONES', 'PROMEDIO FINAL']);
 
         foreach ($inscritos as $inscritos) {
-                $promfinalSheet->addRow([
-                    $inscritos->estudiantes->name,
-                    $inscritos->estudiantes->lastname1,
-                    $inscritos->estudiantes->lastname2,
-                    round($inscritos->notatarea->avg('nota')),
-                    round($inscritos->notaevaluacion->avg('nota')),
-                    round(($inscritos->notatarea->avg('nota')+$inscritos->notaevaluacion->avg('nota'))/2),
-                ]);
+            $promfinalSheet->addRow([
+                $inscritos->estudiantes->name,
+                $inscritos->estudiantes->lastname1,
+                $inscritos->estudiantes->lastname2,
+                round($inscritos->notatarea->avg('nota')),
+                round($inscritos->notaevaluacion->avg('nota')),
+                round(($inscritos->notatarea->avg('nota') + $inscritos->notaevaluacion->avg('nota')) / 2),
+            ]);
         }
 
 
@@ -322,21 +311,19 @@ class CursosController extends Controller
         $writer->toBrowser();
     }
 
-    public function restaurarCurso($id){
+    public function restaurarCurso($id)
+    {
 
         $cursoEliminado = Cursos::onlyTrashed()->find($id);
-        event(new CursoEvent($cursoEliminado ,'restaurado'));
+        event(new CursoEvent($cursoEliminado, 'restaurado'));
 
         $cursoEliminado->restore();
 
         return back()->with('success', 'Curso restaurado correctamente');
-
     }
 
-
-
-
-    public function ReporteFinalCurso($id){
+    public function ReporteFinalCurso($id)
+    {
 
 
         $cursos = Cursos::findorFail($id);
@@ -384,18 +371,6 @@ class CursosController extends Controller
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
         // Contar la cantidad de cada tipo de asistencia
 
         $conteoPresentes = $asistencias->where('tipoAsitencia', 'Presente')->count();
@@ -404,36 +379,28 @@ class CursosController extends Controller
         $conteoLicencias = $asistencias->where('tipoAsitencia', 'Licencia')->count();
 
 
-
-
-        return view('Cursos.SumarioCurso', compact('conteoPresentes', 'conteoRetrasos', 'conteoFaltas', 'conteoLicencias', 'participanteCount', 'aprendizCount', 'habilidosoCount', 'expertoCount') )
-                    ->with('cursos', $cursos)->with('asistencias', $asistencias)
-                    ->with('inscritos', $inscritos)
-                    ->with('foros', $foros)
-                    ->with('recursos', $recursos)
-                    ->with('temas', $temas)
-                    ->with('evaluaciones', $evaluaciones);
-
-
-
-
-
-
+        return view('Cursos.SumarioCurso', compact('conteoPresentes', 'conteoRetrasos', 'conteoFaltas', 'conteoLicencias', 'participanteCount', 'aprendizCount', 'habilidosoCount', 'expertoCount'))
+            ->with('cursos', $cursos)->with('asistencias', $asistencias)
+            ->with('inscritos', $inscritos)
+            ->with('foros', $foros)
+            ->with('recursos', $recursos)
+            ->with('temas', $temas)
+            ->with('evaluaciones', $evaluaciones);
     }
 
+    public function activarCertificados($id)
+    {
+        $curso = Cursos::findOrFail($id);
 
+        // Si la fecha de finalización ya pasó, no permitir activación
+        if (now()->greaterThan(Carbon::parse($curso->fecha_fin)->endOfDay())) {
+            return back()->with('error', 'El periodo para obtener certificados ha expirado.');
+        }
 
+        // Cambiar el estado a "Certificado Disponible"
+        $curso->estado = 'Certificado Disponible';
+        $curso->save();
 
-
-
-
-
-
-
-
-
-
-
-
-
+        return back()->with('success', 'Certificados activados correctamente.');
+    }
 }

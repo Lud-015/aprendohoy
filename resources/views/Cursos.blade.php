@@ -99,36 +99,60 @@
                                                     @endif
                                                     @if (auth()->user()->hasRole('Administrador') && !empty($cursos->archivoContenidodelCurso))
                                                         <li>
-                                                            <a class="dropdown-item"
+                                                            <a
                                                                 href="{{ asset('storage/' . $cursos->archivoContenidodelCurso) }}">
                                                                 <i class="fas fa-file"></i> Ver Plan Del Curso
                                                             </a>
                                                         </li>
-
                                                     @endif
-                                                    @if (auth()->user()->hasRole('Administrador') )
-                                                    @if (!isset($template))
-                                                    <li>
-                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                            data-bs-target="#modalCertificado">
-                                                            <i class="fas fa-certificate"></i> Subir Plantilla de Certificado
-                                                        </a>
-                                                    </li>
 
-                                                    @else
-
-                                                    <li>
-                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditarCertificado">
-                                                            <i class="fas fa-certificate"></i> Actualizar Plantilla de Certificado
-                                                        </a>
-                                                    </li>
+                                                    <!-- Botón para abrir el modal -->
+                                                    @if ($cursos->estado === 'Certificado Disponible')
+                                                        <button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                                            data-bs-target="#certificadoModal">
+                                                            <i class="fas fa-certificate"></i> Obtener Certificado
+                                                        </button>
+                                                    @endif
+                                                    @if ($cursos->estado === 'Activo')
+                                                        <form
+                                                            action="{{ route('cursos.activarCertificados', ['id' => $cursos->id]) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item">
+                                                                <i class="fas fa-certificate"></i> Activar Certificados
+                                                            </button>
+                                                        </form>
+                                                    @endif
 
 
 
                                                     <!-- Modal -->
 
-                                                    @endif
 
+                                                    @if (auth()->user()->hasRole('Administrador'))
+                                                        @if (!isset($template))
+                                                            <li>
+                                                                <a class="dropdown-item" href="#"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#modalCertificado">
+                                                                    <i class="fas fa-certificate"></i> Subir Plantilla de
+                                                                    Certificado
+                                                                </a>
+                                                            </li>
+                                                        @else
+                                                            <li>
+                                                                <a class="dropdown-item" href="#"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#modalEditarCertificado">
+                                                                    <i class="fas fa-certificate"></i> Actualizar Plantilla
+                                                                    de Certificado
+                                                                </a>
+                                                            </li>
+
+
+
+                                                            <!-- Modal -->
+                                                        @endif
                                                     @endif
                                                 </ul>
                                             </div>
@@ -148,11 +172,66 @@
         </div>
     </div>
 
+    <div class="modal fade" id="certificadoModal" tabindex="-1" aria-labelledby="certificadoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="certificadoModalLabel">
+                        Descarga tu Certificado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    @if ($cursos->estado === 'Certificado Disponible')
+                        <h3>¡Descarga tu certificado antes de la medianoche!
+                        </h3>
+                        <div class="text-center mt-4 mb-4">
+                            {{ QrCode::size(150)->generate(route('certificados.obtener', ['id' => encrypt($cursos->id)])) }}
+                            <p class="mt-3">
+                                <a href="#" onclick="copiarAlPortapapeles('{{ route('certificados.obtener', ['id' => encrypt($cursos->id)]) }}')"
+                                   class="btn btn-success">
+                                    Copiar enlace del certificado
+                                </a>
+                            </p>
+                        </div>
+                        <script>
+                            async function copiarAlPortapapeles(url) {
+                                try {
+                                    await navigator.clipboard.writeText(url);
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '¡Enlace copiado!',
+                                        text: 'El enlace del certificado se ha copiado al portapapeles.',
+                                        confirmButtonText: 'Aceptar',
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                    });
+                                } catch (err) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'No se pudo copiar el enlace. Inténtalo de nuevo.',
+                                        confirmButtonText: 'Aceptar',
+                                    });
+                                }
+                            }
+                        </script>
+                    @elseif($cursos->estado === 'Expirado')
+                        <p>El tiempo para obtener el certificado ha
+                            expirado.</p>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Modal para editar plantilla -->
 
-    <div class="modal fade" id="modalCertificado" tabindex="-1" aria-labelledby="modalCertificadoLabel" aria-hidden="true">
+    <div class="modal fade" id="modalCertificado" tabindex="-1" aria-labelledby="modalCertificadoLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -160,12 +239,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('certificates.store', $cursos->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('certificates.store', $cursos->id) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
 
-                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Frontal del Certificado</label>
+                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Frontal del
+                            Certificado</label>
                         <input type="file" name="template_front" class="w-full border rounded px-3 py-2" required>
-                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Trasera del Certificado</label>
+                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Trasera del
+                            Certificado</label>
                         <input type="file" name="template_back" class="w-full border rounded px-3 py-2" required>
                         <div class="flex justify-end mt-4">
                             <button type="submit" class="btn btn-primary">
@@ -180,7 +262,9 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="modalEditarCertificado" tabindex="-1" aria-labelledby="modalEditarCertificadoLabel" aria-hidden="true">
+
+    <div class="modal fade" id="modalEditarCertificado" tabindex="-1" aria-labelledby="modalEditarCertificadoLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -188,13 +272,16 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('certificates.update', $cursos->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('certificates.update', $cursos->id) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <!-- Mostrar imagen actual si existe -->
-                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Frontal del Certificado</label>
+                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Frontal del
+                            Certificado</label>
                         <input type="file" name="template_front" class="w-full border rounded px-3 py-2" required>
 
-                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Trasera del Certificado</label>
+                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Trasera del
+                            Certificado</label>
                         <input type="file" name="template_back" class="w-full border rounded px-3 py-2" required>
 
                         <div class="flex justify-end mt-4">
@@ -249,7 +336,8 @@
                                                     method="POST"
                                                     onsubmit="return confirm('¿Estás seguro de que deseas restaurar este horario?');">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success">Restaurar</button>
+                                                    <button type="submit"
+                                                        class="btn btn-sm btn-success">Restaurar</button>
                                                 </form>
                                             @else
                                                 <form action="{{ route('horarios.delete', ['id' => $horario->id]) }}"
@@ -1275,50 +1363,54 @@
         @section('nav')
             <ul class="navbar-nav">
                 @foreach ($temas as $index => $tema)
-                @php
-                    // Verificar si el tema está desbloqueado para el estudiante
-                    $estaDesbloqueado = auth()->user()->hasRole('Docente') || $tema->estaDesbloqueado($inscritos2->id);
-                @endphp
+                    @php
+                        // Verificar si el tema está desbloqueado para el estudiante
+                        $estaDesbloqueado =
+                            auth()->user()->hasRole('Docente') || $tema->estaDesbloqueado($inscritos2->id);
+                    @endphp
 
-                <li class="nav-item dropdown">
-                    @if ($estaDesbloqueado)
-                        <!-- Tema desbloqueado -->
-                        <a class="nav-link dropdown-toggle" href="#" id="tema-{{ $tema->id }}-dropdown"
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ $tema->titulo_tema }}
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="tema-{{ $tema->id }}-dropdown">
-                            @foreach ($tema->subtemas as $subtema)
-                                @php
-                                    // Verificar si el subtema está desbloqueado para el estudiante
-                                    $desbloqueado = auth()->user()->hasRole('Docente') || $subtema->estaDesbloqueado($inscritos2->id);
-                                @endphp
+                    <li class="nav-item dropdown">
+                        @if ($estaDesbloqueado)
+                            <!-- Tema desbloqueado -->
+                            <a class="nav-link dropdown-toggle" href="#" id="tema-{{ $tema->id }}-dropdown"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ $tema->titulo_tema }}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="tema-{{ $tema->id }}-dropdown">
+                                @foreach ($tema->subtemas as $subtema)
+                                    @php
+                                        // Verificar si el subtema está desbloqueado para el estudiante
+                                        $desbloqueado =
+                                            auth()->user()->hasRole('Docente') ||
+                                            $subtema->estaDesbloqueado($inscritos2->id);
+                                    @endphp
 
-                                @if ($desbloqueado)
-                                    <!-- Subtema desbloqueado -->
-                                    <li>
-                                        <a class="dropdown-item" href="#subtema-{{ $subtema->id }}" data-bs-toggle="tab">
-                                            {{ $subtema->titulo_subtema }}
-                                        </a>
-                                    </li>
-                                @else
-                                    <!-- Subtema bloqueado -->
-                                    <li>
-                                        <a class="dropdown-item disabled" href="#" aria-disabled="true">
-                                            {{ $subtema->titulo_subtema }} <i class="fas fa-lock"></i>
-                                        </a>
-                                    </li>
-                                @endif
-                            @endforeach
-                        </ul>
-                    @else
-                        <!-- Tema bloqueado -->
-                        <a class="nav-link disabled" href="#" aria-disabled="true">
-                            {{ $tema->titulo_tema }} <i class="fas fa-lock"></i>
-                        </a>
-                    @endif
-                </li>
-            @endforeach
+                                    @if ($desbloqueado)
+                                        <!-- Subtema desbloqueado -->
+                                        <li>
+                                            <a class="dropdown-item" href="#subtema-{{ $subtema->id }}"
+                                                data-bs-toggle="tab">
+                                                {{ $subtema->titulo_subtema }}
+                                            </a>
+                                        </li>
+                                    @else
+                                        <!-- Subtema bloqueado -->
+                                        <li>
+                                            <a class="dropdown-item disabled" href="#" aria-disabled="true">
+                                                {{ $subtema->titulo_subtema }} <i class="fas fa-lock"></i>
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        @else
+                            <!-- Tema bloqueado -->
+                            <a class="nav-link disabled" href="#" aria-disabled="true">
+                                {{ $tema->titulo_tema }} <i class="fas fa-lock"></i>
+                            </a>
+                        @endif
+                    </li>
+                @endforeach
             </ul>
         @endsection
         <div class="col-11 my-2 progress-wrapper">
@@ -1367,7 +1459,9 @@
                                     @foreach ($temas as $index => $tema)
                                         @php
                                             // Si es el primer tema, debe estar desbloqueado
-                                            $estaDesbloqueado = auth()->user()->hasRole('Docente') || $tema->estaDesbloqueado($inscritos2->id);
+                                            $estaDesbloqueado =
+                                                auth()->user()->hasRole('Docente') ||
+                                                $tema->estaDesbloqueado($inscritos2->id);
 
                                         @endphp
 
@@ -1408,9 +1502,7 @@
                                                 <div class="card-body">
                                                     <h1>{{ $tema->titulo_tema }}</h1>
                                                     @if ($tema->imagen)
-                                                        <img class="img-fluid"
-                                                            src="w"
-                                                            alt="Imagen del tema">
+                                                        <img class="img-fluid" src="w" alt="Imagen del tema">
                                                     @endif
 
                                                     <div class="my-3">
@@ -1679,7 +1771,8 @@
                                                                                             @if ($subtema->tareas = !null)
                                                                                             @else
                                                                                                 <div class="card mb-3">
-                                                                                                    <div class="card-body">
+                                                                                                    <div
+                                                                                                        class="card-body">
                                                                                                         <h5>NO HAY
                                                                                                             ACTIVIDADES
                                                                                                             CREADOS</h5>
@@ -1729,7 +1822,8 @@
                                         <a href="{{ route('editarEvaluacion', $evaluacion->id) }}"
                                             class="btn btn-info btn-sm">Editar</a>
                                         <a href="{{ route('quitarEvaluacion', $evaluacion->id) }}"
-                                            class="btn btn-danger btn-sm" onclick="mostrarAdvertencia(event)">Eliminar</a>
+                                            class="btn btn-danger btn-sm"
+                                            onclick="mostrarAdvertencia(event)">Eliminar</a>
                                     @endif
                                 </div>
                             </div>
@@ -1843,6 +1937,36 @@
             });
         });
     });
+</script>
+
+
+<script>
+    function copiarAlPortapapeles(url) {
+        // Crear un input temporal
+        const inputTemp = document.createElement('input');
+        inputTemp.value = url;
+        document.body.appendChild(inputTemp);
+
+        // Seleccionar el texto del input
+        inputTemp.select();
+        inputTemp.setSelectionRange(0, 99999); // Para dispositivos móviles
+
+        // Copiar el texto al portapapeles
+        document.execCommand('copy');
+
+        // Eliminar el input temporal
+        document.body.removeChild(inputTemp);
+
+        // Mostrar mensaje con SweetAlert
+        Swal.fire({
+            icon: 'success',
+            title: '¡Enlace copiado!',
+            text: 'El enlace del certificado se ha copiado al portapapeles.',
+            confirmButtonText: 'Aceptar',
+            timer: 3000, // Cerrar automáticamente después de 3 segundos
+            timerProgressBar: true, // Mostrar barra de progreso
+        });
+    }
 </script>
 
 <script>

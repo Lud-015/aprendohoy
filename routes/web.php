@@ -184,7 +184,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['role:Administrador']], function () {
 
 
-
+        Route::post('/cursos/{id}/activar-certificados', [CursosController::class, 'activarCertificados'])
+        ->name('cursos.activarCertificados');
         // Route::get('/certificates', [cer::class, 'index'])->name('certificates.index');
         Route::post('/certificates/{id}', [CertificadoController::class, 'store'])->name('certificates.store');
         Route::post('/certificates/update/{id}', [CertificadoController::class, 'update'])->name('certificates.update');
@@ -384,7 +385,9 @@ Route::group(['middleware' => ['auth']], function () {
         // Route::get('/descargarRecurso/{nombreArchivo}', [RecursosController::class, 'descargar'])->name('descargar');
         //Calendario
         Route::get('listaParticipantes/cursoid={id}', [CursosController::class, 'listaCurso'])->name('listacurso');
-
+        // Ruta para obtener el certificado
+        Route::get('/certificados/obtener/{id}', [CertificadoController::class, 'obtenerCertificado'])
+            ->name('certificados.obtener');
         Route::get('/Notificaciones', [UserController::class, 'notificaciones'])->name('notificaciones');
         Route::get('/user/{id}', [UserController::class, 'Profile'])->name('perfil');
 
