@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -20,18 +22,28 @@ class ForgotPasswordController extends Controller
        // Procesa la solicitud de restablecimiento de contraseña
        public function sendResetLinkEmail(Request $request)
        {
-           // Validar el correo electrónico
-           $request->validate(['email' => 'required|email']);
+           $request->validate([
+               'email' => 'required|email|exists:users,email'
+           ], [
+               'email.required' => 'El correo es obligatorio.',
+               'email.email' => 'Formato de correo inválido.',
+               'email.exists' => 'No se encontró un usuario con ese correo.'
+           ]);
 
-           // Enviar el enlace de restablecimiento
-           $status = Password::sendResetLink(
-               $request->only('email')
-           );
+           // Buscar el usuario
+           $user = User::where('email', $request->email)->first();
 
-           // Redireccionar con un mensaje de éxito o error
-           return $status === Password::RESET_LINK_SENT
-               ? back()->with(['status' => __($status)])
-               : back()->withErrors(['email' => __($status)]);
+           if (!$user) {
+               return back()->withErrors(['email' => 'Usuario no encontrado.']);
+           }
+
+           // Generar el token
+           $token = Password::getRepository()->create($user);
+
+           // Enviar notificación personalizada
+           $user->notify(new ResetPasswordNotification($token));
+
+           return back()->with('status', 'Te hemos enviado un correo con el enlace para restablecer tu contraseña.');
        }
 
        // Muestra el formulario para restablecer la contraseña

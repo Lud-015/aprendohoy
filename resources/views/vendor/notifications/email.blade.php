@@ -73,7 +73,7 @@
     <!-- Contenido del correo -->
 
 
-{{-- @if($esVerificacion) --}}
+    @if($esVerificacion)
     <h1>Verificación de Correo Electrónico</h1>
     <p>Hola,</p>
     <p>Gracias por registrarte. Para completar tu registro, verifica tu correo electrónico haciendo clic en el botón de abajo:</p>
@@ -82,8 +82,8 @@
     </p>
     <p>Si no creaste esta cuenta, ignora este mensaje.</p>
     <p>Gracias,</p>
-    <p>El equipo de {{ config('app.name') }}</p>
-{{-- @else
+    <p>El equipo de  Aprendo Hoy / Fundación Educar Para La Vida</p>
+    @else
     <h1>Restablecer Contraseña</h1>
     <p>Hola,</p>
     <p>Recibiste este correo porque solicitaste un restablecimiento de contraseña para tu cuenta.</p>
@@ -92,8 +92,9 @@
     </p>
     <p>Si no solicitaste este restablecimiento, ignora este mensaje.</p>
     <p>Gracias,</p>
-    <p>El equipo de {{ config('app.name') }}</p>
-@endif --}}
+    <p>El equipo de Aprendo Hoy / Fundación Educar Para La Vida</p>
+@endif
+
 
 </body>
 </html>

@@ -160,13 +160,19 @@ class CursosController extends Controller
         $curso = Cursos::findOrFail($id);
         $curso->nombreCurso = $request->nombre;
         $curso->descripcionC = $request->descripcion ?? '';
-        $curso->fecha_ini = date("Y-m-d", strtotime($request->fecha_ini));
-        $curso->fecha_fin = date("Y-m-d", strtotime($request->fecha_fin));
+        $curso->fecha_ini = Carbon::parse($request->fecha_ini)->format('Y-m-d H:i:s');
+        if ($request->tipo === 'congreso') {
+            $curso->fecha_fin = Carbon::parse($request->fecha_ini)->endOfDay()->format('Y-m-d H:i:s');
+        } else {
+            $curso->fecha_fin = Carbon::parse($request->fecha_fin)->format('Y-m-d H:i:s');
+        }
+        $curso->fecha_ini = Carbon::parse($request->fecha_ini)->format('Y-m-d H:i:s');
+        $curso->fecha_fin = Carbon::parse($request->fecha_fin)->format('Y-m-d H:i:s');
         $curso->formato = $request->formato;
         $curso->docente_id = $request->docente_id;
         $curso->edad_dirigida = $request->edad_id;
         $curso->nivel = $request->nivel_id;
-        $curso->estado = ($curso->fecha_fin < now()) ? 'Finalizado' : 'Activo';
+        $curso->estado = ($curso->fecha_fin < now()) ? 'Expirado' : 'Activo';
         $curso->notaAprobacion = $request->nota;
         $curso->tipo = $request->tipo;
 

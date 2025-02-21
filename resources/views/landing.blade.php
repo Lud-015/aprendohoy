@@ -55,7 +55,7 @@
         <div class="container d-flex align-items-center justify-content-between">
 
             <div class="">
-                <a href="index.html"><img src="assets/img/Acceder.png" alt="" style=" height: 105px;"></a>
+                <a href="index.html"><img src="assets/img/Acceder.png" alt="" style=" height: 35px;"></a>
             </div>
 
             <nav id="navbar" class="navbar">

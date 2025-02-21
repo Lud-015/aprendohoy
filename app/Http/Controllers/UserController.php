@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Events\EstudianteEvent;
+use App\Events\UsuarioRegistrado;
 use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
@@ -159,13 +160,12 @@ class UserController extends Controller
         $user->save();
 
         return redirect(route('Miperfil'));
-
     }
+
 
 
     public function storeUsuario(Request $request)
     {
-
         $request->validate([
             'name' => 'required',
             'lastname1' => 'required',
@@ -202,7 +202,7 @@ class UserController extends Controller
             }
         }
 
-
+        // Crear usuario
         $user = new User();
         $user->name = $request->name;
         $user->lastname1 = $request->lastname1;
@@ -213,17 +213,19 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->PaisReside = $request->country;
         $user->password = bcrypt($request->password);
-
-        $estudiante =  $user;
-        event(new EstudianteEvent($estudiante,'', 'registro'));
         $user->save();
-        
+
+        // Asignar rol de estudiante
         $user->assignRole('Estudiante');
 
-        return redirect()->route('login')->with('success', 'Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.');
+        event(new UsuarioRegistrado($user));
 
+        // Iniciar sesión automáticamente
+        Auth::login($user);
 
+        return redirect()->route('Inicio')->with('success', '¡Bienvenido! Tu cuenta ha sido creada y has iniciado sesión.');
     }
+
 
 
 
@@ -370,12 +372,15 @@ class UserController extends Controller
 
         $usuarioEliminado->restore();
 
-        return back()->with('success', 'Usuario dado de baja');
-        ;
+        return back()->with('success', 'Usuario dado de baja');;
     }
 
     public function notificaciones()
     {
         return view('notificaciones');
     }
+
+
+
+
 }

@@ -1,4 +1,8 @@
 
+@section('titulo')
+    Iniciar Sesión
+@endsection
+
 @section('content')
 <div class="container pt-lg-6">
     <div class="row justify-content-center">

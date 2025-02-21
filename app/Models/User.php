@@ -12,6 +12,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Notifications\CustomVerifyEmail;
+use App\Notifications\ResetPasswordNotification;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -24,6 +25,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function routeNotificationForMail()
     {
         return $this->email; // Devuelve el correo electrónico del estudiante
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     /**
@@ -62,16 +68,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function age()
     {
-    return Carbon::parse($this->attributes['fechadenac'])->age;
+        return Carbon::parse($this->attributes['fechadenac'])->age;
     }
 
 
-    public function atributosDocente(): HasOne{
+    public function atributosDocente(): HasOne
+    {
         return $this->hasOne(AtributosDocente::class, 'docente_id');
     }
 
 
-    public function tutor(): HasOne {
+    public function tutor(): HasOne
+    {
         return $this->hasOne(TutorRepresentanteLegal::class, 'estudiante_id');
     }
 
@@ -127,6 +135,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new CustomVerifyEmail);
     }
-
-
 }

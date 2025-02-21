@@ -1,12 +1,17 @@
+@section('titulo')
+Restear Contraseña
+@endsection
+
+
 
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="">
                 <div class="card">
                     <div class="card-header">{{ __('Resetear Contraseña') }}</div>
 
-                    <div class="card-body" style="height: 250px;">
+                    <div class="card-body grid flex" style="height: 200px;">
                         @if (session('status'))
                             <div class="alert alert-success" role="alert">
                                 {{ session('status') }}
@@ -15,7 +20,6 @@
 
                         <form method="POST" action="{{ route('password.email') }}">
                             @csrf
-
                             <div class="form-group row">
                                 <label for="email" class="col-md-46col-form-label text-md-right">{{ __('Correo Electrónico') }}</label>
 

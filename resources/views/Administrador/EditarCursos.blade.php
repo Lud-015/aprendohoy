@@ -126,15 +126,30 @@
                 <div style="display: flex; align-items: center;" class="mb-4">
 
                     <div class="mr-8">
+
                         <label @if (auth()->user()->hasRole('Docente')) disable hidden @endif for="fecha_ini">Fecha Inicio</label>
+                        @if ($cursos->tipo == 'congreso')
+                        <input @if (auth()->user()->hasRole('Docente')) disable hidden @endif type="datetime-local"
+                        value="{{ $cursos->fecha_ini }}" name="fecha_ini" class="form-control w-auto">
+                        @else
                         <input @if (auth()->user()->hasRole('Docente')) disable hidden @endif type="date"
-                            value="{{ $cursos->fecha_ini }}" name="fecha_ini" class="form-control w-auto">
+                        value="{{ $cursos->fecha_ini }}" name="fecha_ini" class="form-control w-auto">
+                        @endif
+
                     </div>
 
                     <div class="ml-3">
                         <label for="fecha_fin" @if (auth()->user()->hasRole('Docente')) disable hidden @endif>Fecha Fin</label>
-                        <input type="date" value="{{ $cursos->fecha_fin }}" name="fecha_fin" class="form-control w-auto"
+                        @if ($cursos->tipo == 'congreso')
+                        <input type="datetime-local" value="{{ $cursos->fecha_fin }}" name="fecha_fin" class="form-control w-auto"
                             @if (auth()->user()->hasRole('Docente')) disable hidden @endif>
+                        @else
+                        <input type="date" value="{{ $cursos->fecha_fin }}" name="fecha_fin" class="form-control w-auto"
+                        @if (auth()->user()->hasRole('Docente')) disable hidden @endif>
+                        @endif
+
+
+
                     </div>
                 </div>
                 <div style="display: flex; align-items: center;" class="mb-4">

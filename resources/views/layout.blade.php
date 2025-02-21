@@ -211,7 +211,7 @@
                                         style="width: auto; height: 80px;"> </a> <a class="navbar-brand logo-derecho"
                                     href="{{ route('Inicio') }}"> <img
                                         src="{{ asset('../assets/img/Acceder.png') }}"
-                                        style="width: auto; height: 125px;"> </a> </div>
+                                        style="width: auto; height: 45px;"> </a> </div>
                         </div>
                     </nav> @yield('contentup') <style>
                         .navbar-main {

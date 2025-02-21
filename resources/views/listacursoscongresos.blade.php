@@ -58,7 +58,7 @@
 
             <div class="">
                 <a href="{{ route('home') }}"><img src="assets/img/Acceder.png" alt=""
-                        style=" height: 105px;"></a>
+                        style=" height: 35px;"></a>
             </div>
 
             <nav id="navbar" class="navbar">

@@ -226,9 +226,16 @@ class CertificadoController extends Controller
         // Buscar el curso
         $curso = Cursos::findOrFail($Cursoid);
 
+
+
+
         // Verificar que el curso sea de tipo "congreso"
         if ($curso->tipo != 'congreso') {
             return back()->with('error', 'No se puede generar certificados para este tipo de curso.');
+        }
+
+        if ($curso->estado != 'Certificado Disponible') {
+            return back()->with('error', 'El certificado no esta Disponible.');
         }
 
         // Verificar que el usuario esté inscrito en el curso
@@ -277,7 +284,7 @@ class CertificadoController extends Controller
             'plantillaf' => $plantilla->template_front_path,
             'plantillab' => $plantilla->template_back_path,
         ]);
-        $pdf->setOption('dpi', 300); 
+        $pdf->setOption('dpi', 300);
 
         // Definir la ruta donde se guardará el certificado
         $ruta_certificado = "certificados/{$Cursoid}/{$inscrito->id}.pdf";

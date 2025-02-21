@@ -1,6 +1,8 @@
 
 
-
+@section('titulo')
+Regístrate
+@endsection
 
 
 

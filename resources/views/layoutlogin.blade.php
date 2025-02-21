@@ -5,20 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="../assets/img/Acceder.png">
-    <title>Iniciar Sesion</title>
+    <link rel="icon" type="image/png" href="{{asset('assets/img/Acceder.png')}}">
+    <title>@yield('titulo')</title>
     <!-- Fonts and icons -->
-    <link rel="stylesheet" href="../assets/fonts/atma-gold.ttf">
-    <link rel="stylesheet" href="../assets/fonts/alegreya-sans-black.ttf">
-    <!-- Nucleo Icons -->
-    <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="{{asset('assets/css/nucleo-icons.css')}}" rel="stylesheet" />
+    <link href="{{asset('assets/css/nucleo-svg.css')}}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <link href="../assets/css/font-awesome.css" rel="stylesheet" />
-    <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="{{asset('assets/css/font-awesome.css')}}" rel="stylesheet" />
+    <link href="{{asset('assets/css/nucleo-svg.css')}}" rel="stylesheet" />
     <!-- CSS Files -->
-    <link href="../assets/css/argon-design-system.css" rel="stylesheet" />
-    <link href="../assets/css/log.css" rel="stylesheet" />
+    <link href="{{asset('assets/css/argon-design-system.css')}}" rel="stylesheet" />
+    <link href="{{asset('assets/css/log.css')}}" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* Estilos para la card con desenfoque */
@@ -72,10 +69,10 @@
         <div class="container">
             <div class="navbar-container">
                 <div class="navbar-brand logo-izquierdo">
-                    <img src="../assets/img/logof.png" style=" height: 65px;">
+                    <img src="{{asset('assets/img/logof.png')}}" style=" height: 65px;">
                 </div>
                 <a class="navbar-brand logo-derecho ml-auto">
-                    <img src="../assets/img/Acceder.png" style=" height: 105px;">
+                    <img src="{{asset('assets/img/Acceder.png')}}" style=" height: 35px;">
                 </a>
             </div>
         </div>
@@ -145,15 +142,15 @@
         }
     </script>
 
-    <script src="../assets/js/core/jquery.min.js" type="text/javascript"></script>
-    <script src="../assets/js/core/popper.min.js" type="text/javascript"></script>
-    <script src="../assets/js/core/bootstrap.min.js" type="text/javascript"></script>
-    <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <script src="../assets/js/plugins/bootstrap-switch.js"></script>
-    <script src="../assets/js/plugins/nouislider.min.js" type="text/javascript"></script>
-    <script src="../assets/js/plugins/moment.min.js"></script>
-    <script src="../assets/js/plugins/datetimepicker.js" type="text/javascript"></script>
-    <script src="../assets/js/plugins/bootstrap-datepicker.min.js"></script>
+    <script src="{{asset('assets/js/core/jquery.min.js')}}" type="text/javascript"></script>
+    <script src="{{asset('assets/js/core/popper.min.js')}}" type="text/javascript"></script>
+    <script src="{{asset('assets/js/core/bootstrap.min.js')}}" type="text/javascript"></script>
+    <script src="{{asset('assets/js/plugins/perfect-scrollbar.jquery.min.js')}}"></script>
+    <script src="{{asset('assets/js/plugins/bootstrap-switch.js')}}"></script>
+    <script src="{{asset('assets/js/plugins/nouislider.min.js')}}" type="text/javascript"></script>
+    <script src="{{asset('assets/js/plugins/moment.min.js')}}"></script>
+    <script src="{{asset('assets/js/plugins/datetimepicker.js')}}" type="text/javascript"></script>
+    <script src="{{asset('assets/js/plugins/bootstrap-datepicker.min.js')}}"></script>
     <script>
         function togglePasswordVisibility(button) {
             var passwordInput = button.parentNode.previousElementSibling;

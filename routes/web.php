@@ -64,10 +64,11 @@ Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+Route::get('/verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    return redirect()->route('Inicio')->with('success', 'Tu Correo ha sido Verificada Correctamente.');
-})->middleware(['auth', 'signed'])->name('verification.verify');
+    return redirect()->route('Inicio')->with('success', 'Tu correo ha sido verificado correctamente.');
+})->name('verification.verify');
+
 
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
@@ -113,20 +114,24 @@ Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkReques
     ->middleware('guest')
     ->name('password.request');
 
-// Ruta para procesar la solicitud de restablecimiento
+// Ruta para procesar la solicitud de enlace de restablecimiento
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
     ->middleware('guest')
     ->name('password.email');
 
 // Ruta para mostrar el formulario de restablecimiento de contraseña
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
+Route::get('/password/reset/{token}', [ForgotPasswordController::class, 'showResetForm'])
     ->middleware('guest')
     ->name('password.reset');
 
 // Ruta para procesar el restablecimiento de contraseña
-Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
+Route::post('/password/reset', [ForgotPasswordController::class, 'reset'])
     ->middleware('guest')
     ->name('password.update');
+
+
+
+
 
 
 
@@ -163,6 +168,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/Inscribirse-Curso/{id}', [InscritosController::class, 'storeCongreso'])
             ->name('inscribirse_congreso');
     });
+
+
 
 
     //Ver perfil del usuario logueado
