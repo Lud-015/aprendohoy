@@ -353,6 +353,7 @@
     @include('FundacionPlantillaUsu.index')
 @endif
 
+@include('botman.tinker')
 
 
 

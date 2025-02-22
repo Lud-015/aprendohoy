@@ -129,7 +129,7 @@
                             ['route' => 'ListadeCursos', 'icon' => 'ni ni-book-bookmark text-blue', 'text' => 'Lista de Cursos'],
                             ['route' => 'ListaDocentes', 'icon' => 'ni ni-single-02 text-blue', 'text' => 'Lista de Docentes'],
                             ['route' => 'ListaEstudiantes', 'icon' => 'ni ni-single-02 text-orange', 'text' => 'Lista de Estudiantes'],
-                            ['route' => 'aportesLista', 'icon' => 'ni ni-bullet-list-67 text-red', 'text' => 'Aportes'],
+                            ['route' => 'aportesLista', 'icon' => 'ni ni-bullet-list-67 text-red', 'text' => 'Lista de Pagos'],
                             ['route' => 'AsignarCurso', 'icon' => 'ni ni-key-25 text-info', 'text' => 'Asignación de Cursos'],
                         ],
                         'Docente' => [
@@ -279,21 +279,11 @@
                                 " <a href='' target='_blank'>Fundación para educar la vida</a>.");
                         </script>
                         <ul class="nav nav-footer justify-content-center justify-content-xl-end">
-                            {{-- <li class="nav-item">
-                <a href="https://www.creative-tim.com" class="nav-link" target="_blank">Creative Tim</a>
-              </li>
-              <li class="nav-item">
-                <a href="https://www.creative-tim.com/presentation" class="nav-link" target="_blank">About Us</a>
-              </li>
-              <li class="nav-item">
-                <a href="http://blog.creative-tim.com" class="nav-link" target="_blank">Blog</a>
-              </li> --}}
-                            {{-- <li class="nav-item">
-                <a href="https://github.com/creativetimofficial/argon-dashboard/blob/master/LICENSE.md" class="nav-link" target="_blank">MIT License</a>
-              </li> --}}
+
                         </ul>
                     </div>
                 </div>
+                
             </footer>
         </div>
     </div>
@@ -373,6 +363,16 @@
         });
     @endif
 </script>
+<script>
+    var botmanWidget = {
+        title: 'Soporte',
+        mainColor: '#0d6efd',
+        bubbleBackground: '#0d6efd',
+        aboutText: 'ChatBot Laravel',
+        introMessage: "¡Hola! ¿En qué puedo ayudarte?"
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js"></script>
 
 
 

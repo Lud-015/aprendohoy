@@ -22,6 +22,15 @@
             <hr>
             <input type="text" id="estudiante_id" name="estudiante_id" value="{{ auth()->user()->id }}" hidden>
 
+            <label for="nombre_estudiante">Curso:</label>
+            <select name="curso_id" id="estudiante_id">
+                    @forelse ($cursos as $curso)
+                        <option value="{{ $curso->id }}">{{ $curso->nombreCurso }} </option>
+                    @empty
+                        <option value="">No hay cursos disponibles</option>
+                    @endforelse
+            </select>
+
             <label for="nombre_estudiante">Nombre del Estudiante:</label>
             <select name="estudiante_id" id="estudiante_id">
                     @forelse ($estudiantes as $estudiante)

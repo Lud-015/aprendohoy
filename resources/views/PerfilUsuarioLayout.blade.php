@@ -227,5 +227,7 @@
         application: "argon-dashboard-free"
       });
   </script>
+
+  @include('botman.tinker')
 </body>
 </html>

@@ -317,6 +317,7 @@
         }
     });
 </script>
+@include('botman.tinker')
 
 
 </body>

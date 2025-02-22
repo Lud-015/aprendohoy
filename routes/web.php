@@ -45,9 +45,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\RecursoSubtemaController;
 use App\Models\ActividadCompletion;
 use App\Http\Controllers\BotManController;
+use App\Http\Controllers\ChatbotController;
 
-
-Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +58,12 @@ Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
+
+
+Route::get('/botman/tinker', function () {
+    return view('botman.tinker');
+});
 
 Route::get('/email/verify', function () {
     return view('auth.verify-email');
@@ -398,7 +403,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/Notificaciones', [UserController::class, 'notificaciones'])->name('notificaciones');
         Route::get('/user/{id}', [UserController::class, 'Profile'])->name('perfil');
 
-        Route::get('/pago/{id}', [AportesController::class, 'vistaPrevia'])->name('factura');
+        Route::get('/pago/{$id}', [AportesController::class, 'factura'])->name('factura');
 
 
         Route::get('/Calendario', [MenuController::class, 'calendario'])->middleware('noCache')->name('calendario');

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Events\EstudianteEvent;
 use App\Models\Aportes;
+use App\Models\Cursos;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AportesController extends Controller
 {
@@ -24,7 +26,12 @@ class AportesController extends Controller
     {
         $estudiantes = User::role('Estudiante')->get();
 
-        return view('registraraporte')->with('estudiantes', $estudiantes);
+        $cursos = Cursos::whereDate('fecha_fin', '>=', Carbon::today())->get();
+
+
+        return view('registraraporte')
+        ->with('estudiantes', $estudiantes)
+        ->with('cursos', $cursos);
 
     }
 
@@ -38,7 +45,7 @@ class AportesController extends Controller
     return view('registraraporte')->with('estudiante', $estudiante);
 }
 
-public function vistaPrevia($id)
+public function factura($id)
 {
 
     $aportes = Aportes::find($id);

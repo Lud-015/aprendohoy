@@ -320,19 +320,17 @@
                     <div class="col-md-8 pt-4" data-aos="fade-up">
                         <h3>Obten resultados benficiosos con los cursos y talleres que se ofrecen.</h3>
                         <p class="fst-italic">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                            labore et dolore
-                            magna aliqua.
+                            Nuestros cursos y congresos te brindan las herramientas y el conocimiento práctico que necesitas para alcanzar tus metas profesionales. Aprende de expertos en la industria y desarrolla habilidades.
                         </p>
                         <ul>
-                            <li><i class="bi bi-check"></i> Certificado de ambito Internacional.</li>
-                            <li><i class="bi bi-check"></i> Pago accesible para todos.</li>
-                            <li><i class="bi bi-check"></i> Aprendizaje rápido y confiable.</li>
-                            <li><i class="bi bi-check"></i> Temas de impacto acuerdo a sus necesidades.</li>
+                            <li><i class="bi bi-check"></i> Certificación Internacional.</li>
+                            <li><i class="bi bi-check"></i> Pago accesible a través de aplicaciones.</li>
+                            <li><i class="bi bi-check"></i> Aprendizaje adecuado a tus necesidades.</li>
+                            <li><i class="bi bi-check"></i> Tematicas de impacto.</li>
                         </ul>
                         <p>
-                            Voluptas nisi in quia excepturi nihil voluptas nam et ut. Expedita omnis eum consequatur
-                            non. Sed in asperiores aut repellendus. Error quisquam ab maiores. Quibusdam sit in officia
+                            "Amplía tus conocimientos y habilidades con nuestra oferta integral de cursos y congresos. Los cursos te brindan una formación profunda y práctica en áreas específicas, mientras que los congresos te exponen a las últimas tendencias y
+                            te conectan con profesionales de tu sector. ¡Combina ambas experiencias y maximiza tu potencial de crecimiento!"
                         </p>
                     </div>
                 </div>
@@ -624,7 +622,7 @@
         </div>
     </footer><!-- End Footer -->
 
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center md-5"><i
             class="bi bi-arrow-up-short"></i></a>
 
     <!-- Vendor JS Files -->
@@ -661,6 +659,8 @@
         }
     });
 </script>
+
+@include('botman.tinker')
 
 
 </body>

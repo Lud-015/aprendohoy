@@ -94,6 +94,8 @@
         </div>
     </footer>
 
+    @include('botman.tinker')
+
 
 </body>
 <script>
