@@ -102,11 +102,22 @@ class UserController extends Controller
     public function UserProfileEdit(Request $request)
     {
         $request->validate([
-            'Celular' => 'required',
-            'confirmpassword' => 'required'
+            'name' => 'required|string|max:255',
+            'lastname1' => 'required|string|max:255',
+            'lastname2' => 'nullable|string|max:255',
+            'Celular' => 'required|string|max:20',
+            'fecha_nac' => 'required|date',
+            'PaisReside' => 'required|string|max:255',
+            'CiudadReside' => 'required|string|max:255',
+            'confirmpassword' => 'required|string',
         ], [
+            'name.required' => 'El campo Nombre es obligatorio.',
+            'lastname1.required' => 'El campo Apellido Paterno es obligatorio.',
             'Celular.required' => 'El campo Celular es obligatorio.',
-            'confirmpassword.required' => 'Confirma la contraseña para realizar los cambios.'
+            'fecha_nac.required' => 'El campo Fecha de Nacimiento es obligatorio.',
+            'PaisReside.required' => 'El campo País es obligatorio.',
+            'CiudadReside.required' => 'El campo Ciudad es obligatorio.',
+            'confirmpassword.required' => 'Confirma la contraseña para realizar los cambios.',
         ]);
 
         $user = User::findOrFail(Auth::user()->id);
@@ -135,15 +146,15 @@ class UserController extends Controller
 
     protected function updateUserData(Request $request, User $user)
     {
+        $user->name = $request->name;
+        $user->lastname1 = $request->lastname1;
+        $user->lastname2 = $request->lastname2 ?? ''; // Opcional
         $user->Celular = $request->Celular;
+        $user->fechadenac = $request->fecha_nac; // Fecha de nacimiento
         $user->PaisReside = $request->PaisReside ?? '';
         $user->CiudadReside = $request->CiudadReside ?? '';
         $user->updated_at = now();
 
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $avatarPath;
-        }
     }
 
 
@@ -169,13 +180,11 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required',
             'lastname1' => 'required',
-            'lastname2' => 'required',
             'email' => 'required|unique:users,email',
             'password' => 'required|confirmed',
         ], [
             'name.required' => 'El nombre es obligatorio.',
             'lastname1.required' => 'El primer apellido es obligatorio.',
-            'lastname2.required' => 'El segundo apellido es obligatorio.',
             'email.required' => 'El correo electrónico es obligatorio.',
             'email.unique' => 'Este correo electrónico ya está en uso.',
             'password.required' => 'La contraseña es obligatoria.',
@@ -206,7 +215,7 @@ class UserController extends Controller
         $user = new User();
         $user->name = $request->name;
         $user->lastname1 = $request->lastname1;
-        $user->lastname2 = $request->lastname2;
+        $user->lastname2 = $request->lastname2 ?? '';
         $user->CI = Str::random(10);
         $user->Celular = 0;
         $user->fechadenac = Carbon::parse('2000-01-01');

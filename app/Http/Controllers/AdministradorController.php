@@ -73,7 +73,7 @@ class AdministradorController extends Controller
 
         $estudiante =  $user;
 
-        event(new EstudianteEvent($estudiante,'', 'registro'));
+        // event(new EstudianteEvent($estudiante,'', 'registro'));
 
         $user->save();
         $user->assignRole('Estudiante');
@@ -162,7 +162,7 @@ class AdministradorController extends Controller
         $tutor->estudiante_id = User::latest('id')->first()->id;
 
 
-        event(new EstudianteEvent($estudiante, $tutor, 'registro'));
+        // event(new EstudianteEvent($estudiante, $tutor, 'registro'));
         $user->save();
         $tutor->save();
 
@@ -226,7 +226,7 @@ class AdministradorController extends Controller
 
         $docente = $user;
 
-        event(new DocenteEvent($docente, 'registro'));
+        // event(new DocenteEvent($docente, 'registro'));
         $user->save();
         $user->assignRole('Docente');
 
@@ -346,35 +346,30 @@ class AdministradorController extends Controller
         $request->validate([
             'name' => 'required',
             'lastname1' => 'required',
-            'lastname2' => 'required',
             'Celular' => 'required',
             'email' => 'required|unique:users,email,'.$id,
             'fechadenac' => 'required|date|before_or_equal:today',
-            'password' => 'required'
         ], [
             'name.required' => 'El campo nombre es obligatorio.',
             'lastname1.required' => 'El campo primer apellido es obligatorio.',
-            'lastname2.required' => 'El campo segundo apellido es obligatorio.',
             'Celular.required' => 'El campo celular es obligatorio.',
             'email.required' => 'El campo correo electrónico es obligatorio.',
             'email.unique' => 'El correo electrónico ya está registrado.',
             'fechadenac.required' => 'El campo fecha de nacimiento es obligatorio.',
             'fechadenac.before_or_equal' => 'El campo fecha de nacimiento debe ser valido.',
-            'password.required' => 'El campo contraseña es obligatorio.'
         ]);
 
 
         $user = User::findOrFail($id);
         $user->name = $request->name;
         $user->lastname1 = $request->lastname1;
-        $user->lastname2 = $request->lastname2;
+        $user->lastname2 = $request->lastname2 ?? '';
         $user->CI = $request->CI;
         $user->email = $request->email;
         $user->Celular = $request->Celular;
         $user->fechadenac = $request->fechadenac;
         $user->PaisReside = $request->PaisReside ?? '';
         $user->CiudadReside = $request->CiudadReside ?? '';
-        $user->password = bcrypt($request->password);
         $user->updated_at = now();
 
 

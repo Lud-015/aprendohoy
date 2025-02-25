@@ -3,115 +3,65 @@
 @endsection
 
 
-@section('nav')
-    @if (auth()->user()->hasRole('Administrador'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaDocentes') }}">
-                    <i class="ni ni-single-02 text-blue"></i> Lista de Docentes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaEstudiantes') }}">
-                    <i class="ni ni-single-02 text-orange"></i> Lista de Estudiantes
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Docente'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Estudiante'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Mis Aportes
-                </a>
-            </li>
-
-
-        </ul>
-    @endif
-@endsection
 
 
 @section('content')
-    <div class="p-4 pl-4">
-        <a href="javascript:history.back()" class="btn btn-primary">
-            &#9668; Volver
-        </a>
-        <br>
+<h1>Editar Perfíl</h1>
 
-        <form action="{{ route('EditarperfilPost', auth()->user()->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
+<form action="{{ route('EditarperfilPost', auth()->user()->id) }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <br>
+
+    <!-- Pestañas -->
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="contacto-tab" data-toggle="tab" href="#contacto" role="tab" aria-controls="contacto" aria-selected="true">Datos de Contacto</a>
+        </li>
+        @if (auth()->user()->hasRole('Docente'))
+            <li class="nav-item">
+                <a class="nav-link" id="profesional-tab" data-toggle="tab" href="#profesional" role="tab" aria-controls="profesional" aria-selected="false">Datos Profesionales</a>
+            </li>
+        @endif
+        <li class="nav-item">
+            <a class="nav-link" id="confirmacion-tab" data-toggle="tab" href="#confirmacion" role="tab" aria-controls="confirmacion" aria-selected="false">Confirmar Cambios</a>
+        </li>
+    </ul>
+
+    <!-- Contenido de las Pestañas -->
+    <div class="tab-content" id="myTabContent">
+        <!-- Pestaña de Datos de Contacto -->
+        <div class="tab-pane fade show active" id="contacto" role="tabpanel" aria-labelledby="contacto-tab">
             <br>
-
-            <h1>Datos De Contacto</h1>
-
-            <div class="form-group mb-4">
-                <label for="Celular">Número de Celular</label>
-                <input type="text" name="Celular" value="{{ auth()->user()->Celular }}" class="form-control">
-            </div>
-
+            <h2>Datos de Contacto</h2>
             <div class="form-row">
                 <div class="form-group col-md-6">
-                    <label for="PaisReside">Pais:</label>
+                    <label for="name">Nombre:</label>
+                    <input type="text" name="name" value="{{ auth()->user()->name }}" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="lastname1">Apellido Paterno:</label>
+                    <input type="text" name="lastname1" value="{{ auth()->user()->lastname1 }}" class="form-control">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="lastname2">Apellido Materno:</label>
+                    <input type="text" name="lastname2" value="{{ auth()->user()->lastname2 }}" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="Celular">Número de Celular:</label>
+                    <input type="text" name="Celular" value="{{ auth()->user()->Celular }}" class="form-control">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="fecha_nac">Fecha de Nacimiento:</label>
+                    <input type="date" name="fecha_nac" value="{{ auth()->user()->fechadenac }}" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="PaisReside">País:</label>
                     <input type="text" name="PaisReside" value="{{ auth()->user()->PaisReside }}" class="form-control">
                 </div>
                 <div class="form-group col-md-6">
@@ -119,14 +69,14 @@
                     <input type="text" name="CiudadReside" value="{{ auth()->user()->CiudadReside }}" class="form-control">
                 </div>
             </div>
+        </div>
 
-            <br>
-
-            @if (auth()->user()->hasRole('Docente'))
+        <!-- Pestaña de Datos Profesionales (solo para Docentes) -->
+        @if (auth()->user()->hasRole('Docente'))
+            <div class="tab-pane fade" id="profesional" role="tabpanel" aria-labelledby="profesional-tab">
+                <br>
+                <h2>Datos Profesionales</h2>
                 @foreach ($atributosD as $atributo)
-                    <label for="">Datos Profesionales</label>
-                    <br>
-
                     <div class="form-row mb-4">
                         <div class="form-group col-md-4">
                             <label for="formacion">Formación Académica:</label>
@@ -144,9 +94,7 @@
                 @endforeach
 
                 <br>
-
                 <h2>Últimos Trabajos Realizados</h2>
-
                 <table class="table table-responsive-sm table-hover">
                     <thead>
                         <tr>
@@ -179,8 +127,13 @@
                         @endforelse
                     </tbody>
                 </table>
-            @endif
+            </div>
+        @endif
 
+        <!-- Pestaña de Confirmación de Cambios -->
+        <div class="tab-pane fade" id="confirmacion" role="tabpanel" aria-labelledby="confirmacion-tab">
+            <br>
+            <h2>Confirmar Cambios</h2>
             <div class="form-group mt-4 mb-4">
                 <label for="confirmpassword">INGRESA LA CONTRASEÑA PARA HACER LOS CAMBIOS</label>
                 <div class="input-group">
@@ -192,38 +145,29 @@
                     </div>
                 </div>
             </div>
-
             <div class="form-group m-4">
                 <input class="btn btn-success" type="submit" value="Guardar Cambios">
             </div>
-        </form>
-    </div>
-
-    @if ($errors->any())
-        @foreach ($errors->all() as $error)
-            <h2 class="bg-danger alert-danger">{{ $error }}</h2>
-        @endforeach
-    @endif
-
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
         </div>
-    @endif
+    </div>
+</form>
 
-    <script>
-        const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#confirmpassword');
-
-        togglePassword.addEventListener('click', function() {
-            // Cambiar el tipo de input entre 'password' y 'text'
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            // Cambiar el ícono del ojo entre abierto y cerrado
-            this.classList.toggle('fa-eye');
-            this.classList.toggle('fa-eye-slash');
-        });
-    </script>
+<!-- Script para mostrar/ocultar contraseña -->
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('confirmpassword');
+        const icon = this;
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    });
+</script>
 @endsection
 
 @include('layout')

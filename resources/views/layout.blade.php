@@ -12,6 +12,8 @@
     <link href="{{ asset('./assets/img/Acceder.png') }}" rel="icon" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.5/perfect-scrollbar.min.js"></script>
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
     <!-- Icons -->
@@ -53,196 +55,297 @@
     });
 </script>
 
+<style>
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgb(26, 71, 137);
+        padding: 1rem;
+        transition: all 0.3s;
+        overflow: hidden;
+    }
+
+
+    .sidebar.collapsed {
+        width: 80px;
+    }
+
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 10px;
+        display: block;
+        transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+    }
+
+    .sidebar .nav-link i {
+        font-size: 20px;
+        margin-right: 10px;
+        transition: 0.3s;
+    }
+
+    .sidebar.collapsed .nav-link span {
+        display: none;
+    }
+
+    .sidebar.collapsed .nav-link i {
+        margin-right: 0;
+    }
+
+    /* Sidebar con scroll */
+    .sidebar-menu {
+        overflow-y: auto;
+        max-height: calc(100vh - 150px);
+        /* Ajuste dinámico según el contenido */
+        padding-right: 10px;
+    }
+
+    /* Ocultar scrollbar en navegadores modernos */
+    .sidebar-menu::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    /* Sidebar colapsado */
+    .sidebar.collapsed {
+        width: 80px;
+    }
+
+    .sidebar.collapsed .user-name {
+        display: none !important;
+    }
+
+    .sidebar.collapsed .sidebar-menu {
+        max-height: calc(100vh - 100px);
+    }
+
+    .sidebar-menu::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+
+    /* Contenido principal */
+    .content {
+        margin-left: 250px;
+        transition: all 0.3s;
+        padding: 2rem;
+    }
+
+    .collapsed+.content {
+        margin-left: 80px;
+    }
+
+    /* Botón de toggler */
+    .sidebar-toggler {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+    }
+
+    .sidebar-toggler:focus {
+        outline: none;
+    }
+
+    .user-avatar {
+        transition: transform 0.3s ease-in-out;
+        cursor: pointer;
+    }
+
+    .user-avatar:hover {
+        transform: scale(1.1);
+        /* Efecto de agrandado al pasar el mouse */
+    }
+
+    /* Esconder el nombre cuando el sidebar está colapsado */
+    .sidebar.collapsed .user-name {
+        display: none !important;
+    }
+
+</style>
 
 
 
 
 
-<body >
 
-
-    <nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
-        <div class="container-fluid">
-            <!-- Toggler -->
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidenav-collapse-main"
-                aria-controls="sidenav-main" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Contenedor del Navbar -->
-            <div class="collapse navbar-collapse" id="sidenav-collapse-main">
-                <!-- Header del Navbar en modo colapsado -->
-                <div class="navbar-collapse-header d-md-none">
-                    <div class="row">
-                        <div class="col-6 collapse-brand"></div>
-                        <div class="col-6 collapse-close">
-                            <button type="button" class="navbar-toggler" data-toggle="collapse"
-                                data-target="#sidenav-collapse-main" aria-controls="sidenav-main" aria-expanded="false"
-                                aria-label="Toggle sidenav">
-                                <span></span>
-                                <span></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Perfil de Usuario -->
-                <li class="dropdown col-3">
-
-                    <a class="nav-item" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
-                        <div class="media align-items-center">
-                            <span class="avatar avatar-sm rounded-circle">
-                                @if (auth()->user()->avatar == '')
-                                    <img src="{{ asset('./assets/img/user.png') }}" alt="Avatar of User">
-                                @else
-                                    <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar of User">
-                                @endif
-                            </span>
-                            <span class="mb-0"> {{ auth()->user()->name }} {{ auth()->user()->lastname1 }} &#9660
-                            </span>
-                        </div>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-left">
-                        <div class="dropdown-header noti-title">
-                            <h6 class="text-overflow m-0">Bienvenid@!</h6>
-                        </div>
-                        <a href="{{ route('Miperfil') }}" class="dropdown-item">
-                            <i class="ni ni-single-02"></i>
-                            <span>Mi perfil</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="{{ route('logout') }}" class="dropdown-item">
-                            <i class="ni ni-user-run"></i>
-                            <span>Cerrar Sesión</span>
-                        </a>
-                    </div>
-                </li>
-                <hr>
-
-                <!-- Generar menú dinámico según el rol del usuario -->
-                @php
-                    $navItems = [
-                        'Administrador' => [
-                            ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
-                            ['route' => 'Inicio', 'icon' => 'ni ni-tv-2 text-primary', 'text' => 'Inicio', 'active' => true],
-                            ['route' => 'ListadeCursos', 'icon' => 'ni ni-book-bookmark text-blue', 'text' => 'Lista de Cursos'],
-                            ['route' => 'ListaDocentes', 'icon' => 'ni ni-single-02 text-blue', 'text' => 'Lista de Docentes'],
-                            ['route' => 'ListaEstudiantes', 'icon' => 'ni ni-single-02 text-orange', 'text' => 'Lista de Estudiantes'],
-                            ['route' => 'aportesLista', 'icon' => 'ni ni-bullet-list-67 text-red', 'text' => 'Lista de Pagos'],
-                            ['route' => 'AsignarCurso', 'icon' => 'ni ni-key-25 text-info', 'text' => 'Asignación de Cursos'],
-                        ],
-                        'Docente' => [
-                            ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
-                            ['route' => 'Inicio', 'icon' => 'ni ni-tv-2 text-primary', 'text' => 'Mis Cursos', 'active' => true],
-                            ['route' => 'AsignarCurso', 'icon' => 'ni ni-key-25 text-info', 'text' => 'Asignación de Cursos'],
-                        ],
-                        'Estudiante' => [
-                            ['route' => 'Miperfil', 'icon' => 'ni ni-circle-08 text-green', 'text' => 'Mi perfil'],
-                            ['route' => 'Inicio', 'icon' => 'ni ni-tv-2 text-primary', 'text' => 'Mis Cursos', 'active' => true],
-                        ],
-                    ];
-                @endphp
-
-                <ul class="navbar-nav">
-                    @foreach ($navItems[auth()->user()->getRoleNames()->first()] ?? [] as $item)
-                        <li class="nav-item {{ $item['active'] ?? false ? 'active' : '' }}">
-                            <a class="nav-link{{ $item['active'] ?? false ? ' active' : '' }}"
-                                href="{{ route($item['route']) }}">
-                                <i class="{{ $item['icon'] }}"></i> {{ $item['text'] }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-
-                @if (auth()->user()->hasRole('Estudiante'))
-                @yield('nav')
-                @else
-
-                @endif
+<body>
 
 
 
+    <!-- Bootstrap y Script -->
 
 
-                <!-- Divider -->
-                <hr class="my-3">
+    <!-- Agregar Bootstrap 5 JS -->
+    @php
+        $navItems = [
+            'Administrador' => [
+                ['route' => 'Inicio', 'icon' => 'bi bi-house-door ', 'text' => 'Inicio', 'active' => true],
+                ['route' => 'ListadeCursos', 'icon' => 'bi bi-journal-bookmark ', 'text' => 'Lista de Cursos'],
+                ['route' => 'ListaDocentes', 'icon' => 'bi bi-people ', 'text' => 'Lista de Docentes'],
+                ['route' => 'ListaEstudiantes', 'icon' => 'bi bi-people ', 'text' => 'Lista de Estudiantes'],
+                ['route' => 'aportesLista', 'icon' => 'bi bi-wallet ', 'text' => 'Lista de Pagos'],
+                ['route' => 'AsignarCurso', 'icon' => 'bi bi-person-lines-fill', 'text' => 'Asignación de Cursos'],
+            ],
+            'Docente' => [
+                [
+                    'route' => 'Inicio',
+                    'icon' => 'bi bi-house-door ',
+                    'text' => 'Mis Cursos',
+                    'active' => true,
+                ],
+                ['route' => 'AsignarCurso', 'icon' => 'bi bi-key ', 'text' => 'Asignación de Cursos'],
+                ['route' => 'sumario', 'icon' => 'bi bi-pencil-square ', 'text' => 'Sumario'],
+                // ['route' => 'cal', 'icon' => 'bi bi-folder text-info', 'text' => 'Material de Apoyo'],
+            ],
+            'Estudiante' => [
+                [
+                    'route' => 'Inicio',
+                    'icon' => 'bi bi-house-door text-primary',
+                    'text' => 'Mis Cursos',
+                    'active' => true,
+                ],
+                // ['route' => 'Notas', 'icon' => 'bi bi-award text-warning', 'text' => 'Mis Notas'],
+                // ['route' => 'Materiales', 'icon' => 'bi bi-folder text-info', 'text' => 'Material de Apoyo'],
+                ['route' => 'pagos', 'icon' => 'bi bi-wallet text-danger', 'text' => 'Pagos y Facturación'],
+            ],
+        ];
+    @endphp
 
-                <!-- Espacios Sociales -->
-                <h6 class="navbar-heading text-muted">Nuestros Espacios</h6>
-                <ul class="navbar-nav mb-md-3">
-                    <li class="nav-item">
-                        <a class="nav-link"
-                            href="https://www.facebook.com/profile.php?id=100063510101095&mibextid=ZbWKwL">
-                            <img src="{{ asset('assets/icons/fb.png') }}" alt="Facebook Icon"
-                                style="width: 24px; margin-right: 10px;">
-                            Facebook
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://instagram.com/fundeducarparalavida?igshid=MzRlODBiNWFlZA==">
-                            <img src="{{ asset('assets/icons/ig.png') }}" alt="Instagram Icon"
-                                style="width: 24px; margin-right: 10px;">
-                            Instagram
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://www.tiktok.com/@educarparalavida?_t=8fbFcMbWOGo&_r=1">
-                            <img src="{{ asset('assets/icons/tk.png') }}" alt="TikTok Icon"
-                                style="width: 24px; margin-right: 10px;">
-                            TikTok
-                        </a>
-                    </li>
-                </ul>
-            </div>
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column" id="sidebar">
+        <!-- Botón para colapsar el sidebar -->
+        <button class="sidebar-toggler" id="toggleSidebar">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- Perfil del Usuario -->
+        <div class="user-profile text-center mt-3">
+            <a href="{{ route('Miperfil') }}" class="d-flex align-items-center justify-content-center">
+                <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('./assets/img/user.png') }}"
+                    alt="Avatar of User" class="img-fluid rounded-circle user-avatar" width="60">
+                <span class="user-name ms-2 text-white fw-bold d-none d-lg-block">{{ auth()->user()->name }}
+                    {{ auth()->user()->lastname1 }}</span>
+            </a>
         </div>
-    </nav>
 
-    <div class="main-content">
+        <hr class="bg-white my-3">
 
-        <div class="header pb-6 pt-2 pt-md-4">
+        <!-- Menú con Scroll -->
+        <div class="sidebar-menu">
+            @foreach ($navItems[auth()->user()->getRoleNames()->first()] ?? [] as $item)
+                <a href="{{ route($item['route']) }}" class="nav-link">
+                    <i class="{{ $item['icon'] }}"></i> <span>{{ $item['text'] }}</span>
+                </a>
+            @endforeach
+
+            <!-- Cerrar sesión -->
+            <a href="{{ route('logout') }}" class="nav-link text-danger">
+                <i class="bi bi-box-arrow-right"></i> <span>Salir</span>
+            </a>
+        </div>
+    </div>
+    {{-- NAV --}}
+
+
+    <div class="content">
+        <div class="header  pt-2 pt-md-4">
             <div class="container-fluid">
                 <div class="header-body">
-                    <nav id="navbar-main"
-                        class="navbar navbar-main navbar-expand-lg navbar-transparent navbar-light py-10">
-                        <div class="container">
-                            <div class="navbar-container"> <a class="navbar-brand logo-izquierdo"
-                                    href="{{ route('Inicio') }}"> <img src="{{ asset('../assets/img/logof.png') }}"
-                                        style="width: auto; height: 80px;"> </a> <a class="navbar-brand logo-derecho"
-                                    href="{{ route('Inicio') }}"> <img
-                                        src="{{ asset('../assets/img/Acceder.png') }}"
-                                        style="width: auto; height: 45px;"> </a> </div>
-                        </div>
-                    </nav> @yield('contentup') <style>
+                    <style>
+                        /* Navbar Estilos */
                         .navbar-main {
-                            background: rgb(26,71,137);
-                            background: linear-gradient(145deg, rgba(26,71,137,1) 40%, rgba(34,77,141,1) 53%, rgba(255,255,255,1) 53%);
-                            height: 140px;
-                            /* Ajusta la altura de la navbar según sea necesario */
+                            background: linear-gradient(145deg, rgba(26, 71, 137, 1) 40%, rgba(34, 77, 141, 1) 53%, rgba(255, 255, 255, 1) 53%);
                             width: 100%;
                             border: none;
-                            border-radius: 0;
                             position: relative;
                             overflow: hidden;
+                            padding: 15px 20px;
+                            /* Espaciado interno */
                         }
 
-                        /* Estilo para el contenedor de la navbar */
+                        /* Contenedor de la navbar */
                         .navbar-container {
                             display: flex;
                             align-items: center;
                             justify-content: space-between;
-                            height: 100%;
                             width: 100%;
                         }
 
-                        /* Estilo para los elementos de la navbar */
-                        .navbar-brand {
-                            height: 100%;
+                        /* Ajuste de la altura y tamaño del navbar en pantallas grandes */
+                        @media (min-width: 992px) {
+                            .navbar-main {
+                                height: 140px;
+                                /* Solo en pantallas grandes */
+                            }
+                        }
+
+                        /* Ajustes de logos */
+                        .navbar-brand img {
+                            max-height: 80px;
+                            /* Tamaño máximo del logo */
                             width: auto;
-                            display: flex;
-                            align-items: center;
+                        }
+
+                        /* Logo derecho (Acceder) más pequeño */
+                        .logo-acceder img {
+                            max-height: 45px;
+                        }
+
+                        /* Responsividad: Ajustar la navbar en pantallas pequeñas */
+                        @media (max-width: 768px) {
+                            .navbar-main {
+                                height: auto;
+                                /* Altura dinámica en móviles */
+                                padding: 10px 15px;
+                                /* Reducir padding */
+                            }
+
+                            .navbar-container {
+                                flex-direction: column;
+                                /* Elementos en columna */
+                                text-align: center;
+                                gap: 10px;
+                                /* Separación entre logos */
+                            }
+
+                            .navbar-brand img {
+                                max-height: 20px;
+                            }
+
+                            .logo-acceder img {
+                                max-height: 10px;
+                            }
                         }
                     </style> <!-- Card stats -->
+                    <!-- Navbar -->
+                    <nav id="navbar-main" class="navbar navbar-expand-lg navbar-light navbar-main">
+                        <div class="container d-flex justify-content-between align-items-center">
+                            <!-- Logo izquierdo -->
+                            <a class="navbar-brand" href="{{ route('Inicio') }}">
+                                <img src="{{ asset('../assets/img/logof.png') }}" alt="Logo Izquierdo" class="logo"
+                                   >
+                            </a>
+
+                            <!-- Logo derecho -->
+                            <a class="logo-acceder" href="{{ route('Inicio') }}">
+                                <img src="{{ asset('../assets/img/Acceder.png') }}" alt="Logo Derecho"
+                                    class="logo-acceder" >
+                            </a>
+                        </div>
+                    </nav>
+                    <!-- Contenido adicional -->
+                    @yield('contentup')
                 </div>
             </div>
         </div>
@@ -251,41 +354,37 @@
 
 
 
-        <div class="container-fluid mt--7">
 
+        <div class="container-fluid mt-4">
             <div class="row mt-5">
-                <div class="col-xl-12">
+                <div class="col-12">
                     <div class="card shadow">
-
-                        <div class="table-responsive ">
-                            @yield('content')
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                @yield('content')
+                            </div>
+                            @yield('contentini')
                         </div>
-                        @yield('contentini')
                     </div>
                 </div>
             </div>
+
             <!-- Footer -->
-            <footer class="footer">
-                <div class="row align-items-center justify-content-xl-between">
-                    <div class="col-xl-6">
-                        <div class="copyright text-center text-xl-left text-muted">
-
+            <footer class="footer mt-4">
+                <div class="container">
+                    <div class="row align-items-center justify-content-between">
+                        <div class="col-md-6 text-center text-md-start text-muted">
+                            &copy; <script>document.write(new Date().getFullYear());</script>
+                            <a href="#" target="_blank">Fundación para educar la vida</a>.
                         </div>
-
-                    </div>
-                    <div class="col-xl-6">
-                        <script>
-                            document.write("&copy; " + new Date().getFullYear() +
-                                " <a href='' target='_blank'>Fundación para educar la vida</a>.");
-                        </script>
-                        <ul class="nav nav-footer justify-content-center justify-content-xl-end">
-
-                        </ul>
+                        <div class="col-md-6 text-center text-md-end">
+                            <!-- Espacio para enlaces adicionales si los necesitas -->
+                        </div>
                     </div>
                 </div>
-                
             </footer>
         </div>
+
     </div>
     <!--   Core   -->
     <script src="{{ asset('./assets/js/plugins/jquery/dist/jquery.min.js') }}"></script>
@@ -305,74 +404,82 @@
     </script>
 
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Restaurar la última pestaña activa
-        let activeTab = localStorage.getItem("activeTab");
-        if (activeTab) {
-            let tab = document.querySelector(`[data-bs-target="${activeTab}"]`);
-            if (tab) {
-                new bootstrap.Tab(tab).show();
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Restaurar la última pestaña activa
+            let activeTab = localStorage.getItem("activeTab");
+            if (activeTab) {
+                let tab = document.querySelector(`[data-bs-target="${activeTab}"]`);
+                if (tab) {
+                    new bootstrap.Tab(tab).show();
+                }
             }
-        }
 
-        // Guardar la pestaña seleccionada al hacer clic
-        document.querySelectorAll(".nav-link").forEach(tab => {
-            tab.addEventListener("click", function (event) {
-                let tabTarget = event.target.getAttribute("data-bs-target");
-                localStorage.setItem("activeTab", tabTarget);
+            // Guardar la pestaña seleccionada al hacer clic
+            document.querySelectorAll(".nav-link").forEach(tab => {
+                tab.addEventListener("click", function(event) {
+                    let tabTarget = event.target.getAttribute("data-bs-target");
+                    localStorage.setItem("activeTab", tabTarget);
+                });
+            });
+
+            // Restaurar la última sección del accordion activa
+            let activeAccordion = localStorage.getItem("activeAccordion");
+            if (activeAccordion) {
+                let accordionItem = document.querySelector(activeAccordion);
+                if (accordionItem) {
+                    new bootstrap.Collapse(accordionItem, {
+                        toggle: true
+                    });
+                }
+            }
+
+            // Guardar la sección del accordion cuando se abre
+            document.querySelectorAll(".accordion-button").forEach(button => {
+                button.addEventListener("click", function() {
+                    let accordionTarget = this.getAttribute("data-bs-target");
+                    localStorage.setItem("activeAccordion", accordionTarget);
+                });
             });
         });
-
-        // Restaurar la última sección del accordion activa
-        let activeAccordion = localStorage.getItem("activeAccordion");
-        if (activeAccordion) {
-            let accordionItem = document.querySelector(activeAccordion);
-            if (accordionItem) {
-                new bootstrap.Collapse(accordionItem, { toggle: true });
-            }
-        }
-
-        // Guardar la sección del accordion cuando se abre
-        document.querySelectorAll(".accordion-button").forEach(button => {
-            button.addEventListener("click", function () {
-                let accordionTarget = this.getAttribute("data-bs-target");
-                localStorage.setItem("activeAccordion", accordionTarget);
-            });
-        });
-    });
     </script>
 
-
-<script>
-    @if (session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: '¡Éxito!',
-            text: "{{ session('success') }}",
-            confirmButtonText: 'Entendido'
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("toggleSidebar").addEventListener("click", function() {
+            document.querySelector(".sidebar").classList.toggle("collapsed");
+            document.querySelector(".content").classList.toggle("collapsed");
         });
-    @endif
+    </script>
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: "{{ session('success') }}",
+                confirmButtonText: 'Entendido'
+            });
+        @endif
 
-    @if (session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: '¡Error!',
-            text: "{{ session('error') }}",
-            confirmButtonText: 'Reintentar'
-        });
-    @endif
-</script>
-<script>
-    var botmanWidget = {
-        title: 'Soporte',
-        mainColor: '#0d6efd',
-        bubbleBackground: '#0d6efd',
-        aboutText: 'ChatBot Laravel',
-        introMessage: "¡Hola! ¿En qué puedo ayudarte?"
-    };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js"></script>
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: "{{ session('error') }}",
+                confirmButtonText: 'Reintentar'
+            });
+        @endif
+    </script>
+    <script>
+        var botmanWidget = {
+            title: 'Soporte',
+            mainColor: '#0d6efd',
+            bubbleBackground: '#0d6efd',
+            aboutText: 'ChatBot Laravel',
+            introMessage: "¡Hola! ¿En qué puedo ayudarte?"
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js"></script>
 
 
 

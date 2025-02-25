@@ -16,163 +16,201 @@
 
 
 @section('contentup')
-    <div class="container-fluid">
-        <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#course-info"
-            aria-expanded="true" aria-controls="course-info">
-            <i class="fa fa-chevron-up"></i>
-            Ocultar
-        </button>
+    <div class="container-fluid my-4">
+        <!-- Collapsible Section Toggle -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="mb-0">CURSO {{ $cursos->nombreCurso }}</h1>
+            <button class="btn btn-outline-primary collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#course-info" aria-expanded="true" aria-controls="course-info">
+                <i class="fa fa-chevron-up me-1"></i>
+                <span class="d-none d-sm-inline toggle-text">Ocultar</span>
+            </button>
+        </div>
 
+        <!-- Main Course Content -->
         <div id="course-info" class="collapse show">
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card card-stats mb-4 mb-xl-0">
-                        <div class="card-body">
-                            <h1 class="mb-3">CURSO {{ $cursos->nombreCurso }}</h1>
-                            <h2 class="card-title text-muted mb-3">
-                                Docente:
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <!-- Teacher Information -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-light rounded-circle p-3 me-3">
+                            <i class="fas fa-user-tie fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0">Docente</p>
+                            <h4 class="mb-0">
                                 <a href="{{ route('perfil', ['id' => $cursos->docente->id]) }}"
                                     class="text-decoration-none">
                                     {{ $cursos->docente ? $cursos->docente->name . ' ' . $cursos->docente->lastname1 . ' ' . $cursos->docente->lastname2 : 'N/A' }}
                                 </a>
-                            </h2>
+                            </h4>
+                        </div>
+                    </div>
 
-                            <!-- Información del curso -->
-                            <div class="row">
-                                <div class="col">
-                                    <h4 class="card-title text-muted mb-2">Estado: {{ $cursos->estado }}</h4>
-                                    <h4 class="card-title text-muted mb-2">Tipo: {{ $cursos->tipo }}</h4>
-
-                                    <h2 class="mt-3">Descripción</h2>
-                                    <p class="card-title text-muted mb-4">{{ $cursos->descripcionC }}</p>
-
-                                    <!-- Botones de acción -->
-                                    <div class="d-flex flex-wrap gap-2 mb-4">
-                                        <a class="btn btn-info btn-sm" href="{{ route('listacurso', [$cursos->id]) }}">
-                                            <i class="fas fa-user"></i> Ver Participantes
-                                        </a>
-                                        <button class="btn btn-info btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#modalHorario">
-                                            <i class="fa fa-calendar"></i> Ver Horarios
-                                        </button>
-
-                                        <!-- Dropdown para acciones adicionales -->
-                                        @if ($cursos->docente_id == auth()->user()->id || auth()->user()->hasRole('Administrador'))
-                                            <div class="dropdown">
-                                                <button class="btn btn-info btn-sm dropdown-toggle" type="button"
-                                                    id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fas fa-cog"></i> Más Acciones
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                    <li>
-                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                            data-bs-target="#modalCrearHorario">
-                                                            <i class="fas fa-calendar-plus"></i> Crear Horarios
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('asistencias', [$cursos->id]) }}">
-                                                            <i class="fas fa-check"></i> Dar Asistencia
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                            data-bs-target="#qrModal">
-                                                            <i class="fas fa-qrcode"></i> Generar Código QR
-                                                        </a>
-                                                    </li>
-                                                    @if ($cursos->docente_id == auth()->user()->id)
-                                                        <li>
-                                                            <a class="dropdown-item"
-                                                                href="{{ route('repF', [$cursos->id]) }}"
-                                                                onclick="mostrarAdvertencia2(event)">
-                                                                <i class="fas fa-list"></i> Calificaciones
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item"
-                                                                href="{{ route('editarCurso', [$cursos->id]) }}">
-                                                                <i class="fas fa-edit"></i> Editar Curso
-                                                            </a>
-                                                        </li>
-                                                    @endif
-                                                    @if (auth()->user()->hasRole('Administrador') && !empty($cursos->archivoContenidodelCurso))
-                                                        <li>
-                                                            <a
-                                                                href="{{ asset('storage/' . $cursos->archivoContenidodelCurso) }}">
-                                                                <i class="fas fa-file"></i> Ver Plan Del Curso
-                                                            </a>
-                                                        </li>
-                                                    @endif
-
-                                                    <!-- Botón para abrir el modal -->
-                                                    @if ($cursos->estado === 'Certificado Disponible')
-                                                        <button type="button" class="dropdown-item" data-bs-toggle="modal"
-                                                            data-bs-target="#certificadoModal">
-                                                            <i class="fas fa-certificate"></i> Obtener Certificado
-                                                        </button>
-                                                    @endif
-                                                    @if ($cursos->estado === 'Activo')
-                                                        <form
-                                                            action="{{ route('cursos.activarCertificados', ['id' => $cursos->id]) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            <button type="submit" class="dropdown-item">
-                                                                <i class="fas fa-certificate"></i> Activar Certificados
-                                                            </button>
-                                                        </form>
-                                                    @endif
-
-
-
-                                                    <!-- Modal -->
-
-
-                                                    @if (auth()->user()->hasRole('Administrador'))
-                                                        @if (!isset($template))
-                                                            <li>
-                                                                <a class="dropdown-item" href="#"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#modalCertificado">
-                                                                    <i class="fas fa-certificate"></i> Subir Plantilla de
-                                                                    Certificado
-                                                                </a>
-                                                            </li>
-                                                        @else
-                                                            <li>
-                                                                <a class="dropdown-item" href="#"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#modalEditarCertificado">
-                                                                    <i class="fas fa-certificate"></i> Actualizar Plantilla
-                                                                    de Certificado
-                                                                </a>
-                                                            </li>
-
-
-
-                                                            <!-- Modal -->
-                                                        @endif
-                                                    @endif
-                                                </ul>
-                                            </div>
-                                        @endif
-
-                                        <a href="{{ route('historialAsistencias', [$cursos->id]) }}"
-                                            class="btn btn-info btn-sm">
-                                            <i class="fas fa-list"></i> Ver Asistencias
-                                        </a>
-                                    </div>
+                    <!-- Course Status & Info -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-info-circle text-primary me-2"></i>Estado
+                                    </h5>
+                                    <p class="card-text">
+                                        <span
+                                            class="badge bg-{{ $cursos->estado === 'Activo' ? 'success' : ($cursos->estado === 'Certificado Disponible' ? 'primary' : 'secondary') }} px-3 py-2">
+                                            {{ $cursos->estado }}
+                                        </span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-tags text-primary me-2"></i>Tipo
+                                    </h5>
+                                    <p class="card-text">
+                                        <span class="badge bg-info px-3 py-2">{{ $cursos->tipo }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course Description -->
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-align-left text-primary me-2"></i>Descripción
+                            </h5>
+                            <p class="card-text">{{ $cursos->descripcionC }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <a class="btn btn-primary" href="{{ route('listacurso', [$cursos->id]) }}">
+                            <i class="fas fa-users me-2"></i> Participantes
+                        </a>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalHorario">
+                            <i class="fa fa-calendar me-2"></i> Horarios
+                        </button>
+
+                        <a href="{{ route('historialAsistencias', [$cursos->id]) }}" class="btn btn-primary">
+                            <i class="fas fa-clipboard-list me-2"></i> Asistencias
+                        </a>
+
+                        <!-- Admin/Teacher Actions -->
+                        @if ($cursos->docente_id == auth()->user()->id || auth()->user()->hasRole('Administrador'))
+                            <div class="dropdown">
+                                <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-cog me-2"></i> Gestionar Curso
+                                </button>
+                                <ul class="dropdown-menu shadow" aria-labelledby="dropdownMenuButton">
+                                    <li>
+                                        <a class="dropdown-item py-2" href="#" data-bs-toggle="modal"
+                                            data-bs-target="#modalCrearHorario">
+                                            <i class="fas fa-calendar-plus text-primary me-2"></i> Crear Horarios
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ route('asistencias', [$cursos->id]) }}">
+                                            <i class="fas fa-check text-success me-2"></i> Dar Asistencia
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="#" data-bs-toggle="modal"
+                                            data-bs-target="#qrModal">
+                                            <i class="fas fa-qrcode text-dark me-2"></i> Generar Código QR
+                                        </a>
+                                    </li>
+
+                                    @if ($cursos->docente_id == auth()->user()->id)
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2" href="{{ route('repF', [$cursos->id]) }}"
+                                                onclick="mostrarAdvertencia2(event)">
+                                                <i class="fas fa-star text-warning me-2"></i> Calificaciones
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2" href="{{ route('editarCurso', [$cursos->id]) }}">
+                                                <i class="fas fa-edit text-info me-2"></i> Editar Curso
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if (auth()->user()->hasRole('Administrador') && !empty($cursos->archivoContenidodelCurso))
+                                        <li>
+                                            <a class="dropdown-item py-2"
+                                                href="{{ asset('storage/' . $cursos->archivoContenidodelCurso) }}">
+                                                <i class="fas fa-file-pdf text-danger me-2"></i> Ver Plan Del Curso
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    <!-- Certificate Options -->
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    @if ($cursos->estado === 'Certificado Disponible')
+                                        <li>
+                                            <button type="button" class="dropdown-item py-2" data-bs-toggle="modal"
+                                                data-bs-target="#certificadoModal">
+                                                <i class="fas fa-certificate text-warning me-2"></i> Obtener Certificado
+                                            </button>
+                                        </li>
+                                    @endif
+
+                                    @if ($cursos->estado === 'Activo')
+                                        <li>
+                                            <form action="{{ route('cursos.activarCertificados', ['id' => $cursos->id]) }}"
+                                                method="POST">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item py-2">
+                                                    <i class="fas fa-certificate text-success me-2"></i> Activar
+                                                    Certificados
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endif
+
+                                    <!-- Admin-only Certificate Template Options -->
+                                    @if (auth()->user()->hasRole('Administrador'))
+                                        @if (!isset($template))
+                                            <li>
+                                                <a class="dropdown-item py-2" href="#" data-bs-toggle="modal"
+                                                    data-bs-target="#modalCertificado">
+                                                    <i class="fas fa-file-upload text-primary me-2"></i> Subir Plantilla de
+                                                    Certificado
+                                                </a>
+                                            </li>
+                                        @else
+                                            <li>
+                                                <a class="dropdown-item py-2" href="#" data-bs-toggle="modal"
+                                                    data-bs-target="#modalEditarCertificado">
+                                                    <i class="fas fa-edit text-primary me-2"></i> Actualizar Plantilla de
+                                                    Certificado
+                                                </a>
+                                            </li>
+                                        @endif
+                                    @endif
+                                </ul>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="certificadoModal" tabindex="-1" aria-labelledby="certificadoModalLabel" aria-hidden="true">
+
+    <div class="modal fade" id="certificadoModal" tabindex="-1" aria-labelledby="certificadoModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -187,8 +225,9 @@
                         <div class="text-center mt-4 mb-4">
                             {{ QrCode::size(150)->generate(route('certificados.obtener', ['id' => encrypt($cursos->id)])) }}
                             <p class="mt-3">
-                                <a href="#" onclick="copiarAlPortapapeles('{{ route('certificados.obtener', ['id' => encrypt($cursos->id)]) }}')"
-                                   class="btn btn-success">
+                                <a href="#"
+                                    onclick="copiarAlPortapapeles('{{ route('certificados.obtener', ['id' => encrypt($cursos->id)]) }}')"
+                                    class="btn btn-success">
                                     Copiar enlace del certificado
                                 </a>
                             </p>
@@ -1502,7 +1541,8 @@
                                                 <div class="card-body">
                                                     <h1>{{ $tema->titulo_tema }}</h1>
                                                     @if ($tema->imagen)
-                                                        <img class="img-fluid" src="w" alt="Imagen del tema">
+                                                        <img class="img-fluid" src="{{ $tema->imagen }}"
+                                                            alt="Imagen del tema">
                                                     @endif
 
                                                     <div class="my-3">
@@ -1513,7 +1553,8 @@
                                                             aria-controls="descripcionTema-{{ $tema->id }}">
                                                             Ver Descripción del Tema
                                                         </button>
-                                                        <div class="collapse" id="descripcionTema-{{ $tema->id }}">
+                                                        <div class="collapse"
+                                                            id="descripcionTema-{{ $tema->id }}">
                                                             <div class="card card-body">
                                                                 {{ $tema->descripcion }}
                                                             </div>
@@ -1938,7 +1979,8 @@
         });
     });
 </script>
-
+<!-- Bootstrap JS (con Popper.js incluido) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     function copiarAlPortapapeles(url) {
@@ -1992,7 +2034,31 @@
     });
 </script>
 
+
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const collapseButton = document.querySelector('.collapse-toggle');
+        const toggleText = document.querySelector('.toggle-text');
+        const collapseIcon = document.querySelector('.collapse-toggle i');
+
+        collapseButton.addEventListener('click', function() {
+            if (toggleText.textContent === 'Ocultar') {
+                toggleText.textContent = 'Mostrar';
+                collapseIcon.classList.remove('fa-chevron-up');
+                collapseIcon.classList.add('fa-chevron-down');
+            } else {
+                toggleText.textContent = 'Ocultar';
+                collapseIcon.classList.remove('fa-chevron-down');
+                collapseIcon.classList.add('fa-chevron-up');
+            }
+        });
+    });
+</script>
+
+<script>
+
+
+
     function mostrarAdvertencia(event) {
         event.preventDefault();
 
@@ -2028,5 +2094,28 @@
             }
         });
     }
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.querySelector('.collapse-toggle');
+        const toggleText = document.querySelector('.toggle-text');
+        const toggleIcon = toggleButton.querySelector('i');
+
+        // Initialize Bootstrap collapse events
+        const courseInfo = document.getElementById('course-info');
+        courseInfo.addEventListener('hide.bs.collapse', function() {
+            toggleText.textContent = 'Mostrar';
+            toggleIcon.classList.remove('fa-chevron-up');
+            toggleIcon.classList.add('fa-chevron-down');
+        });
+
+        courseInfo.addEventListener('show.bs.collapse', function() {
+            toggleText.textContent = 'Ocultar';
+            toggleIcon.classList.remove('fa-chevron-down');
+            toggleIcon.classList.add('fa-chevron-up');
+        });
+    });
 </script>
 @include('layout')

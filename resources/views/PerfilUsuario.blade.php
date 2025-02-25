@@ -4,449 +4,412 @@ Perfil {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
 
 @endsection
 
-@section('nav')
-    @if (auth()->user()->hasRole('Administrador'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link   " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaDocentes') }}">
-                    <i class="ni ni-single-02 text-blue"></i> Lista de Docentes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaEstudiantes') }}">
-                    <i class="ni ni-single-02 text-orange"></i> Lista de Estudiantes
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('aportesLista') }}">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Docente'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Estudiante'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Mis Aportes
-                </a>
-            </li>
-
-
-        </ul>
-    @endif
-@endsection
-
-
-@section('avatar')
-    @if ($usuario->avatar == '')
-
-
-    <img src="{{asset('./assets/img/user.png')}}" class="rounded-circle">
-
-    @else
-    <img src="{{asset('storage/'. $usuario->avatar)}}" class="rounded-circle"  height="200px" width="200px">
-        @endif
-@endsection
-
-
-@section('contentPerfil')
-
-<br><br>
-<div class="row">
-    {{-- <div class="col">
-      <div class="card-profile-stats d-flex justify-content-center mt-md-5">
-        <div>
-          <span class="heading">0</span>
-          <span class="description">Amigos</span>
-        </div>
-        <div>
-          <span class="heading">0</span>
-          <span class="description">Fotos</span>
-        </div>
-        <div>
-          <span class="heading">0</span>
-          <span class="description">Foros</span>
-        </div>
-      </div>
-    </div> --}}
-  </div>
-  <div class="text-center">
-    <h3>
-        {{$usuario->name}} {{$usuario->lastname1}} {{$usuario->lastname2}}
-        <span class="font-weight-light"></span>
-    </h3>
-
-
-    <div class="h5 font-weight-300">
-      {{$usuario->roles->pluck('name')[0]}}
-    </div>
-
-    @if ($usuario->hasRole('Docente'))
-
-    {{-- @forelse ($atributosD as $atributosD)
-    Profesion
-    <br>
-    {{$atributosD->formacion}}
-    <br>
-    Especializacion
-    <br>
-    {{$atributosD->Especializacion}}
-    <br>
-    Experiencia Laboral
-    <br>
-    {{$atributosD->ExperienciaL}}
-    @empty
-
-    @endforelse --}}
-
-
-    @endif
-
-    <br><br>
-    <div>
-        <i class="ni education_hat mr-2"></i>
-
-        <i class="ni location_pin mr-2"></i>{{$usuario->CiudadReside}}, {{$usuario->PaisReside}}
-
-
-      </div>
-  </div>
 
 
 
-@endsection
+<style>
+    input[type="file"] {
+        /* Ocultar el campo de entrada */
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+        pointer-events: none;
+    }
 
-@section('content')
+    /* Estilo personalizado para el botón de carga de archivo */
+    .custom-file-upload {
+        border: 1px solid #ccc;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+        background-color: #f7f7f7;
+    }
+</style>
 
-
-<br>
-<div class="card bg-secondary shadow">
-    <div class="card-header bg-white border-0">
-      <div class="row align-items-center">
-        <div class="col-8">
-
-        <h3 class="mb-0">Perfíl de {{$usuario->name}}</h3>
-        <br>
-        <a href="javascript:history.back()" class="btn btn-sm btn-primary">
-            &#9668; Volver
-        </a>
-
-        @if (auth()->user()->hasRole('Administrador'))
-        <a href="{{route('EditarperfilUser', [$usuario->id])}}" class="btn btn-sm btn-warning">Editar</a>
-        <button type="button" class="btn btn-sm btn-darker" data-toggle="modal" data-target="#exampleModal">Ver Credenciales</button>
-        @endif
-        </div>
+@section('contentup')
 
 
-         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ver Credenciales</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <form id="adminPasswordForm">
-                <div class="modal-body">
-                  <div class="form-group">
-                    <label for="adminPassword">Contraseña de Administrador:</label>
-                    <input type="password" class="form-control" id="adminPassword" required>
-                  </div>
+<div class="container py-5">
+    <div class="row">
+        <!-- Columna de perfil (izquierda) -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow rounded-lg">
+                <!-- Sección de avatar -->
+                <div class="card-header bg-gradient-primary text-white text-center py-4 rounded-top">
+                    <h4 class="mb-0">Perfil de Usuario</h4>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                  <button type="submit" class="btn btn-primary">Verificar</button>
+
+                <div class="text-center position-relative avatar-container">
+                    <!-- Overlay de fondo para la imagen de perfil -->
+                    <div class="profile-header-cover bg-gradient-info" style="height: 100px;"></div>
+
+                    <!-- Avatar -->
+                    <div class="profile-avatar-wrapper">
+                        @php
+                            $avatarUrl = $usuario->avatar
+                                ? asset('storage/' . $usuario->avatar)
+                                : asset('./assets/img/user.png');
+                        @endphp
+
+                        <img id="avatar" src="{{ $avatarUrl }}"
+                            class="profile-avatar rounded-circle border border-white shadow"
+                            data-toggle="modal" data-target="#avatarModal"
+                            alt="Avatar del usuario" title="Cambiar imagen de perfil">
+                    </div>
                 </div>
-              </form>
+
+                <div class="card-body text-center pt-5 mt-3">
+                    <h3 class="font-weight-bold">
+                        {{ $usuario->name }} {{ $usuario->lastname1 }}
+                    </h3>
+
+                    <div class="badge badge-pill badge-primary mb-3">
+                        {{ $usuario->roles->pluck('name')[0] }}
+                    </div>
+
+                    <div class="text-muted mb-3">
+                        <i class="fas fa-map-marker-alt mr-2"></i>
+                        {{ $usuario->CiudadReside }}, {{ $usuario->PaisReside }}
+                    </div>
+
+                    <div class="text-muted mb-3">
+                        <i class="fas fa-phone mr-2"></i>
+                        {{ $usuario->Celular }}
+                    </div>
+
+                    <div class="text-muted">
+                        <i class="fas fa-envelope mr-2"></i>
+                        {{ $usuario->email }}
+                    </div>
+
+                    <!-- Botones de acción -->
+                    @if (auth()->user()->hasRole('Administrador') )
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ route('EditarperfilUser', [$usuario->id]) }}"
+                            class="btn btn-primary btn-block mr-2">
+                            <i class="fas fa-user-edit mr-1"></i> Editar Perfil
+                        </a>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ route('CambiarContrasena', [$usuario->id]) }}"
+                            class="btn btn-outline-primary btn-block">
+                            <i class="fas fa-key mr-1"></i> Cambiar Contraseña
+                        </a>
+                    </div>
+                    @endif
+
+                    @if (auth()->user()->hasRole('Administrador') || $usuario->hasRole('Docente'))
+                        <div class="mt-4 p-3 border-top">
+                            <h5 class="mb-3">Documento CV</h5>
+                            @if ($usuario->cv_file == '')
+                                <div class="alert alert-warning py-2">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    No se ha cargado hoja de vida
+                                </div>
+                            @else
+                                <a href="{{ asset('storage/' . $usuario->cv_file) }}"
+                                    class="btn btn-outline-info btn-block">
+                                    <i class="fas fa-file-pdf mr-1"></i> Ver Hoja de Vida
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+                </div>
             </div>
-          </div>
         </div>
 
-        <div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ver Credenciales</h5>
+        <!-- Columna de información (derecha) -->
+        <div class="col-lg-8">
+            @yield('content')
+
+            <!-- Sección de datos personales -->
+            <div class="card shadow rounded-lg mb-4">
+                <div class="card-header bg-white p-4 d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Información Personal</h4>
+                    <span class="badge badge-pill badge-light py-2 px-3 text-muted">
+                        <i class="fas fa-lock mr-1"></i> Solo lectura
+                    </span>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="small text-muted">Nombre</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control bg-light" value="{{ $usuario->name }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="small text-muted">Correo Electrónico</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light"><i class="fas fa-envelope"></i></span>
+                                    </div>
+                                    <input type="email" class="form-control bg-light" value="{{ $usuario->email }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="small text-muted">Apellido Paterno</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light"><i class="fas fa-user-tag"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control bg-light" value="{{ $usuario->lastname1 }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="small text-muted">Apellido Materno</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light"><i class="fas fa-user-tag"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control bg-light" value="{{ $usuario->lastname2 }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de contacto -->
+            <div class="card shadow rounded-lg">
+                <div class="card-header bg-white p-4">
+                    <h4 class="mb-0">Información de Contacto</h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="small text-muted">Teléfono Celular</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light"><i class="fas fa-phone"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control bg-light" value="{{ $usuario->Celular }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="small text-muted">Ubicación</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light"><i class="fas fa-map-marker-alt"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control bg-light"
+                                           value="{{ $usuario->CiudadReside }}, {{ $usuario->PaisReside }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cambiar la foto -->
+<div class="modal fade" id="avatarModal" tabindex="-1" role="dialog" aria-labelledby="avatarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="avatarModalLabel">
+                    <i class="fas fa-camera mr-2"></i>Actualizar Foto de Perfil
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                  <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">&times;</span>
                 </button>
-              </div>
-              <div class="modal-body">
-                Correo Electrónico: {{$usuario->email}}
-                <br>
-                @if ($usuario->tutor)
-                Contraseña Temporal: {{substr($usuario->tutor->nombreTutor,0,1).substr($usuario->tutor->appaternoTutor,0,1).substr($usuario->tutor->apmaternoTutor,0,1).$usuario->tutor->CI}}
-                @else
-                Contraseña Temporal: {{substr($usuario->name,0,1).substr($usuario->lastname1,0,1).substr($usuario->lastname2,0,1).$usuario->CI}}
-                @endif
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">Compartir</button>
-              </div>
             </div>
-          </div>
+
+            <div class="modal-body">
+                <!-- Vista previa de la imagen -->
+                <div class="text-center mb-4">
+                    <img id="preview" class="rounded-circle border shadow"
+                        src="{{ $avatarUrl }}" width="150" height="150">
+
+                </div>
+
+            </div>
         </div>
-
-          <script>
-            // Escuchar el envío del formulario
-            document.getElementById("adminPasswordForm").addEventListener("submit", function(event) {
-              event.preventDefault(); // Evitar que se envíe el formulario
-
-              // Verificar la contraseña de administrador
-              var adminPassword = document.getElementById("adminPassword").value;
-
-              // Aquí deberías tener tu lógica para verificar la contraseña con la base de datos o alguna lógica de autenticación
-
-              // Ejemplo de lógica de autenticación: Si la contraseña es "admin123", entonces abrir el modal
-              if (adminPassword === "admin123") {
-                $('#exampleModal1').modal('show'); // Abre el modal
-              } else {
-                alert("Contraseña incorrecta"); // Muestra un mensaje de error si la contraseña es incorrecta
-              }
-            });
-          </script>
-
-
-      </div>
     </div>
-    <div class="card-body">
-      <form>
-        <h6 class="heading-small text-muted mb-4">Información de usuario</h6>
-        <div class="pl-lg-4">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="form-control-label" for="input-username">Nombre</label>
-                <input type="text" disabled id="input-username" class="form-control form-control-alternative" placeholder="Username" value="{{$usuario->name}}">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="form-control-label" for="input-email">Correo Electronico</label>
-                <input type="email" disabled id="input-email" class="form-control form-control-alternative" placeholder="{{$usuario->email}}">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="form-control-label" for="input-first-name">Apellido Paterno
-                </label>
-                <input type="text"  disabled id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="{{$usuario->lastname1}}">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="form-control-label" for="input-last-name">Apellido Materno</label>
-                <input type="text"  disabled id="input-last-name" class="form-control form-control-alternative" placeholder="Last name" value="{{$usuario->lastname2}}">
-              </div>
-            </div>
-          </div>
-        </div>
-        <hr class="my-4" />
-        <!-- Address -->
-        <h6 class="heading-small text-muted mb-4">Información de Contacto</h6>
-        <div class="pl-lg-4">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                @if ($usuario->tutor)
-                        <div class="pl-lg-4">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="form-control-label" for="input-username">Nombre</label>
-                <input type="text" disabled id="input-username" class="form-control form-control-alternative" placeholder="Username" value="{{$usuario->tutor->nombreTutor}}">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="form-control-label" for="input-email">Correo Electrónico</label>
-                <input type="email" disabled id="input-email" class="form-control form-control-alternative" placeholder="{{$usuario->email}}">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="form-control-label" for="input-first-name">Apellido Paterno
-                </label>
-                <input type="text"  disabled id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="{{$usuario->tutor->appaternoTutor}}">
-              </div>
-              <div class="form-group">
-                <label class="form-control-label" for="input-first-name">Dirección
-                </label>
-                <input type="text"  disabled id="input-first-name" class="form-control form-control-alternative" placeholder="Sin Direccion" value="{{$usuario->tutor->Direccion}}">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="form-control-label" for="input-last-name">Apellido Materno</label>
-                <input type="text"  disabled id="input-last-name" class="form-control form-control-alternative" placeholder="Last name" value="{{$usuario->tutor->apmaternoTutor}}">
-              </div>
-              <div class="form-group">
-                <label class="form-control-label" for="input-last-name">CI</label>
-                <input type="text"  disabled id="input-last-name" class="form-control form-control-alternative" placeholder="Last name" value="{{$usuario->tutor->CI}}">
-              </div>
+</div>
 
-            </div>
+<!-- Estilos adicionales -->
+<style>
+    .avatar-container {
+        margin-top: -50px;
+    }
 
-          </div>
-        </div>
+    .profile-avatar-wrapper {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 
-                @else
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
 
-                @endif
-                <label class="form-control-label" for="input-address">Celular</label>
-                <input id="input-address" class="form-control form-control-alternative" disabled placeholder="Home Address" value="{{$usuario->Celular}}">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-4">
-              {{-- <div class="form-group">
-                <label class="form-control-label" for="input-city">Ciudad</label>
-                <input type="text" id="input-city" class="form-control form-control-alternative" placeholder="City" value="New York">
-              </div> --}}
-            </div>
-            @if ($usuario->hasRole('Docente'))
+    .profile-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
 
-            <div class="form-group">
-              <label class="form-control-label" for="input-address">Hoja de vida</label>
-            </div>
-              @if ($usuario->cv_file == '')
-                  <h3>Aún no se ha subido una hoja de vida</h3>
-              @else
+    .profile-header-cover {
+        border-top-left-radius: calc(0.3rem - 1px);
+        border-top-right-radius: calc(0.3rem - 1px);
+    }
+</style>
 
-              <a href="{{asset('storage/'. auth()->user()->cv_file)}}"> Ver hoja de vida </a>
+<!-- Script para vista previa -->
+<script>
+    document.getElementById('avatarInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor, selecciona una imagen válida.');
+                return;
+            }
 
-             @endif
-            <br>
+            // Actualizar el nombre del archivo en el label
+            const fileName = file.name;
+            const label = document.querySelector('label.custom-file-label');
+            label.textContent = fileName.length > 25 ? fileName.substring(0, 22) + '...' : fileName;
 
-
-
-            @endif
+            // Mostrar la vista previa de la imagen
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+@endsection
 
 
 
 
-            </div>
-          </div>
-        </div>
-        {{-- <hr class="my-4" /> --}}
-        <!-- Description -->
-        {{-- <h6 class="heading-small text-muted mb-4">About me</h6>
-        <div class="pl-lg-4">
-          <div class="form-group">
-            <label>About Me</label>
-            <textarea rows="4" class="form-control form-control-alternative" placeholder="A few words about you ...">A beautiful Dashboard for Bootstrap 4. It is Free and Open Source.</textarea>
-          </div>
-        </div> --}}
-      </form>
+<script>
+    function resizeAndSubmit() {
+        const fileInput = document.getElementById('avatarInput');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
 
-    @if ($usuario->hasRole('Docente'))
-    <div class="border p-3">
+        const file = fileInput.files[0];
+        const reader = new FileReader();
 
-      <div class="table-responsive card">
-         <p>Últimas 4 experiencias laborales de {{$usuario->name }} :</p>
-         <table class="table align-items-center">
-             <tr>
-                 <th>Lugar de Trabajo</th>
-                 <th>Cargo</th>
-                 <th>Fecha Inicio</th>
-                 <th>Fecha Fin</th>
-                 <th>Contacto de Referencia</th>
-             </tr>
-             @forelse ($trabajos as $trabajos )
-                 <tr>
-                     <td>{{$trabajos->empresa}}</td>
-                     <td>{{$trabajos->cargo}}</td>
-                     <td>{{$trabajos->fecha_inicio}}</td>
-                     <td>{{$trabajos->fecha_fin}}</td>
-                     <td>{{$trabajos->contacto_ref}}</td>
-                 </tr>
-             @empty
-             <tr>
-                 <td>NO SE REGISTRARON TUS ULTIMOS TRABAJOS</td>
-             </tr>
-             @endforelse
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const MAX_WIDTH = 512;
+                const MAX_HEIGHT = 512;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                ctx.drawImage(img, 0, 0, width, height);
+                const resizedImageData = canvas.toDataURL('image/jpeg');
+
+                // Crear un nuevo FormData y agregar la imagen redimensionada
+                const formData = new FormData(document.getElementById('uploadForm'));
+                const resizedImageBlob = dataURItoBlob(resizedImageData);
+                formData.set('avatar', resizedImageBlob, 'avatar.jpg');
+
+                // Enviar el formulario al servidor
+                fetch('tu/ruta/de/envio', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        // Manejar la respuesta del servidor
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            };
+
+            img.src = event.target.result;
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function dataURItoBlob(dataURI) {
+        const byteString = atob(dataURI.split(',')[1]);
+        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+
+        return new Blob([ab], {
+            type: mimeString
+        });
+    }
+</script>
+
+<script>
+    document.getElementById('avatarInput').addEventListener('change', function() {
+        var file = this.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatar').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('avatarForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+
+        // You can add your code here to save the avatar, for example, sending it to a server via AJAX.
+        // Here's a simple example:
+        var avatarDataUrl = document.getElementById('avatar').src;
+        console.log('Avatar data URL:', avatarDataUrl);
+    });
+</script>
 
 
-         </table>
-     </div>
-     @endif
-    </div>
-
-  </div>
-  @if(session('success'))
-  <div class="alert alert-success">
-      {{ session('success') }}
-  </div>
-  @endif
-
-  @endsection
-
-
-
-  @include('PerfilUsuarioLayout')
+  @include('layout')
 
 
 

@@ -68,10 +68,20 @@ class MenuController extends Controller
 
 
 
-    public function ListaDocentes()
+    public function ListaDocentes(Request $request)
     {
-    $docente = User::role('Docente')->get();
-    return view('Administrador.ListadeDocentes')->with('docente', $docente);
+    $search = $request->input('search');
+
+    $docentes = User::role('Docente')
+        ->when($search, function ($query, $search) {
+            return $query->where('name', 'like', "%$search%")
+                         ->orWhere('lastname1', 'like', "%$search%")
+                         ->orWhere('lastname2', 'like', "%$search%")
+                         ->orWhere('email', 'like', "%$search%")
+                         ->orWhere('Celular', 'like', "%$search%");
+        })
+        ->paginate(10);
+    return view('Administrador.ListadeDocentes')->with('docentes', $docentes);
     }
     public function ListaDocentesEliminados()
     {
@@ -86,13 +96,24 @@ class MenuController extends Controller
     }
 
 
-    public function ListaEstudiantes()
+    public function ListaEstudiantes(Request $request)
     {
-    $estudiantes = User::role('Estudiante')->get();
+    $search = $request->input('search');
+
+    $estudiantes = User::role('Estudiante')
+        ->when($search, function ($query, $search) {
+            return $query->where('name', 'like', "%$search%")
+                         ->orWhere('lastname1', 'like', "%$search%")
+                         ->orWhere('lastname2', 'like', "%$search%")
+                         ->orWhere('email', 'like', "%$search%")
+                         ->orWhere('Celular', 'like', "%$search%");
+        })
+        ->paginate(10);
+
 
     return view('Administrador.ListadeEstudiantes')->with('estudiantes', $estudiantes);
     }
-    public function ListaEstudiantesEliminados()
+    public function ListaEstudiantesEliminados(Request $request)
     {
     $estudiantes = User::role('Estudiante')->onlyTrashed()->get();
 

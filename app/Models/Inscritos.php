@@ -14,7 +14,10 @@ class Inscritos extends Model
     use HasFactory, SoftDeletes;
 
 
+
     protected $fillable = [
+        'estudiante_id',
+        'cursos_id',
         'progreso',
         'completado'
     ];

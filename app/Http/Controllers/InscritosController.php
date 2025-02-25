@@ -22,69 +22,73 @@ class InscritosController extends Controller
      */
     public function index()
     {
-        // Obtener todos los estudiantes
-        $estudiantes = User::role('Estudiante')->get();
         // Obtener todos los cursos activos
         $cursos = Cursos::where('fecha_fin', '>=', now())->get();
 
-        // Obtener la lista de estudiantes inscritos en cada curso
-        $inscritos = Inscritos::pluck('estudiante_id')->toArray();
-
-
-
         return view('Administrador.AsignarCursos', [
-            'estudiantes' => $estudiantes,
             'cursos' => $cursos,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    public function getEstudiantesNoInscritos($curso_id)
+    {
+        // Obtener los IDs de los estudiantes inscritos en el curso (excluyendo inscripciones eliminadas)
+        $inscritos = Inscritos::withTrashed() // Incluir inscripciones eliminadas lógicamente
+            ->where('cursos_id', $curso_id)
+            ->pluck('estudiante_id');
+
+        // Obtener los estudiantes que no están inscritos en el curso (excluyendo estudiantes eliminados)
+        $estudiantesNoInscritos = User::role('Estudiante')
+            ->whereNotIn('id', $inscritos)
+            ->whereNull('deleted_at') // Excluir estudiantes eliminados lógicamente
+            ->get();
+
+        return response()->json($estudiantesNoInscritos);
+    }
+
+
     public function store(Request $request)
     {
-
-        // Validar los datos de entrada
+        // Validar que los campos requeridos estén presentes
         $request->validate([
-            'curso_id' => [
-                'required'
-            ],
-            'estudiante_id' => [
-                'required'
-            ]
+            'curso_id' => 'required|integer|exists:cursos,id', // Valida que el curso exista
+            'estudiante_id' => 'required|array', // Valida que sea un array
+            'estudiante_id.*' => 'integer|exists:users,id', // Valida que cada estudiante exista
         ], [
-            'curso.required' => 'El campo curso es obligatorio.',
+            'curso_id.required' => 'El campo curso es obligatorio.',
+            'curso_id.integer' => 'El campo curso debe ser un número entero.',
+            'curso_id.exists' => 'El curso seleccionado no es válido.',
             'estudiante_id.required' => 'El campo estudiante es obligatorio.',
+            'estudiante_id.array' => 'El campo estudiante debe ser un array.',
+            'estudiante_id.*.integer' => 'Cada estudiante debe ser un número entero.',
+            'estudiante_id.*.exists' => 'El estudiante seleccionado no es válido.',
         ]);
 
-        $cursoId = $request->curso_id;
-        $estudianteId = $request->estudiante_id;
 
+        $curso_id = $request->input('curso_id');
+        $estudiante_ids = $request->input('estudiante_id');
 
-        // Verificar si el estudiante ya está inscrito en el curso
-        if (Inscritos::where('cursos_id', $cursoId)->where('estudiante_id', $estudianteId)->exists()) {
-            // Redirigir con un mensaje de error si ya está inscrito
-            return back()->with('error','El estudiante ya está inscrito en este curso.');
+        // Verificar que los estudiantes no estén ya inscritos en el curso
+        $inscritos = Inscritos::where('cursos_id', $curso_id)
+            ->whereIn('estudiante_id', $estudiante_ids)
+            ->pluck('estudiante_id')
+            ->toArray();
+
+        if (!empty($inscritos)) {
+            return redirect()->back()
+                ->withErrors(['estudiante_id' => 'Algunos estudiantes ya están inscritos en este curso.'])
+                ->withInput();
         }
 
-        // Crear una nueva inscripción
-        $inscribir = new Inscritos();
-        $inscribir->cursos_id = $cursoId;
-        $inscribir->estudiante_id = $estudianteId;
-        $inscribir->save();
+        // Inscribir a los estudiantes
+        foreach ($estudiante_ids as $estudiante_id) {
+            Inscritos::create([
+                'estudiante_id' => $estudiante_id,
+                'cursos_id' => $curso_id,
+            ]);
+        }
 
-        // Obtener el estudiante y el curso para la notificación
-        $estudiante = User::find($estudianteId);
-        $curso = Cursos::find($cursoId);
-
-        // Disparar el evento de inscripción
-        event(new InscritoEvent($estudiante, $curso, 'inscripcion'));
-
-        // Redirigir con un mensaje de éxito
-        return back()->with('success', 'Estudiante inscrito exitosamente!');
+        return redirect()->back()->with('success', 'Estudiantes inscritos correctamente.');
     }
 
 
@@ -100,7 +104,7 @@ class InscritosController extends Controller
         // Verificar si el estudiante ya está inscrito en el curso
         if (Inscritos::where('cursos_id', $cursoId)->where('estudiante_id', $estudianteId)->exists()) {
             // Redirigir con un mensaje de error si ya está inscrito
-            return back()->with('error','Ya estás inscrito en este curso.');
+            return back()->with('error', 'Ya estás inscrito en este curso.');
         }
 
         // Crear una nueva inscripción
@@ -121,13 +125,6 @@ class InscritosController extends Controller
     }
 
 
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Inscritos  $inscritos
-     * @return \Illuminate\Http\Response
-     */
     public function delete($id)
     {
         $inscritos = Inscritos::find($id);
@@ -152,13 +149,13 @@ class InscritosController extends Controller
         $inscritos->restore();
 
         return back()->with('success', 'Inscripcion restaurada!');
-
     }
 
-    public function completado($id){
+    public function completado($id)
+    {
 
 
-        $inscritos = Inscritos::findOrFail( $id );
+        $inscritos = Inscritos::findOrFail($id);
 
         if ($inscritos->cursos->docente_id == auth()->user()->id || auth()->user()->hasRole('administrador')) {
             $inscritos->completado = true;
@@ -166,13 +163,10 @@ class InscritosController extends Controller
 
             $inscritos->save();
 
-            return back()->with('success','El estudiante a completado el curso');
+            return back()->with('success', 'El estudiante a completado el curso');
         }
 
         return abort(403);
-
-
-
     }
 
 
@@ -204,8 +198,8 @@ class InscritosController extends Controller
 
         $usuario = auth()->user();
         if ($usuario->hasRole('Administrador') || $usuario->hasRole('Docente')) {
-            return redirect()->route('Inicio')->with('errors' ,'No puedes inscribirte es este curso siendo docente o administrador porfavor crear otra cuenta.');
-        }elseif ($usuario->id == $curso->docente_id) {
+            return redirect()->route('Inicio')->with('errors', 'No puedes inscribirte es este curso siendo docente o administrador porfavor crear otra cuenta.');
+        } elseif ($usuario->id == $curso->docente_id) {
             return redirect()->route('Inicio')->withErrors('Ya eres Docente en este curso.');
         }
 
@@ -254,13 +248,6 @@ class InscritosController extends Controller
         $inscrito->save();
 
         // Redirige con un mensaje de éxito
-        return redirect()->back()->with('success', 'El estado del pago se ha actualizado correctamente.');
+        return back()->with('success', 'El estado del pago se ha actualizado correctamente.');
     }
-
-
-
-
-
-
-
 }

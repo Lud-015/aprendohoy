@@ -1,7 +1,5 @@
-
-
 @section('titulo')
-Regístrate
+    Regístrate
 @endsection
 
 
@@ -86,46 +84,7 @@ Regístrate
                         </div>
                         <!-- Campos de nombre y apellidos -->
                         <div class="row">
-                            <div class="col-sm-6">
-                                <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
-                                    <label for="name" class="sr-only">Nombre</label>
-                                    <div class="input-group input-group-alternative">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="ni ni-single-02"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" id="name" name="name"
-                                            placeholder="Nombre" value="{{ old('name') }}" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
-                                    <label for="lastname1" class="sr-only">Apellido Materno</label>
-                                    <div class="input-group input-group-alternative">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="ni ni-single-02"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" id="lastname1" name="lastname1"
-                                            placeholder="Apellido Materno" value="{{ old('lastname1') }}" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Campo de apellido paterno y país -->
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
-                                    <label for="lastname2" class="sr-only">Apellido Paterno</label>
-                                    <div class="input-group input-group-alternative">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="ni ni-single-02"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" id="lastname2" name="lastname2"
-                                            placeholder="Apellido Paterno" value="{{ old('lastname2') }}" required>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
                                     <label for="country" class="sr-only">País</label>
@@ -141,6 +100,47 @@ Regístrate
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
+                                    <label for="name" class="sr-only">Nombre</label>
+                                    <div class="input-group input-group-alternative">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" id="name" name="name"
+                                            placeholder="Nombre" value="{{ old('name') }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-sm-6">
+                                    <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
+                                        <label for="lastname2" class="sr-only">Apellido Paterno</label>
+                                        <div class="input-group input-group-alternative">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="lastname2" name="lastname2"
+                                                placeholder="Apellido Paterno" value="{{ old('lastname2') }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
+                                        <label for="lastname1" class="sr-only">Apellido Materno</label>
+                                        <div class="input-group input-group-alternative">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="lastname1" name="lastname1"
+                                                placeholder="Apellido Materno" value="{{ old('lastname1') }}" required>
+                                        </div>
+                                    </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Campo de apellido paterno y país -->
+
                         <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
 
                         <!-- Botón de envío -->
@@ -151,7 +151,8 @@ Regístrate
 
                     <!-- Enlace para volver al inicio de sesión -->
                     <div class="text-center">
-                        <p class="text-white">¿Ya tienes una cuenta? <a href="{{ route('login.signin') }}" class="text-white">Inicia sesión aquí</a></p>
+                        <p class="text-white">¿Ya tienes una cuenta? <a href="{{ route('login.signin') }}"
+                                class="text-white">Inicia sesión aquí</a></p>
                     </div>
                 </div>
             </div>
@@ -180,55 +181,68 @@ Regístrate
 
 @include('layoutlogin')
 
-    <!-- Core JS Files -->
-    @if ($errors->any())
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: "{{ $errors->first('email') }}",
-                timer: 5000,
-                showConfirmButton: false,
-            });
-        </script>
-    @endif
-
-
+<!-- Core JS Files -->
+@if ($errors->any())
     <script>
-        // Array of countries
-        const countries = [
-            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Argentina", "Australia",
-            "Austria", "Brazil", "Bolivia","Canada", "Chile", "China", "Colombia", "Costa Rica", "Cuba",
-            "Denmark", "Ecuador", "Egypt", "El Salvador", "España", "Estados Unidos",
-            "Francia", "Alemania", "Grecia", "Guatemala", "Honduras", "India", "Indonesia",
-            "Irán", "Irak", "Irlanda", "Italia", "Japón", "México", "Nicaragua", "Panamá",
-            "Paraguay", "Perú", "Polonia", "Portugal", "Reino Unido", "Rusia", "Suecia",
-            "Suiza", "Turquía", "Ucrania", "Uruguay", "Venezuela"
-        ];
-
-        // Function to populate select dropdown
-        function populateCountries(selectElement) {
-            // Clear existing options except the first (default)
-            while (selectElement.options.length > 1) {
-                selectElement.remove(1);
-            }
-
-            // Sort countries alphabetically
-            countries.sort();
-
-            // Add countries to dropdown
-            countries.forEach(country => {
-                const option = new Option(country, country);
-                selectElement.add(option);
-            });
-        }
-
-        // Event listener to populate dropdown when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            const countrySelect = document.querySelector('select');
-            if (countrySelect) {
-                populateCountries(countrySelect);
-            }
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: "{{ $errors->first('email') }}",
+            timer: 5000,
+            showConfirmButton: false,
         });
     </script>
+@endif
 
+
+<script>
+    // Array of countries
+    const countries = [
+        // América del Norte
+        "Canada", "Estados Unidos", "México",
+
+        // América Central y el Caribe
+        "Belice", "Costa Rica", "Cuba", "El Salvador", "Guatemala", "Honduras", "Nicaragua", "Panamá",
+        "República Dominicana",
+
+        // América del Sur
+        "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Ecuador", "Guyana", "Paraguay", "Perú", "Surinam",
+        "Uruguay", "Venezuela",
+
+        // Europa
+        "Alemania", "Francia", "España", "Italia", "Reino Unido", "Portugal", "Países Bajos", "Bélgica", "Suiza",
+        "Austria", "Grecia", "Suecia", "Noruega",
+
+        // Asia
+        "China", "India", "Japón", "Corea del Sur", "Indonesia", "Filipinas", "Malasia", "Singapur", "Tailandia",
+        "Vietnam", "Israel", "Turquía", "Arabia Saudita",
+
+        // Oceanía
+        "Australia", "Nueva Zelanda"
+    ];
+
+    // Function to populate select dropdown
+    function populateCountries(selectElement) {
+        // Clear existing options except the first (default)
+        while (selectElement.options.length > 1) {
+            selectElement.remove(1);
+        }
+
+        // Sort countries alphabetically
+        countries.sort();
+
+        // Add countries to dropdown
+        countries.forEach(country => {
+            const option = new Option(country, country);
+            selectElement.add(option);
+        });
+    }
+
+    // Event listener to populate dropdown when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        const countrySelect = document.querySelector('select');
+        if (countrySelect) {
+            populateCountries(countrySelect);
+        }
+    });
+</script>

@@ -39,10 +39,17 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'lastname1',
+        'lastname2',
+        'CI',
+        'Celular',
+        'fechadenac',
+        'PaisReside',
+        'CiudadReside',
         'email',
         'password',
-        'avatar', // Agrega el campo del avatar
-        'cv_file', // Agrega el campo del archivo de CV
+        'avatar',
+        'cv_file', 
     ];
 
     /**

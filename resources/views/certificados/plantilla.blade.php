@@ -45,7 +45,7 @@
         .nombre {
             font-family: "Bebas Neue", serif;
             font-weight: 400;
-            font-size: 125px;
+            font-size: 102px;
             font-style: normal;
             color: #2980B9;
             padding-top: 28%;
@@ -60,7 +60,7 @@
         }
 
         .qr-code {
-            width: 200px;
+            width: 250px;
             height: auto;
         }
 
@@ -70,7 +70,7 @@
             bottom: 25px;
             left: 0;
             /* O puedes usar 'right: 0;' dependiendo de donde quieras que esté */
-            font-size: 32px;
+            font-size: 28px;
             color: rgb(0, 0, 0);
             width: 100%;
             /* Para que abarque todo el ancho del contenedor */

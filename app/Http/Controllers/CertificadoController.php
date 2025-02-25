@@ -170,7 +170,9 @@ class CertificadoController extends Controller
             $codigo_certificado = Str::uuid();
 
             // Generar el código QR
-            $qrCode = QrCode::format('png')->size(200)->generate(route('verificar.certificado', ['codigo' => $codigo_certificado]));
+            $qrCode = QrCode::format('svg')
+            ->size(200)
+            ->generate(route('verificar.certificado', ['codigo' => $codigo_certificado]));
             $qrPath = "certificados/{$id}/qrcode_{$inscrito->id}.png";
             Storage::put("public/$qrPath", $qrCode);
 
@@ -213,6 +215,122 @@ class CertificadoController extends Controller
         }
 
         return back()->with('success', 'Certificados generados correctamente.');
+    }
+
+
+    public function generarCertificadoAdmin($inscrito_id)
+    {
+        // Verificar si el usuario está autenticado
+        // if (!auth()->check()) {
+        //     return redirect()->route('login')->with('error', 'Debes iniciar sesión para generar el certificado.');
+        // }
+
+        $inscrito = Inscritos::findOrFail(decrypt($inscrito_id));
+
+        // Buscar el curso
+        $curso = Cursos::findOrFail($inscrito->cursos_id);
+
+
+        // Verificar que el curso sea de tipo "congreso"
+        if ($curso->tipo != 'congreso') {
+            return back()->with('error', 'No se puede generar certificados para este tipo de curso.');
+        }
+
+        if ($curso->estado != 'Certificado Disponible') {
+            return back()->with('error', 'El certificado no está Disponible.');
+        }
+
+
+        if (!$inscrito) {
+            return back()->with('error', 'El usuario no esta inscrito en este curso.');
+        }
+
+        // Verificar que exista una plantilla de certificado
+        $plantilla = CertificateTemplate::where('curso_id', $curso->id)->first();
+        if (!$plantilla) {
+            return back()->with('error', 'No se encontró la plantilla del certificado para este curso.');
+        }
+
+        // Verificar si ya existe un certificado
+        $certificadoExistente = Certificado::where('curso_id', $curso->id)
+            ->where('inscrito_id', $inscrito->id)
+            ->first();
+
+        // Si ya existe, usamos el código existente, sino generamos uno nuevo
+        if ($certificadoExistente) {
+            $codigo_certificado = $certificadoExistente->codigo_certificado;
+            $regenerando = true;
+        } else {
+            $codigo_certificado = Str::uuid();
+            $regenerando = false;
+        }
+
+        // Generar el código QR usando SimpleSoftwareIO/simple-qrcode (sin Imagick)
+        // Esta librería tiene una implementación alternativa que utiliza BaconQrCode sin requerir Imagick
+        $qrUrl = route('verificar.certificado', ['codigo' => $codigo_certificado]);
+
+        // Usamos la opción que genera un SVG en lugar de PNG para evitar Imagick
+        $qrPath = "certificados/{$curso->id}/qrcode_{$inscrito->id}.svg";
+
+        // Usar la versión SVG del QR (no requiere Imagick)
+        $qrCode = QrCode::format('svg')
+            ->size(200)
+            ->generate($qrUrl);
+        Storage::put("public/$qrPath", $qrCode);
+
+        // Crear PDF del certificado personalizado usando una biblioteca compatible sin Imagick
+        // Configuramos DomPDF para no requerir Imagick (solo maneja SVG básicos y no PNG)
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('dpi', 300);
+        $options->set('isHtml5ParserEnabled', true);
+
+
+            $pdf = Pdf::loadView('certificados.plantilla', [
+                'curso' => $inscrito->cursos->nombreCurso,
+                'inscrito' => $inscrito,
+                'codigo_certificado' => $codigo_certificado,
+                'firma' => public_path('storage/firmas/firmadigital.png'),
+                'logo' => public_path('storage/logos/logo.png'),
+                'fecha_emision' => now()->format('d/m/Y'),
+                'fecha_finalizacion' => Carbon::parse($curso->fecha_finalizacion)->format('d/m/Y'),
+                'qr' => $qrPath,
+                'tipo' => 'Congreso',
+                'plantillaf' => $plantilla->template_front_path,
+                'plantillab' => $plantilla->template_back_path,
+            ]);
+	        $pdf->setOption('dpi', 300);
+
+        // Definir la ruta donde se guardará el certificado
+        $ruta_certificado = "certificados/{$curso->id}/{$inscrito->id}.pdf";
+
+        // Guardar el archivo en el almacenamiento
+        Storage::put("public/$ruta_certificado", $pdf->output());
+
+        // Si estamos regenerando, actualizamos la ruta; si no, creamos un nuevo registro
+        if ($regenerando) {
+            $certificadoExistente->update([
+                'ruta_certificado' => $ruta_certificado,
+                'updated_at' => now()
+            ]);
+        } else {
+            Certificado::create([
+                'curso_id' => $curso->id,
+                'inscrito_id' => $inscrito->id,
+                'codigo_certificado' => $codigo_certificado,
+                'ruta_certificado' => $ruta_certificado,
+            ]);
+        }
+
+        // Notificar al estudiante
+        if ($inscrito->estudiantes && $inscrito->estudiantes->email) {
+            // $inscrito->estudiantes->notify(new CertificadoGeneradoNotification($inscrito, $codigo_certificado));
+        } else {
+            Log::warning("El estudiante con ID {$inscrito->estudiante_id} no tiene un correo electrónico registrado.");
+        }
+
+        $mensaje = $regenerando ? 'Certificado regenerado y enviado correctamente.' : 'Certificado generado correctamente.';
+        return back()->with('success', $mensaje);
     }
 
 
@@ -266,7 +384,9 @@ class CertificadoController extends Controller
         $codigo_certificado = Str::uuid();
 
         // Generar el código QR
-        $qrCode = QrCode::format('png')->size(200)->generate(route('verificar.certificado', ['codigo' => $codigo_certificado]));
+        $qrCode = QrCode::format('png')
+        ->size(200)
+        ->generate(route('verificar.certificado', ['codigo' => $codigo_certificado]));
         $qrPath = "certificados/{$Cursoid}/qrcode_{$inscrito->id}.png";
         Storage::put("public/$qrPath", $qrCode);
 

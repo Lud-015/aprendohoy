@@ -2,279 +2,158 @@
     Lista de Paticipantes {{ $cursos->nombreCurso }}
 @endsection
 
-@section('nav')
-    @if (auth()->user()->hasRole('Administrador'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaDocentes') }}">
-                    <i class="ni ni-single-02 text-blue"></i> Lista de Docentes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaEstudiantes') }}">
-                    <i class="ni ni-single-02 text-orange"></i> Lista de Estudiantes
-                </a>
-            </li>
 
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Docente'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Estudiante'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Mis Aportes
-                </a>
-            </li>
-
-
-        </ul>
-    @endif
-@endsection
 
 
 @section('content')
-    <div class="col-xl-12">
-        <a href="{{ route('Curso', ['id' => $cursos->id]) }}" class="btn btn-primary">
-            &#9668; Volver
-        </a>
-        @if (auth()->user()->id == $cursos->docente_id || auth()->user()->hasRole('Administrador'))
-            <a class="btn btn-warning" href="{{ route('listaretirados', $cursos->id) }}">Lista Retirados</a>
-            <a class="btn btn-warning" href="{{ route('certificadosCongreso.generar', $cursos->id) }}">Generar Certificado</a>
-            <a class="btn btn-dark" href="{{ route('lista', $cursos->id) }}">Descargar Lista</a>
-        @endif
-        <br>
-        <br>
-        <div class="">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{{ route('Curso', ['id' => $cursos->id]) }}" class="btn btn-primary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+            @if (auth()->user()->id == $cursos->docente_id || auth()->user()->hasRole('Administrador'))
+                <div class="btn-group">
+                    <a class="btn btn-instagram" href="{{ route('listaretirados', $cursos->id) }}">Lista Retirados</a>
+                    <a class="btn btn-info" href="{{ route('certificadosCongreso.generar', $cursos->id) }}">Generar
+                        Certificado</a>
+                    <a class="btn btn-success" href="{{ route('lista', $cursos->id) }}">Descargar Lista</a>
+                </div>
+            @endif
+        </div>
 
-            <div class="col-lg-12 row">
-                <form class="navbar-search navbar-search form-inline mr-3 d-none d-md-flex ml-lg-auto">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input class="form-control search-input" placeholder="Buscar" type="text" id="searchInput">
-                    </div>
-                </form>
+        <!-- Barra de búsqueda -->
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" id="searchInput" placeholder="Buscar alumno...">
             </div>
+        </div>
 
-            <table class="table align-items-center table-flush">
-                <thead class="thead-light">
+        <!-- Tabla de alumnos -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
                     <tr>
                         <th scope="col">Nro</th>
                         <th scope="col">Nombre y Apellidos</th>
                         <th scope="col">Celular</th>
-                        <th scope="col"></th>
+                        <th scope="col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-
-                    @forelse ($inscritos as $inscritos)
-                        @if ($inscritos->cursos_id == $cursos->id)
+                    @forelse ($inscritos as $inscrito)
+                        @if ($inscrito->cursos_id == $cursos->id)
                             <tr>
-
-                                <td scope="row">
-
-                                    {{ $loop->iteration }}
-
-                                </td>
-                                <td scope="row">
-                                    {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->name : 'Estudiante Eliminado' }}
-                                    {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->lastname1 : '' }}
-                                    {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->lastname2 : '' }}
-                                </td>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>
-                                    {{ isset($inscritos->estudiantes) ? $inscritos->estudiantes->Celular : '' }}
+                                    {{ $inscrito->estudiantes->name ?? 'Estudiante Eliminado' }}
+                                    {{ $inscrito->estudiantes->lastname1 ?? '' }}
+                                    {{ $inscrito->estudiantes->lastname2 ?? '' }}
+                                    @if ($inscrito->pago_completado == true)
+                                        (Cancelado)
+                                    @else
+                                        (Pendiente)
+                                    @endif
                                 </td>
+                                <td>{{ $inscrito->estudiantes->Celular ?? '' }}</td>
                                 <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-sm btn-info"
+                                            href="{{ route('perfil', [$inscrito->estudiantes->id]) }}">
+                                            <i class="bi bi-eye"></i>
 
-                                    <a class="btn btn-sm btn-info"
-                                        href="{{ route('perfil', [$inscritos->estudiantes->id]) }}">Ver Más</a>
-                                    @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Administrador'))
-                                        <a class="btn btn-sm btn-danger" href="{{ route('quitar', [$inscritos->id]) }}"
-                                            onclick="mostrarAdvertencia(event)">Quitar incscripción</a>
-                                        @if ($cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($cursos->fecha_fin))
-                                            <a class="btn btn-sm btn-info"
-                                                href="{{ route('boletin', [$inscritos->id]) }}">Ver Boletín</a>/
-                                            <a class="btn btn-sm btn-info"
-                                                href="{{ route('verBoletin2', [$inscritos->id]) }}"> Ver Calificaciones
-                                                Finales</a>
-                                        @else
+                                        @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Administrador'))
+                                            <a class="btn btn-sm btn-danger" href="{{ route('quitar', [$inscrito->id]) }}"
+                                                onclick="mostrarAdvertencia(event)">
+                                                <i class="bi bi-x-circle"></i>
+                                            </a>
+                                            @if ($cursos->tipo == 'congreso')
+                                            <a class="btn btn-sm btn-success" href="{{ route('certificadosCongreso.generar.admin', [encrypt($inscrito->id)]) }}"
+                                                >
+                                                <i class="bi bi-bi-card-heading"></i>
+                                                @if (!isset($inscrito->certificado))
+                                                Generar Certificado
+                                                @else
+                                                Reenviar Correo de Certificado
+                                                @endif
+                                            </a>
+                                            @endif
+                                            @if ($cursos->tipo == 'curso')
+                                            @if ($cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($cursos->fecha_fin))
+                                                <a class="btn btn-sm btn-info"
+                                                    href="{{ route('boletin', [$inscrito->id]) }}">
+                                                    <i class="bi bi-file-earmark-text"></i> Ver Boletín
+                                                </a>
+                                                <a class="btn btn-sm btn-info"
+                                                    href="{{ route('verBoletin2', [$inscrito->id]) }}">
+                                                    <i class="bi bi-file-earmark-check"></i> Ver Calificaciones Finales
+                                                </a>
+                                            @endif
+                                            @endif
+
                                         @endif
 
 
-                                    @endif
-                                    @if (auth()->user()->hasRole('Administrador') && $cursos->tipo == 'curso')
-                                    <form action="{{ route('curso.actualizarPago', ['inscrito' => $inscritos->id]) }}" method="POST" id="paymentForm">
-                                        @csrf
-                                        @method('put') <!-- Asegúrate de usar PUT si estás actualizando un recurso -->
-                                        <input type="hidden" name="pago_completado" id="pago_completado" value="{{ $inscritos->pago_completado ? 'true' : 'false' }}">
-                                        <button type="submit" class="btn btn-primary" id="updateButton">
-                                            Cambiar Estado de Pago
-                                        </button>
-                                    </form>
-                                    @endif
+                                    </div>
                                 </td>
-                        </td>
+                            </tr>
+                        @endif
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                <h4>No hay alumnos inscritos</h4>
+                            </td>
                         </tr>
-                    @endif
-
-
-                @empty
-                    <tr>
-
-                        <td>
-
-                            <h4>NO HAY ALUMNOS INSCRITOS</h4>
-
-                        </td>
-                    </tr>
                     @endforelse
-
-
                 </tbody>
             </table>
+        </div>
 
-            <script>
-                // JavaScript para alternar entre true y false al hacer clic en el botón
-                document.getElementById('updateButton').addEventListener('click', function(event) {
-                    event.preventDefault();  // Evita el envío inmediato del formulario
+    </div>
 
-                    // Obtén el campo oculto y verifica su valor
-                    var pagoCompletadoInput = document.getElementById('pago_completado');
-                    var currentValue = pagoCompletadoInput.value;
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-                    // Alterna el valor entre 'true' y 'false'
-                    if (currentValue === 'true') {
-                        pagoCompletadoInput.value = 'false';
-                    } else {
-                        pagoCompletadoInput.value = 'true';
-                    }
-
-                    // Envía el formulario después de cambiar el valor
-                    document.getElementById('paymentForm').submit();
+    <script>
+        // Búsqueda en tiempo real
+        $(document).ready(function() {
+            $('#searchInput').on('input', function() {
+                var searchText = $(this).val().toLowerCase();
+                $('tbody tr').each(function() {
+                    $(this).toggle($(this).text().toLowerCase().includes(searchText));
                 });
-            </script>
+            });
 
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            // Alternar estado de pago
+            $('.updateButton').click(function(event) {
+                event.preventDefault();
+                var id = $(this).data('id');
+                var pagoCompletadoInput = $('#pago_completado' + id);
+                pagoCompletadoInput.val(pagoCompletadoInput.val() === 'true' ? 'false' : 'true');
+                $('#paymentForm' + id).submit();
+            });
+        });
 
-
-            <script>
-                function mostrarAdvertencia(event) {
-                    event.preventDefault();
-
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: 'Esta acción retirara a este estudiante. ¿Estás seguro de que deseas continuar?, Esta opcion contrae problemas todavia y se esta revisando para que sea funcional totalmente',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sí, continuar',
-                        cancelButtonText: 'Cancelar',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Redirige al usuario al enlace original
-                            window.location.href = event.target.getAttribute('href');
-                        }
-                    });
+        // Advertencia antes de eliminar inscripción
+        function mostrarAdvertencia(event) {
+            event.preventDefault();
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esta acción retirará al estudiante. ¿Deseas continuar?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'Cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = event.target.getAttribute('href');
                 }
-            </script>
-
-
-            <!-- Agrega esto en tu archivo Blade antes de </body> -->
-            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-            <script>
-                $(document).ready(function() {
-                    // Manejo del evento de entrada en el campo de búsqueda
-                    $('input[type="text"]').on('input', function() {
-                        var searchText = $(this).val().toLowerCase();
-
-                        // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
-                        $('tbody tr').filter(function() {
-                            $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
-                        });
-                    });
-                });
-            </script>
-
-
-            <script>
-                $(document).ready(function() {
-                    // Manejo del evento de entrada en el campo de búsqueda
-                    $('.search-input').on('input', function() {
-                        var searchText = $(this).val().toLowerCase();
-
-                        // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
-                        $('tbody tr').filter(function() {
-                            $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
-                        });
-                    });
-                });
-            </script>
-
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
+            });
+        }
+    </script>
+@endsection
 
 
 
-        @endsection
-
-        @include('layout')
+@include('layout')

@@ -3,122 +3,81 @@
 @endsection
 
 
-@section('nav')
-    @if (auth()->user()->hasRole('Administrador'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Inicio
-                </a>
-            </li>
-            <li class="nav-item   ">
-                <a class="nav-link  " href="{{ route('ListadeCursos') }}">
-                    <i class="ni ni-book-bookmark text-blue"></i> Lista de Cursos
-                </a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link active " href="{{ route('ListaDocentes') }}">
-                    <i class="ni ni-single-02 text-blue"></i> Lista de Docentes
-                </a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link " href="{{ route('ListaEstudiantes') }}">
-                    <i class="ni ni-single-02 text-orange"></i> Lista de Estudiantes
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('aportesLista') }}">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link " href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-@endsection
-
-
 @section('content')
-<div class="border p-3">
-
-    <div class="col-lg-12 row">
-        <a href="{{ route('CrearDocente') }}" class="btn btn-sm btn-success">Crear Docente</a>
-        <a href="{{ route('DocentesEliminados') }}" class="btn btn-sm btn-info">Ver Docentes Eliminados</a>
-
-
-    </div>
-    <br>
-    <form class="navbar-search navbar-search form-inline mr-3 d-none d-md-flex ml-lg-auto">
-        <div class="input-group input-group-alternative">
-            <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-search"></i></span>
+<div class="container my-4">
+    <div class="border p-3 rounded shadow-sm bg-light">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-2">
+                <a href="{{ route('CrearDocente') }}" class="btn btn-sm btn-success">
+                    <i class="bi bi-person-plus"></i> Crear Docente
+                </a>
+                <a href="{{ route('DocentesEliminados') }}" class="btn btn-sm btn-info">
+                    <i class="bi bi-trash"></i> Docentes Eliminados
+                </a>
             </div>
-            <input class="form-control search-input" placeholder="Buscar" type="text" id="searchInput">
+            <div class="col-md-6 text-md-end">
+                <form action="{{ route('ListaDocentes') }}" method="GET" class="d-inline-block w-100 w-md-auto">
+                    <div class="input-group">
+                        <button type="submit" class="input-group-text"><i class="fa fa-search"></i></button>
+                        <input class="form-control" placeholder="Buscar estudiante..." name="search" type="text" id="searchInput" value="{{ request('search') }}">
+                    </div>
+                </form>
+            </div>
         </div>
-    </form>
+    </div>
+    @if(request('search'))
+    <div class="alert alert-info mt-3">
+        Mostrando resultados para: <strong>{{ request('search') }}</strong>
+        <a href="{{ route('ListaDocentes') }}" class="float-right">Limpiar búsqueda</a>
+    </div>
+    @endif
+
+    <div class="table-responsive mt-3">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Nro</th>
+                    <th scope="col">Nombre y Apellidos</th>
+                    <th scope="col">Celular</th>
+                    <th scope="col">Correo</th>
+                    <th scope="col" class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($docentes as $docente)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $docente->name }} {{ $docente->lastname1 }} {{ $docente->lastname2 }}</td>
+                        <td>{{ $docente->Celular }}</td>
+                        <td>{{ $docente->email }}</td>
+                        <td class="text-center">
+                            <a class="btn btn-sm btn-info" href="{{ route('perfil', [$docente->id]) }}" title="Ver perfil">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                            <a class="btn btn-sm btn-danger btn-delete" href="{{ route('eliminarUser', [$docente->id]) }}" title="Eliminar" onclick="mostrarAdvertencia(event)">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <div class="alert alert-warning m-0">
+                                <i class="bi bi-exclamation-triangle"></i> No hay estudiantes registrados.
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        {{ $docentes->appends(['search' => request('search')])->links('custom-pagination') }}
+    </div>
 </div>
 
 
-<div class="">
-    <table class="table align-items-center table-flush">
-        <thead class="thead-light">
-            <tr>
-                <th scope="col">Nro</th>
-                <th scope="col">Nombre y Apellidos</th>
-                <th scope="col">Celular</th>
-                <th scope="col">Correo</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($docente as $docente)
-            <tr>
-
-                <td scope="row">
-                    {{ $loop->iteration }}
-                </td>
-                <td scope="row">
-                    {{ $docente->name }}
-                    {{ $docente->lastname1 }}
-                    {{ $docente->lastname2 }}
-                </td>
-                <td>
-                    {{ $docente->Celular }}
-                </td>
-                <td>
-                    {{ $docente->email }}
-                </td>
-                <td>
-                    <a class="btn btn-sm" href="{{ route('perfil' , [$docente->id]) }}">
-                        Ver Más
-                        <img src="{{ asset('assets/icons/ojo.png') }}" alt="Ver Icon" style="width: 16px; height: 16px;">
-                    </a>
-
-                    <a class="btn btn-sm" href="{{ route('eliminarUser', [$docente->id])  }}" onclick="mostrarAdvertencia(event)">
-                        Eliminar Docente
-                        <img src="{{ asset('assets/icons/borrar.png') }}" alt="Borrar Icon" style="width: 16px; height: 16px;">
-                    </a>
-                </td>
-            </tr>
-            @empty
-            <td>
-                <h4>NO HAY DOCENTES REGISTRADOS</h4>
-            </td>
-            @endforelse
-
-        </tbody>
-    </table>
-</div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -141,40 +100,6 @@
                 }
             });
         }
-    </script>
-
-
-
-    <!-- Agrega esto en tu archivo Blade antes de </body> -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            // Manejo del evento de entrada en el campo de búsqueda
-            $('input[type="text"]').on('input', function() {
-                var searchText = $(this).val().toLowerCase();
-
-                // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
-                $('tbody tr').filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
-                });
-            });
-        });
-    </script>
-
-
-    <script>
-        $(document).ready(function() {
-            // Manejo del evento de entrada en el campo de búsqueda
-            $('.search-input').on('input', function() {
-                var searchText = $(this).val().toLowerCase();
-
-                // Filtra las filas de la tabla basándote en el valor del campo de búsqueda
-                $('tbody tr').filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
-                });
-            });
-        });
     </script>
 
 

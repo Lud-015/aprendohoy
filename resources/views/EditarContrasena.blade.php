@@ -4,93 +4,13 @@ Editar Contraseña
 @endsection
 
 
-@section('nav')
-    @if (auth()->user()->hasRole('Administrador'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaDocentes') }}">
-                    <i class="ni ni-single-02 text-blue"></i> Lista de Docentes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="{{ route('ListaEstudiantes') }}">
-                    <i class="ni ni-single-02 text-orange"></i> Lista de Estudiantes
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Docente'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Aportes
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('AsignarCurso') }}">
-                    <i class="ni ni-key-25 text-info"></i> Asignación de Cursos
-                </a>
-            </li>
-
-        </ul>
-    @endif
-
-    @if (auth()->user()->hasRole('Estudiante'))
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('Miperfil') }}">
-                    <i class="ni ni-circle-08 text-green"></i> Mi perfil
-                </a>
-            </li>
-            <li class="nav-item  active ">
-                <a class="nav-link  active " href="{{ route('Inicio') }}">
-                    <i class="ni ni-tv-2 text-primary"></i> Mis Cursos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="./examples/tables.html">
-                    <i class="ni ni-bullet-list-67 text-red"></i> Mis Aportes
-                </a>
-            </li>
-
-
-        </ul>
-    @endif
-@endsection
-
+<style>
+    #password-strength {
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+</style>
 
 @section('content')
 
@@ -102,130 +22,98 @@ Editar Contraseña
 <div class="col-15 -ml-3">
 
 
-<form action="{{ route('ambiarContrasenaPost', auth()->user()->id) }}" method="POST">
-    @csrf
-    <br>
-    <h4>Introduce una contraseña antigua</h4>
-    <div class="input-group">
-        <input class="w-25" type="password" name="oldpassword" id="oldpassword" placeholder="">
-        <div class="input-group-append">
-            <span class="input-group-text" id="toggleOldPassword">
-                <i class="fas fa-eye"></i>
-            </span>
-        </div>
-    </div>
-    <h4>Introduce contraseña nueva</h4>
-    <div class="input-group">
-        <input class="w-25"  type="password" name="password" id="password" oninput="checkPasswordStrength()">
-        <div class="input-group-append">
-            <span class="input-group-text" id="togglePassword">
-                <i class="fas fa-eye"></i>
-            </span>
-        </div>
-    </div>
-    <div id="password-strength"></div>
-    <h4>Confirma contraseña nueva</h4>
-        <div class="input-group">
-            <input class="w-25" type="password" name="password_confirmation" id="password_confirmation">
-            <div class="input-group-append">
-                <span class="input-group-text" id="toggleConfirmPassword">
-                    <i class="fas fa-eye"></i>
-                </span>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h2 class="text-center mb-4">Cambiar Contraseña</h2>
+
+                        <form action="{{ route('cambiarContrasenaPost', auth()->user()->id) }}" method="POST">
+                            @csrf
+
+                            <!-- Contraseña antigua -->
+                            <div class="mb-3">
+                                <label for="oldpassword" class="form-label">Contraseña Antigua</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="oldpassword" name="oldpassword" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('oldpassword', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Nueva contraseña -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Nueva Contraseña</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password" name="password" oninput="checkPasswordStrength()" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div id="password-strength" class="text-muted"></div>
+                            </div>
+
+                            <!-- Confirmar nueva contraseña -->
+                            <div class="mb-3">
+                                <label for="password_confirmation" class="form-label">Confirmar Nueva Contraseña</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password_confirmation', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Botón de envío -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-    <br>
-    <br>
-    <input class="btn btn-success" type="submit" value="Guardar Cambios">
-</form>
+    </div>
 
-<script>
-    var oldpasswordInput = document.getElementById('oldpassword');
-    var confirmpasswordInput = document.getElementById('password_confirmation');
-    var passwordInput = document.getElementById('password');
-    var toggleButton1 = document.getElementById('toggleOldPassword');
-    var toggleButton2 = document.getElementById('toggleConfirmPassword');
-    var toggleButton = document.getElementById('togglePassword');
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    toggleButton.addEventListener('click', function() {
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        } else {
-            passwordInput.type = 'password';
-            toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
-        }
-        }
-        );
-    toggleButton1.addEventListener('click', function() {
-        if (oldpasswordInput.type === 'password') {
-            oldpasswordInput.type = 'text';
-            toggleButton1.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        } else {
-            oldpasswordInput.type = 'password';
-            toggleButton1.innerHTML = '<i class="fas fa-eye"></i>';
-        }
-        }
-        );
-    toggleButton2.addEventListener('click', function() {
-        if (confirmpasswordInput.type === 'password') {
-            confirmpasswordInput.type = 'text';
-            toggleButton2.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        } else {
-            confirmpasswordInput.type = 'password';
-            toggleButton2.innerHTML = '<i class="fas fa-eye"></i>';
-        }
-    }
-    );
-
-</script>
-
-
-
-
-<script>
-    function checkPasswordStrength() {
-        var password = document.getElementById('password').value;
-        var result = zxcvbn(password);
-        var strengthMeter = document.getElementById('password-strength');
-        var strength = result.score; // This is a score between 0 and 4 indicating the password strength
-
-        var strengthText = '';
-        switch (strength) {
-            case 0:
-                strengthText = 'Muy débil';
-                break;
-            case 1:
-                strengthText = 'Débil';
-                break;
-            case 2:
-                strengthText = 'Media';
-                break;
-            case 3:
-                strengthText = 'Fuerte';
-                break;
-            case 4:
-                strengthText = 'Muy fuerte';
-                break;
-            default:
-                strengthText = '';
+    <!-- Script para alternar visibilidad de contraseña -->
+    <script>
+        function togglePassword(fieldId, button) {
+            let input = document.getElementById(fieldId);
+            let icon = button.querySelector("i");
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace("bi-eye", "bi-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.replace("bi-eye-slash", "bi-eye");
+            }
         }
 
-        strengthMeter.textContent = 'Fortaleza de la contraseña: ' + strengthText;
-    }
-</script>
+        function checkPasswordStrength() {
+            let password = document.getElementById("password").value;
+            let strengthText = document.getElementById("password-strength");
 
-    @if(session('success'))
-<div class="alert alert-success">
-    {{ session('success') }}
-</div>
-@endif
-
-    @if ($errors->any())
-    @foreach ($errors->all() as $error)
-        <h2 class="bg-danger alert-danger">{{$error}}</h2>
-    @endforeach
-    @endif
-</div>
+            if (password.length < 6) {
+                strengthText.textContent = "Débil 🔴";
+                strengthText.classList.remove("text-success");
+                strengthText.classList.add("text-danger");
+            } else if (password.match(/[a-z]/) && password.match(/[A-Z]/) && password.match(/[0-9]/) && password.length >= 8) {
+                strengthText.textContent = "Fuerte ✅";
+                strengthText.classList.remove("text-danger");
+                strengthText.classList.add("text-success");
+            } else {
+                strengthText.textContent = "Moderada 🟡";
+                strengthText.classList.remove("text-danger", "text-success");
+                strengthText.classList.add("text-warning");
+            }
+        }
+    </script>
 @endsection
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>

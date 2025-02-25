@@ -69,7 +69,7 @@ Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
-Route::get('/verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
     return redirect()->route('Inicio')->with('success', 'Tu correo ha sido verificado correctamente.');
 })->name('verification.verify');
@@ -95,11 +95,7 @@ Route::get('/login', function () {
 })->middleware('noCache')->name('login');
 
 
-Route::get('/signin', function () {
-    return view('CrearUsuario.registrarse');
-})->middleware('noCache')->name('signin');
-
-Route::get('/registro-congreso', function () {
+Route::get('/registro', function () {
     return view('CrearUsuario.registrarse');
 })->middleware('noCache')->name('signin');
 
@@ -108,7 +104,6 @@ Route::post('/resgistrarse', [UserController::class, 'storeUsuario'])->name('reg
 
 Route::get('/congreso/detalle/{id}', [MenuController::class, 'detalle'])->name('congreso.detalle');
 Route::get('/Lista', [MenuController::class, 'lista'])->name('lista.cursos.congresos');
-
 Route::get('/home', [MenuController::class, 'home'])->middleware('noCache')->name('home');
 
 
@@ -161,6 +156,7 @@ Route::get('/quizzprueba', [MenuController::class, 'quizz']);
 Route::post('/login', [UserController::class, 'authenticate'])->name('login.signin');
 
 
+Route::get('/verificar-certificado/{codigo}', [CertificadoController::class, 'verificarCertificado'])->name('verificar.certificado');
 
 
 
@@ -195,6 +191,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['middleware' => ['role:Administrador']], function () {
 
+        Route::get('certificadosCongreso/generarAdm/{id}/', [CertificadoController::class, 'generarCertificadoAdmin'])->name( 'certificadosCongreso.generar.admin');
 
         Route::post('/cursos/{id}/activar-certificados', [CursosController::class, 'activarCertificados'])
         ->name('cursos.activarCertificados');
@@ -250,7 +247,7 @@ Route::group(['middleware' => ['auth']], function () {
     //DOCENTE
     Route::group(['middleware' => ['role:Docente|Administrador']], function () {
         Route::get('/sumario',  [MenuController::class, 'analytics'])->name('sumario');
-
+        Route::get('/getEstudiantesNoInscritos/{curso_id}', [InscritosController::class, 'getEstudiantesNoInscritos']);
         //HORARIO
         Route::post('/store', [HorarioController::class, 'store'])->name('horarios.store');
         Route::post('/horarios/{id}', [HorarioController::class, 'update'])->name('horarios.update');
@@ -444,13 +441,12 @@ Route::group(['middleware' => ['auth']], function () {
 
         //CAMBIARcONTRASEÑA
         Route::get('CambiarContrasena/{id}', [UserController::class, 'EditPasswordIndex'])->name('CambiarContrasena');
-        Route::post('CambiarContrasena/{id}', [UserController::class, 'CambiarContrasena'])->name('ambiarContrasenaPost');
+        Route::post('CambiarContrasena/{id}', [UserController::class, 'CambiarContrasena'])->name('cambiarContrasenaPost');
 
         Route::get('HistorialAsistencia/cursoid={id}', [AsistenciaController::class, 'show'])->name('historialAsistencias');
         //CUESTIONARIO
         Route::get('/cuestionario/{id}/responder', [CuestionarioController::class, 'mostrarCuestionario'])->name('cuestionario.mostrar');
         Route::post('/cuestionario/{id}/responder', [CuestionarioController::class, 'procesarRespuestas'])->name('cuestionario.responder');
-        Route::get('/verificar-certificado/{codigo}', [CertificadoController::class, 'verificarCertificado'])->name('verificar.certificado');
     });
     Route::get('certificado/qr/{codigo}', [CertificadoController::class, 'descargarQR'])->name('descargar.qr');
     //QR

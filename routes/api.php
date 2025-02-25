@@ -5,6 +5,7 @@ use App\Http\Controllers\CuestionarioController;
 use App\Http\Controllers\JuegoController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\UserController;
+use App\Models\Inscritos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
@@ -26,3 +27,4 @@ Route::middleware('auth:sanctum')->get('/get-token', [TokenController::class, 'g
 
 
 Route::get('api/Temas', [CuestionarioController::class, 'apiTemas']);
+Route::get('/getEstudiantesNoInscritos/{curso_id}', [Inscritos::class, 'getEstudiantesNoInscritos']);
