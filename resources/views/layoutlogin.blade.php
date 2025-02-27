@@ -97,7 +97,7 @@
                     <div class="copyright">
                         <script>
                             document.write("&copy; " + new Date().getFullYear() +
-                                " <a href='' target='_blank'>Fundación para educar la vida</a>.");
+                                " <a href='https://educarparalavidafu.wixsite.com/educarparalavida' target='_blank'>Fundación Educar para la Vida</a>.");
                         </script>
                     </div>
                 </div>

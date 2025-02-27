@@ -468,7 +468,7 @@
             <div class="copyright">
                 <script>
                     document.write("&copy; " + new Date().getFullYear() +
-                        " <a href='' target='_blank'>Fundación para educar la vida</a>.");
+                        " <a href='' target='_blank'>Fundación Educar para la Vida</a>.");
                 </script>
             </div>
             <div class="credits">
@@ -532,7 +532,7 @@
             };
         </script>
         <script src="https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js"></script>
-    
+
 
 </body>
 

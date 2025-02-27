@@ -105,6 +105,7 @@ Route::post('/resgistrarse', [UserController::class, 'storeUsuario'])->name('reg
 Route::get('/congreso/detalle/{id}', [MenuController::class, 'detalle'])->name('congreso.detalle');
 Route::get('/Lista', [MenuController::class, 'lista'])->name('lista.cursos.congresos');
 Route::get('/home', [MenuController::class, 'home'])->middleware('noCache')->name('home');
+Route::get('/', [MenuController::class, 'home'])->middleware('noCache')->name('home');
 
 
 

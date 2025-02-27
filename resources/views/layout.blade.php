@@ -21,7 +21,8 @@
     <link href="{{ asset('./assets/js/plugins/@fortawesome/fontawesome-free/css/all.min.css') }}" rel="stylesheet" />
     <!-- CSS Files -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link href="{{ asset('./assets/css/argon-dashboard.css?v=1.1.2') }}" rel="stylesheet" />
+    <link href="{{ asset('./assets/css/argon-dashboard.css ') }}" rel="stylesheet" />
+
 </head>
 
 <style>
@@ -186,6 +187,7 @@
     <!-- Bootstrap y Script -->
 
 
+
     <!-- Agregar Bootstrap 5 JS -->
     @php
         $navItems = [
@@ -196,6 +198,7 @@
                 ['route' => 'ListaEstudiantes', 'icon' => 'bi bi-people ', 'text' => 'Lista de Estudiantes'],
                 ['route' => 'aportesLista', 'icon' => 'bi bi-wallet ', 'text' => 'Lista de Pagos'],
                 ['route' => 'AsignarCurso', 'icon' => 'bi bi-person-lines-fill', 'text' => 'Asignación de Cursos'],
+                ['route' => 'lista.cursos.congresos', 'icon' => 'bi bi-backpack2-fill', 'text' => 'Lista de Cursos/Congresos'],
             ],
             'Docente' => [
                 [
@@ -206,6 +209,9 @@
                 ],
                 ['route' => 'AsignarCurso', 'icon' => 'bi bi-key ', 'text' => 'Asignación de Cursos'],
                 ['route' => 'sumario', 'icon' => 'bi bi-pencil-square ', 'text' => 'Sumario'],
+                ['route' => 'lista.cursos.congresos', 'icon' => 'bi bi-backpack2-fill', 'text' => 'Lista de Cursos/Congresos'],
+                ['route' => 'calendario', 'icon' => 'bi bi-calendar', 'text' => 'Calendario'],
+
                 // ['route' => 'cal', 'icon' => 'bi bi-folder text-info', 'text' => 'Material de Apoyo'],
             ],
             'Estudiante' => [
@@ -218,6 +224,10 @@
                 // ['route' => 'Notas', 'icon' => 'bi bi-award text-warning', 'text' => 'Mis Notas'],
                 // ['route' => 'Materiales', 'icon' => 'bi bi-folder text-info', 'text' => 'Material de Apoyo'],
                 ['route' => 'pagos', 'icon' => 'bi bi-wallet text-danger', 'text' => 'Pagos y Facturación'],
+                ['route' => 'lista.cursos.congresos', 'icon' => 'bi bi-backpack2-fill', 'text' => 'Lista de Cursos/Congresos'],
+                ['route' => 'calendario', 'icon' => 'bi bi-calendar', 'text' => 'Calendario'],
+
+
             ],
         ];
     @endphp
@@ -249,6 +259,8 @@
                 </a>
             @endforeach
 
+            @yield('nav')
+
             <!-- Cerrar sesión -->
             <a href="{{ route('logout') }}" class="nav-link text-danger">
                 <i class="bi bi-box-arrow-right"></i> <span>Salir</span>
@@ -259,7 +271,185 @@
 
 
     <div class="content">
-        <div class="header  pt-2 pt-md-4">
+        <div class="header pt-2 pt-md-4">
+            <div class="container-fluid">
+                <div class="header-body">
+                    <style>
+
+.navbar-main {
+    overflow: visible !important; /* Asegura que los elementos hijos no se corten */
+}
+
+
+.notification-dropdown .dropdown-menu {
+    position: absolute !important;
+    right: 0;
+    left: auto;
+    transform: translateY(10px); /* Ajuste opcional */
+    z-index: 1050; /* Asegura que esté por encima de otros elementos */
+}
+
+                        /* Navbar Estilos */
+                        .navbar-main {
+                            background: linear-gradient(145deg, rgba(26, 71, 137, 1) 40%, rgba(34, 77, 141, 1) 53%, rgba(255, 255, 255, 1) 53%);
+                            width: 100%;
+                            border: none;
+                            position: relative;
+                            overflow: hidden;
+                            padding: 15px 20px;
+                        }
+
+                        /* Contenedor de la navbar */
+                        .navbar-container {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            width: 100%;
+                        }
+
+                        /* Ajuste de la altura y tamaño del navbar en pantallas grandes */
+                        @media (min-width: 992px) {
+                            .navbar-main {
+                                height: 140px;
+                            }
+                        }
+
+                        /* Ajustes de logos */
+                        .navbar-brand img {
+                            max-height: 80px;
+                            width: auto;
+                        }
+
+                        /* Logo derecho (Acceder) más pequeño */
+                        .logo-acceder img {
+                            max-height: 45px;
+                        }
+
+                        /* Dropdown de notificaciones */
+                        .notification-dropdown .dropdown-menu {
+                            background-color: #ffffff;
+                            padding: 0;
+                            border-radius: 0.25rem;
+                            border: none;
+                            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                            min-width: 300px;
+                            z-index: 1000;
+                        }
+
+                        .notification-dropdown .dropdown-item {
+                            padding: 0.75rem 1rem;
+                            color: rgb(0, 0, 0);
+                            background-color: transparent;
+                            border: none;
+                        }
+
+                        .notification-dropdown .dropdown-item:hover {
+                            background-color: rgba(255, 255, 255, 0.1);
+                        }
+
+                        .notification-dropdown small {
+                            color: #6c757d !important;
+                        }
+
+                        .notification-dropdown .badge {
+                            position: absolute;
+                            top: -5px;
+                            right: -5px;
+                            font-size: 0.7rem;
+                        }
+
+                        .notification-dropdown .bell-container {
+                            position: relative;
+                            display: inline-block;
+                        }
+
+                        .notification-dropdown .nav-link {
+                            color: rgb(255, 255, 255);
+                        }
+
+                        .notification-view-all {
+                            display: block;
+                            text-align: center;
+                            padding: 0.5rem;
+                            color: white;
+                            background-color: rgba(82, 163, 255, 0.2);
+                            text-decoration: none;
+                        }
+
+                        /* Responsividad: Ajustar la navbar en pantallas pequeñas */
+                        @media (max-width: 768px) {
+                            .navbar-main {
+                                height: auto;
+                                padding: 10px 15px;
+                            }
+
+                            .navbar-container {
+                                flex-direction: column;
+                                text-align: center;
+                                gap: 10px;
+                            }
+
+                            .navbar-brand img {
+                                max-height: 20px;
+                            }
+
+                            .logo-acceder img {
+                                max-height: 10px;
+                            }
+                        }
+                    </style>
+
+                    <!-- Navbar -->
+                    <nav id="navbar-main" class="navbar navbar-expand-lg navbar-light navbar-main">
+                        <div class="container d-flex justify-content-between align-items-center">
+                            <!-- Logo izquierdo -->
+                            <a class="navbar-brand" href="{{ route('Inicio') }}">
+                                <img src="{{ asset('../assets/img/logof.png') }}" alt="Logo Izquierdo" class="logo">
+                            </a>
+
+                            <div class="d-flex align-items-center">
+                                <!-- Notificaciones -->
+                                <div class="notification-dropdown me-4">
+                                    <div class="dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <div class="bell-container">
+                                                <i class="fa fa-bell text-blue"></i>
+
+                                            </div>
+                                        </a>
+
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
+                                            @forelse (auth()->user()->notifications()->latest()->take(4)->get() as $notification)
+                                                <li>
+                                                    <a class="dropdown-item" href="#">
+                                                        <p class="mb-0">{{ $notification->data['message'] }}</p>
+                                                        <small>hace {{ $notification->created_at->diffForHumans(null, true) }}</small>
+                                                    </a>
+                                                </li>
+                                            @empty
+                                                <li><a class="dropdown-item text-center" href="#">No hay notificaciones</a></li>
+                                            @endforelse
+
+                                            <li><hr class="dropdown-divider m-0"></li>
+                                            <li><a class="notification-view-all" href="#">Ver todas</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Logo derecho -->
+                                <a class="logo-acceder" href="{{ route('Inicio') }}">
+                                    <img src="{{ asset('../assets/img/Acceder.png') }}" alt="Logo Derecho" class="logo-acceder">
+                                </a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <!-- Contenido adicional -->
+                    @yield('contentup')
+                </div>
+            </div>
+        </div>
+        {{-- <div class="header  pt-2 pt-md-4">
             <div class="container-fluid">
                 <div class="header-body">
                     <style>
@@ -348,7 +538,7 @@
                     @yield('contentup')
                 </div>
             </div>
-        </div>
+        </div> --}}
 
 
 
@@ -375,7 +565,7 @@
                     <div class="row align-items-center justify-content-between">
                         <div class="col-md-6 text-center text-md-start text-muted">
                             &copy; <script>document.write(new Date().getFullYear());</script>
-                            <a href="#" target="_blank">Fundación para educar la vida</a>.
+                            <a href="#" target="_blank">Fundación Educar para la Vida</a>.
                         </div>
                         <div class="col-md-6 text-center text-md-end">
                             <!-- Espacio para enlaces adicionales si los necesitas -->

@@ -86,7 +86,7 @@
                 <!-- Derechos de autor -->
                 <div class="text-gray-600 text-sm text-center">
                     <script>
-                        document.write("&copy; " + new Date().getFullYear() + " Fundación para Educar la Vida. Todos los derechos reservados.");
+                        document.write("&copy; " + new Date().getFullYear() + " Fundación Educar para la Vida. Todos los derechos reservados.");
                     </script>
                 </div>
 

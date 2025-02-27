@@ -11,81 +11,66 @@
 
 
     @if (auth()->user()->hasRole('Administrador'))
-        <div class="m-1 row">
-            <div class="col-xl-3 col-lg-6">
-                <div class="card card-stats mb-4 mb-xl-0">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                                <h5 class="card-title text-uppercase text-muted mb-0">Cursos </h5>
-                                <span class="h2 font-weight-bold mb-0">{{ count($cursos) }}</span>
-                            </div>
-                            <div class="col-auto">
-                                <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-                                    <i class="fas fa-chart-bar"></i>
-                                </div>
-                            </div>
+    <div class="container py-1">
+        <!-- Tarjetas de estadísticas -->
+        <div class="row g-2">
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-2">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="text-muted text-uppercase mb-1">Cursos</h5>
+                            <span class="h2 fw-bold">{{ count($cursos) }}</span>
                         </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-lg-6">
-                <div class="card card-stats mb-4 mb-xl-0">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                                <h5 class="card-title text-uppercase text-muted mb-0">Usuarios Estudiantes</h5>
-                                <span class="h2 font-weight-bold mb-0">{{ count($estudiantes) }}</span>
-                            </div>
-                            <div class="col-auto">
-                                <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
-                                    <i class="fas fa-chart-pie"></i>
-                                </div>
-                            </div>
+                        <div class="icon bg-danger text-white rounded-circle p-3">
+                            <i class="bi bi-bar-chart-fill"></i>
                         </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-lg-6">
-                <div class="card card-stats mb-4 mb-xl-0">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                                <h5 class="card-title text-uppercase text-muted mb-0">Usuarios Docentes</h5>
-                                <span class="h2 font-weight-bold mb-0">{{ count($docentes) }}</span>
-                            </div>
-                            <div class="col-auto">
-                                <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-lg-6">
-                <div class="card card-stats mb-4 mb-xl-0">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                                <h5 class="card-title text-uppercase text-muted mb-0">Inscripciones de cursos</h5>
-                                <span class="h2 font-weight-bold mb-0">{{ count($inscritos) }}</span>
-                            </div>
-                            <div class="col-auto">
-                                <div class="icon icon-shape bg-info text-white rounded-circle shadow">
-                                    <i class="fas fa-percent"></i>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
 
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-2">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="text-muted text-uppercase mb-1">Estudiantes</h5>
+                            <span class="h2 fw-bold">{{ count($estudiantes) }}</span>
+                        </div>
+                        <div class="icon bg-warning text-white rounded-circle p-3">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-2">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="text-muted text-uppercase mb-1">Docentes</h5>
+                            <span class="h2 fw-bold">{{ count($docentes) }}</span>
+                        </div>
+                        <div class="icon bg-primary text-white rounded-circle p-3">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card shadow-sm border-2">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="text-muted text-uppercase mb-1">Inscripciones</h5>
+                            <span class="h2 fw-bold">{{ count($inscritos) }}</span>
+                        </div>
+                        <div class="icon bg-info text-white rounded-circle p-3">
+                            <i class="bi bi-clipboard-check-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
     @endif
 
     @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Estudiante'))
@@ -158,112 +143,77 @@
 @if (auth()->user()->hasRole('Administrador'))
 
 @section('contentini')
-    <div class="p-3 row mt-5">
-        <div class="col-xl-8 mb-5 mb-xl-0">
-            <div class="card shadow">
-                <div class="card-header border-0">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h3 class="mb-0">Notificaciones</h3>
-                        </div>
-
-
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <!-- Projects table -->
-                    <table class="table align-items-center table-flush">
-                        <thead class="thead-light">
-                            <tr>
-                                <th scope="col">Descripcion</th>
-                                <th>Tiempo </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            @foreach (auth()->user()->notifications()->paginate(4) as $notification)
-                                <tr>
-                                    <th scope="row">
-                                        <p>{{ $notification->data['message'] }}</p>
-                                    </th>
-                                    <td>
-                                        <p>{{ $notification->created_at->diffForHumans() }}</p>
-                                    </td>
-                                </tr>
-                            @endforeach
-
-                        </tbody>
-                    </table>
-                </div>
-                <style>
-                    .card-footer .pagination-container .page-link svg {
-                        width: 14px;
-                        /* Ancho del icono */
-                        height: 14px;
-                        /* Altura del icono */
-                    }
-                </style>
-
-                <div class="card-footer py-4">
-                    <ul class="pagination justify-content-end mb-0 ml-5">
-                        {{ Auth::user()->notifications()->paginate(4)->links('custom-pagination') }}
-                    </ul>
-                </div>
-
-
+<div class="row mt-5">
+    <!-- Notificaciones -->
+    <div class="col-xl-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="mb-0">Notificaciones</h3>
             </div>
-        </div>
-        <div class="col-xl-4">
-            <div class="card shadow">
-                <div class="card-header border-0">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h3 class="mb-0">Reportes</h3>
-                        </div>
-                        {{-- <div class="col text-right">
-                            <a href="#!" class="btn btn-sm btn-primary">See all</a>
-                        </div> --}}
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <!-- Projects table -->
-                    <table class="table align-items-center table-flush">
-                        <thead class="thead-light">
-                            <tr>
-                                <th scope="col">Nr°</th>
-                                <th scope="col">Cursos Finalizados</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @forelse ($cursos as $cursos)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ ucfirst(strtolower($cursos->nombreCurso)) }}</td>
-
-                                <td>
-                                    <a href="{{ route('rfc', [$cursos->id]) }}">
-                                        <img src="{{ asset('assets/icons/ojo.png') }}" alt="Ver Icon"
-                                            style="width: 16px; height: 16px;">
-                                        Ver
-                                    </a>
-                                </td>
-
-
-
-                            </tr>
-
-                        @empty
-                            <td>
-                                <h4>NO HAY CURSOS REGISTRADOS</h4>
-                            </td>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Tiempo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (auth()->user()->notifications()->paginate(4) as $notification)
+                        <tr>
+                            <td>{{ $notification->data['message'] }}</td>
+                            <td>{{ $notification->created_at->diffForHumans() }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                {{ Auth::user()->notifications()->paginate(4)->links('custom-pagination') }}
             </div>
         </div>
     </div>
+
+    <!-- Reportes -->
+    <div class="col-xl-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="mb-0">Reportes</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Cursos Finalizados</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($cursos as $curso)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ ucfirst(strtolower($curso->nombreCurso)) }}</td>
+                            <td>
+                                <a href="{{ route('rfc', [$curso->id]) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="3" class="text-center">
+                                <h5>No hay cursos registrados</h5>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 @endsection
 @endif
 

@@ -20,7 +20,8 @@
         <!-- Collapsible Section Toggle -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="mb-0">CURSO {{ $cursos->nombreCurso }}</h1>
-            <button class="btn btn-outline-primary collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#course-info" aria-expanded="true" aria-controls="course-info">
+            <button class="btn btn-outline-primary collapse-toggle" type="button" data-bs-toggle="collapse"
+                data-bs-target="#course-info" aria-expanded="true" aria-controls="course-info">
                 <i class="fa fa-chevron-up me-1"></i>
                 <span class="d-none d-sm-inline toggle-text">Ocultar</span>
             </button>
@@ -574,6 +575,55 @@
 
 @section('content')
     @if (auth()->user()->hasRole('Docente') && $cursos->docente_id == auth()->user()->id)
+        @section('nav')
+            @forelse ($temas as $index => $tema)
+                @php
+                    // Verificar si el tema está desbloqueado para el estudiante
+                    $estaDesbloqueado = auth()->user()->hasRole('Docente') || $tema->estaDesbloqueado($inscritos2->id);
+                @endphp
+
+                <li class="nav-link">
+                    @if ($estaDesbloqueado)
+                        <!-- Tema desbloqueado -->
+                        <a class="nav-link dropdown-toggle" href="#" id="tema-{{ $tema->id }}-dropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ $tema->titulo_tema }}
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="tema-{{ $tema->id }}-dropdown">
+                            @foreach ($tema->subtemas as $subtema)
+                                @php
+                                    $desbloqueado =
+                                        auth()->user()->hasRole('Docente') ||
+                                        $subtema->estaDesbloqueado($inscritos2->id);
+                                @endphp
+
+                                @if ($desbloqueado)
+                                    <li>
+                                        <a class="dropdown-item" href="#subtema-{{ $subtema->id }}" data-bs-toggle="tab"
+                                            data-bs-auto-close="false">
+                                            {{ $subtema->titulo_subtema }}
+                                        </a>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a class="dropdown-item disabled" href="#" aria-disabled="true">
+                                            {{ $subtema->titulo_subtema }} <i class="fas fa-lock"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    @else
+                        <!-- Tema bloqueado -->
+                        <a class="nav-link disabled" href="#" aria-disabled="true">
+                            {{ $tema->titulo_tema }} <i class="fas fa-lock"></i>
+                        </a>
+                    @endif
+                </li>
+            @empty
+            @endforelse
+        @endsection
         <div class="card shadow">
             <div class="card-body">
                 <!-- Navegación simplificada -->
@@ -593,6 +643,7 @@
                         <a class="nav-link" data-toggle="tab" href="#tab-recursos">Recursos Globales</a>
                     </li>
                 </ul>
+
 
                 <div class="tab-content mt-4">
                     <!-- Actividades -->
@@ -1400,526 +1451,642 @@
         </div>
     @elseif (auth()->user()->hasRole('Estudiante') && $inscritos[0] == auth()->user()->id)
         @section('nav')
-            <ul class="navbar-nav">
-                @foreach ($temas as $index => $tema)
-                    @php
-                        // Verificar si el tema está desbloqueado para el estudiante
-                        $estaDesbloqueado =
-                            auth()->user()->hasRole('Docente') || $tema->estaDesbloqueado($inscritos2->id);
-                    @endphp
+            @forelse ($temas as $index => $tema)
+                @php
+                    // Verificar si el tema está desbloqueado para el estudiante
+                    $estaDesbloqueado = auth()->user()->hasRole('Docente') || $tema->estaDesbloqueado($inscritos2->id);
+                @endphp
 
-                    <li class="nav-item dropdown">
-                        @if ($estaDesbloqueado)
-                            <!-- Tema desbloqueado -->
-                            <a class="nav-link dropdown-toggle" href="#" id="tema-{{ $tema->id }}-dropdown"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ $tema->titulo_tema }}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="tema-{{ $tema->id }}-dropdown">
-                                @foreach ($tema->subtemas as $subtema)
-                                    @php
-                                        // Verificar si el subtema está desbloqueado para el estudiante
-                                        $desbloqueado =
-                                            auth()->user()->hasRole('Docente') ||
-                                            $subtema->estaDesbloqueado($inscritos2->id);
-                                    @endphp
+                <li class="nav-link">
+                    @if ($estaDesbloqueado)
+                        <!-- Tema desbloqueado -->
+                        <a class="nav-link dropdown-toggle" href="#" id="tema-{{ $tema->id }}-dropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ $tema->titulo_tema }}
+                        </a>
 
-                                    @if ($desbloqueado)
-                                        <!-- Subtema desbloqueado -->
-                                        <li>
-                                            <a class="dropdown-item" href="#subtema-{{ $subtema->id }}"
-                                                data-bs-toggle="tab">
-                                                {{ $subtema->titulo_subtema }}
-                                            </a>
-                                        </li>
-                                    @else
-                                        <!-- Subtema bloqueado -->
-                                        <li>
-                                            <a class="dropdown-item disabled" href="#" aria-disabled="true">
-                                                {{ $subtema->titulo_subtema }} <i class="fas fa-lock"></i>
-                                            </a>
-                                        </li>
-                                    @endif
-                                @endforeach
-                            </ul>
-                        @else
-                            <!-- Tema bloqueado -->
-                            <a class="nav-link disabled" href="#" aria-disabled="true">
-                                {{ $tema->titulo_tema }} <i class="fas fa-lock"></i>
-                            </a>
-                        @endif
-                    </li>
-                @endforeach
-            </ul>
-        @endsection
-        <div class="col-11 my-2 progress-wrapper">
-            <div class="progress-info">
-                <div class="progress-percentage">
-                    <span class="text-sm font-weight-bold"> PROGRESO DEL CURSO-
-                        {{ $cursos->calcularProgreso($inscritos2->id) }}%</span>
-                </div>
-            </div>
-            <div class="progress">
-                <div class="progress-bar bg-primary" role="progressbar"
-                    aria-valuenow="{{ $cursos->calcularProgreso($inscritos2->id) }}
-    "
-                    aria-valuemin="{{ $cursos->calcularProgreso($inscritos2->id) }}" aria-valuemax="100"></div>
-            </div>
-        </div>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="tema-{{ $tema->id }}-dropdown">
+                            @foreach ($tema->subtemas as $subtema)
+                                @php
+                                    $desbloqueado =
+                                        auth()->user()->hasRole('Docente') ||
+                                        $subtema->estaDesbloqueado($inscritos2->id);
+                                @endphp
 
-
-        <div class="card shadow">
-
-            <div class="card-body">
-                <!-- Navegación simplificada -->
-                <ul class="nav nav-tabs" id="course-tabs">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#tab-actividades">Temario</a>
-                    </li>
-                    @if ($cursos->tipo == 'curso')
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tab-evaluaciones">Evaluaciones</a>
-                        </li>
+                                @if ($desbloqueado)
+                                    <li>
+                                        <a class="dropdown-item" href="#subtema-{{ $subtema->id }}" data-bs-toggle="tab"
+                                            data-bs-auto-close="false">
+                                            {{ $subtema->titulo_subtema }}
+                                        </a>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a class="dropdown-item disabled" href="#" aria-disabled="true">
+                                            {{ $subtema->titulo_subtema }} <i class="fas fa-lock"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    @else
+                        <!-- Tema bloqueado -->
+                        <a class="nav-link disabled" href="#" aria-disabled="true">
+                            {{ $tema->titulo_tema }} <i class="fas fa-lock"></i>
+                        </a>
                     @endif
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#tab-foros">Foros</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#tab-recursos">Recursos Globales</a>
-                    </li>
-                </ul>
-
-                <div class="tab-content mt-4">
-                    <div class="tab-pane fade show active" id="tab-actividades">
-                        <div class="tab-pane fade show active" id="tab-actividades">
-                            <div class="container">
-                                <!-- Nav tabs -->
-                                <ul class="nav nav-tabs" id="temasTabs" role="tablist">
-                                    @foreach ($temas as $index => $tema)
-                                        @php
-                                            // Si es el primer tema, debe estar desbloqueado
-                                            $estaDesbloqueado =
-                                                auth()->user()->hasRole('Docente') ||
-                                                $tema->estaDesbloqueado($inscritos2->id);
-
-                                        @endphp
-
-
-                                        <li class="nav-item" role="presentation">
-                                            @if ($estaDesbloqueado || auth()->user()->hasRole('Docente'))
-                                                <!-- Tema desbloqueado -->
-                                                <button class="nav-link {{ $index === 0 ? 'active' : '' }}"
-                                                    id="tema-{{ $tema->id }}-tab" data-bs-toggle="tab"
-                                                    data-bs-target="#tema-{{ $tema->id }}" type="button"
-                                                    role="tab" aria-controls="tema-{{ $tema->id }}"
-                                                    aria-selected="{{ $index === 0 ? 'true' : 'false' }}">
-                                                    {{ $tema->titulo_tema }}
-                                                </button>
-                                            @else
-                                                <button class="nav-link disabled" id="tema-{{ $tema->id }}-tab"
-                                                    type="button" role="tab" aria-disabled="true"
-                                                    data-bs-toggle="popover" data-bs-trigger="hover focus"
-                                                    data-bs-content="Debes completar el tema anterior para desbloquear este."
-                                                    data-bs-placement="top">
-                                                    {{ $tema->titulo_tema }} <i class="fas fa-lock"></i>
-                                                    <!-- Ícono de bloqueo -->
-                                                </button>
-                                            @endif
-                                        </li>
-                                    @endforeach
-
-
-                                </ul>
-
-                                <!-- Tab panes -->
-                                <div class="tab-content" id="temasContent">
-                                    @foreach ($temas as $index => $tema)
-                                        <div class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}"
-                                            id="tema-{{ $tema->id }}" role="tabpanel"
-                                            aria-labelledby="tema-{{ $tema->id }}-tab">
-                                            <div class="card my-3">
-                                                <div class="card-body">
-                                                    <h1>{{ $tema->titulo_tema }}</h1>
-                                                    @if ($tema->imagen)
-                                                        <img class="img-fluid" src="{{ $tema->imagen }}"
-                                                            alt="Imagen del tema">
-                                                    @endif
-
-                                                    <div class="my-3">
-                                                        <button class="btn btn-link" type="button"
-                                                            data-bs-toggle="collapse"
-                                                            data-bs-target="#descripcionTema-{{ $tema->id }}"
-                                                            aria-expanded="false"
-                                                            aria-controls="descripcionTema-{{ $tema->id }}">
-                                                            Ver Descripción del Tema
-                                                        </button>
-                                                        <div class="collapse"
-                                                            id="descripcionTema-{{ $tema->id }}">
-                                                            <div class="card card-body">
-                                                                {{ $tema->descripcion }}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div class="accordion" id="subtemasAccordion-{{ $tema->id }}">
-                                                        @foreach ($tema->subtemas as $subtemaIndex => $subtema)
-                                                            @php
-                                                                $desbloqueado = $subtema->estaDesbloqueado(
-                                                                    $inscritos2->id,
-                                                                );
-                                                            @endphp
-
-                                                            <div class="accordion-item">
-                                                                <h2 class="accordion-header"
-                                                                    id="subtemaHeading-{{ $subtema->id }} {{ $subtema->estaDesbloqueado($inscritos2->id) }}">
-                                                                    @if (!$desbloqueado && auth()->user()->hasRole('Estudiante'))
-                                                                        <!-- Subtema bloqueado -->
-                                                                        <button class="accordion-button collapsed"
-                                                                            type="button" disabled>
-                                                                            {{ $subtema->titulo_subtema }} (Bloqueado)
-                                                                        </button>
-                                                                    @else
-                                                                        <!-- Subtema desbloqueado -->
-                                                                        <button
-                                                                            class="accordion-button {{ $subtemaIndex === 0 ? '' : 'collapsed' }}"
-                                                                            type="button" data-bs-toggle="collapse"
-                                                                            data-bs-target="#subtemaCollapse-{{ $subtema->id }}"
-                                                                            aria-expanded="{{ $subtemaIndex === 0 ? 'true' : 'false' }}"
-                                                                            aria-controls="subtemaCollapse-{{ $subtema->id }}">
-                                                                            {{ $subtema->titulo_subtema }}
-                                                                        </button>
-                                                                    @endif
-                                                                </h2>
-                                                                @if ($desbloqueado || auth()->user()->hasRole('Docente'))
-                                                                    <div id="subtemaCollapse-{{ $subtema->id }}"
-                                                                        class="accordion-collapse collapse {{ $subtemaIndex === 0 ? 'show' : '' }}"
-                                                                        aria-labelledby="subtemaHeading-{{ $subtema->id }}"
-                                                                        data-bs-parent="#subtemasAccordion-{{ $tema->id }}">
-                                                                        <div class="accordion-body">
-                                                                            <h2>{{ $subtema->titulo_subtema }}</h2>
-                                                                            @if ($subtema->imagen)
-                                                                                <img class="img-fluid "
-                                                                                    src="{{ asset('storage/' . $subtema->imagen) }}"
-                                                                                    alt="Imagen del subtema">
-                                                                            @endif
-                                                                            <div class="my-3">
-                                                                                <button class="btn btn-link"
-                                                                                    type="button"
-                                                                                    data-bs-toggle="collapse"
-                                                                                    data-bs-target="#descripcionSubtema-{{ $subtema->id }}"
-                                                                                    aria-expanded="false"
-                                                                                    aria-controls="descripcionSubtema-{{ $subtema->id }}">
-                                                                                    Ver Descripción del SubTema
-                                                                                </button>
-                                                                                <div class="collapse"
-                                                                                    id="descripcionSubtema-{{ $subtema->id }}">
-                                                                                    <div class="card card-body">
-                                                                                        {{ $subtema->descripcion }}
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-
-                                                                            <div class="my-4">
-                                                                                <h2>Recursos</h4>
-                                                                            </div>
-
-                                                                            <div class="accordion-item">
-                                                                                <h2 class="accordion-header"
-                                                                                    id="headingRecursos-{{ $subtema->id }}">
-                                                                                    <button class="accordion-button"
-                                                                                        type="button"
-                                                                                        data-bs-toggle="collapse"
-                                                                                        data-bs-target="#collapseRecursos-{{ $subtema->id }}"
-                                                                                        aria-expanded="true"
-                                                                                        aria-controls="collapseRecursos-{{ $subtema->id }}">
-                                                                                        Recursos
-                                                                                    </button>
-                                                                                </h2>
-                                                                                <div id="collapseRecursos-{{ $subtema->id }}"
-                                                                                    class="accordion-collapse collapse show"
-                                                                                    aria-labelledby="headingRecursos-{{ $subtema->id }}"
-                                                                                    data-bs-parent="#accordionSubtema-{{ $subtema->id }}">
-                                                                                    <div class="accordion-body">
-                                                                                        @forelse ($subtema->recursos as $recursosSubtemas)
-                                                                                            <div class="card mb-3">
-                                                                                                <div class="card-body">
-                                                                                                    <h5>{{ $recursosSubtemas->nombreRecurso }}
-                                                                                                    </h5>
-                                                                                                    @if (Str::contains($recursosSubtemas->descripcionRecursos, ['<iframe', '<video', '<img']))
-                                                                                                        <div
-                                                                                                            class="ratio ratio-16x9">
-                                                                                                            {!! $recursosSubtemas->descripcionRecursos !!}
-                                                                                                        </div>
-                                                                                                    @else
-                                                                                                        <p>{!! nl2br(e($recursosSubtemas->descripcionRecursos)) !!}
-                                                                                                        </p>
-                                                                                                    @endif
-                                                                                                    @if ($recursosSubtemas->archivoRecurso)
-                                                                                                        <a href="{{ asset('storage/' . $recursosSubtemas->archivoRecurso) }}"
-                                                                                                            class="btn btn-primary btn-sm">Ver
-                                                                                                            Recurso</a>
-                                                                                                    @endif
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        @empty
-                                                                                            <div class="card mb-3">
-                                                                                                <div class="card-body">
-                                                                                                    <h5>NO HAY RECURSOS
-                                                                                                        CREADOS
-                                                                                                    </h5>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        @endforelse
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <!-- Sección de Actividades -->
-                                                                            <div class="accordion-item">
-                                                                                <h2 class="accordion-header"
-                                                                                    id="headingActividades-{{ $subtema->id }}">
-                                                                                    <button
-                                                                                        class="accordion-button collapsed"
-                                                                                        type="button"
-                                                                                        data-bs-toggle="collapse"
-                                                                                        data-bs-target="#collapseActividades-{{ $subtema->id }}"
-                                                                                        aria-expanded="false"
-                                                                                        aria-controls="collapseActividades-{{ $subtema->id }}">
-                                                                                        Actividades
-                                                                                    </button>
-                                                                                </h2>
-                                                                                <div id="collapseActividades-{{ $subtema->id }}"
-                                                                                    class="accordion-collapse collapse"
-                                                                                    aria-labelledby="headingActividades-{{ $subtema->id }}"
-                                                                                    data-bs-parent="#accordionSubtema-{{ $subtema->id }}">
-                                                                                    <div class="accordion-body">
-                                                                                        <!-- Tareas del subtema -->
-                                                                                        @forelse ($subtema->tareas as $tarea)
-                                                                                            <div class="my-4 mb-3">
-                                                                                                <h2>{{ $tarea->titulo_tarea }}
-                                                                                                </h2>
-                                                                                                <p class="text-light">
-                                                                                                    Entrega
-                                                                                                    Digital</p>
-                                                                                                <p>Creado:
-                                                                                                    {{ $tarea->fecha_habilitacion }}
-                                                                                                    | Vence:
-                                                                                                    {{ $tarea->fecha_vencimiento }}
-                                                                                                </p>
-                                                                                                <div>
-                                                                                                    <a href="{{ route('VerTarea', $tarea->id) }}"
-                                                                                                        class="btn btn-primary btn-sm">Ver
-                                                                                                        Actividad</a>
-                                                                                                    @if (auth()->user()->hasRole('Estudiante'))
-                                                                                                        @if ($inscritos2->id != null)
-                                                                                                            @if ($tarea->isCompletedByInscrito($inscritos2->id))
-                                                                                                                <button
-                                                                                                                    class="btn btn-success btn-sm"
-                                                                                                                    disabled>
-                                                                                                                    <i
-                                                                                                                        class="fas fa-check"></i>
-                                                                                                                    Completado
-                                                                                                                </button>
-                                                                                                            @else
-                                                                                                                <form
-                                                                                                                    method="POST"
-                                                                                                                    action="{{ route('tarea.completar', $tarea->id) }}">
-                                                                                                                    @csrf
-                                                                                                                    <input
-                                                                                                                        type="hidden"
-                                                                                                                        name="inscritos_id"
-                                                                                                                        value="{{ $inscritos[0] }}">
-                                                                                                                    <button
-                                                                                                                        type="submit"
-                                                                                                                        class="btn btn-outline-success btn-sm">
-                                                                                                                        Marcar
-                                                                                                                        como
-                                                                                                                        completada
-                                                                                                                    </button>
-                                                                                                                </form>
-                                                                                                            @endif
-                                                                                                        @else
-                                                                                                            <p
-                                                                                                                class="text-danger">
-                                                                                                                No estás
-                                                                                                                inscrito en
-                                                                                                                este
-                                                                                                                curso.</p>
-                                                                                                        @endif
-                                                                                                    @endif
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        @empty
-                                                                                        @endforelse
-
-                                                                                        <!-- Cuestionarios del subtema -->
-                                                                                        @forelse($subtema->cuestionarios as $cuestionario)
-                                                                                            <div class="my-4 mb-3">
-                                                                                                <h2>{{ $cuestionario->titulo_cuestionario }}
-                                                                                                </h2>
-                                                                                                <p class="text-light">
-                                                                                                    Cuestionario</p>
-                                                                                                <p>Creado:
-                                                                                                    {{ $cuestionario->fecha_habilitacion }}
-                                                                                                    | Vence:
-                                                                                                    {{ $cuestionario->fecha_vencimiento }}
-                                                                                                </p>
-                                                                                                <div>
-                                                                                                    @if (auth()->user()->hasRole('Estudiante'))
-                                                                                                        @if ($inscritos2->id != null)
-                                                                                                            @if ($cuestionario->isCompletedByInscrito($inscritos2->id))
-                                                                                                                <button
-                                                                                                                    class="btn btn-success btn-sm"
-                                                                                                                    disabled>
-                                                                                                                    <i
-                                                                                                                        class="fas fa-check"></i>
-                                                                                                                    Completado
-                                                                                                                </button>
-                                                                                                            @else
-                                                                                                                <form
-                                                                                                                    method="POST"
-                                                                                                                    action="{{ route('cuestionario.completar', $cuestionario->id) }}">
-                                                                                                                    @csrf
-                                                                                                                    <input
-                                                                                                                        type="hidden"
-                                                                                                                        name="inscritos_id"
-                                                                                                                        value="{{ $inscritos2->id }}">
-                                                                                                                    <button
-                                                                                                                        type="submit"
-                                                                                                                        class="btn btn-outline-success btn-sm">
-                                                                                                                        Marcar
-                                                                                                                        como
-                                                                                                                        completado
-                                                                                                                    </button>
-                                                                                                                </form>
-                                                                                                            @endif
-                                                                                                        @else
-                                                                                                            <p
-                                                                                                                class="text-danger">
-                                                                                                                No estás
-                                                                                                                inscrito en
-                                                                                                                este
-                                                                                                                curso.</p>
-                                                                                                        @endif
-                                                                                                        <a href="{{ route('cuestionario.mostrar', $cuestionario->id) }}"
-                                                                                                            class="btn btn-primary btn-sm">Responder</a>
-                                                                                                    @endif
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        @empty
-                                                                                            @if ($subtema->tareas = !null)
-                                                                                            @else
-                                                                                                <div class="card mb-3">
-                                                                                                    <div
-                                                                                                        class="card-body">
-                                                                                                        <h5>NO HAY
-                                                                                                            ACTIVIDADES
-                                                                                                            CREADOS</h5>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            @endif
-                                                                                        @endforelse
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-
-                                                                        </div>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-
-
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-
-
-
-
-                                </div>
+                </li>
+            @empty
+            @endforelse
+        @endsection
+        <div class="container-fluid py-4">
+            <!-- Progress Bar Section -->
+            {{-- <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="fw-bold m-0">PROGRESO DEL CURSO</h5>
+                                <span class="badge bg-primary rounded-pill fs-6">{{ $cursos->calcularProgreso($inscritos2->id) }}%</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-primary" role="progressbar" 
+                                    style="width: {{ $cursos->calcularProgreso($inscritos2->id) }}%;"
+                                    aria-valuenow="{{ $cursos->calcularProgreso($inscritos2->id) }}"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div> --}}
 
-                    <!-- Evaluaciones -->
-                    <div class="tab-pane fade" id="tab-evaluaciones">
-                        <h3>Evaluaciones</h3>
-                        @forelse ($evaluaciones as $evaluacion)
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h5>{{ $evaluacion->titulo_evaluacion }}</h5>
-                                    <p>Creado: {{ $evaluacion->fecha_habilitacion }} | Vence:
-                                        {{ $evaluacion->fecha_vencimiento }}</p>
-                                    <a href="{{ route('VerEvaluacion', [$evaluacion->id]) }}"
-                                        class="btn btn-primary btn-sm">Ir a Evaluación</a>
-                                    @if (auth()->user()->hasRole('Docente'))
-                                        <a href="{{ route('editarEvaluacion', $evaluacion->id) }}"
-                                            class="btn btn-info btn-sm">Editar</a>
-                                        <a href="{{ route('quitarEvaluacion', $evaluacion->id) }}"
-                                            class="btn btn-danger btn-sm"
-                                            onclick="mostrarAdvertencia(event)">Eliminar</a>
-                                    @endif
+            <!-- Main Content Card -->
+            <div class="card shadow border-0 rounded-3 overflow-hidden">
+                <!-- Tabs Navigation -->
+                <div class="card-header bg-white p-0 border-bottom">
+                    <ul class="nav nav-tabs nav-fill" id="course-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active px-4 py-3" id="temario-tab" data-bs-toggle="tab"
+                                data-bs-target="#tab-actividades" type="button" role="tab"
+                                aria-controls="tab-actividades" aria-selected="true">
+                                <i class="fas fa-list me-2"></i>Temario
+                            </button>
+                        </li>
+                        @if ($cursos->tipo == 'curso')
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link px-4 py-3" id="evaluaciones-tab" data-bs-toggle="tab"
+                                    data-bs-target="#tab-evaluaciones" type="button" role="tab"
+                                    aria-controls="tab-evaluaciones" aria-selected="false">
+                                    <i class="fas fa-tasks me-2"></i>Evaluaciones
+                                </button>
+                            </li>
+                        @endif
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link px-4 py-3" id="foros-tab" data-bs-toggle="tab"
+                                data-bs-target="#tab-foros" type="button" role="tab" aria-controls="tab-foros"
+                                aria-selected="false">
+                                <i class="fas fa-comments me-2"></i>Foros
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link px-4 py-3" id="recursos-tab" data-bs-toggle="tab"
+                                data-bs-target="#tab-recursos" type="button" role="tab"
+                                aria-controls="tab-recursos" aria-selected="false">
+                                <i class="fas fa-book me-2"></i>Recursos Globales
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="tab-content" id="course-tab-content">
+                        <!-- Temario Tab -->
+                        <div class="tab-pane fade show active" id="tab-actividades" role="tabpanel"
+                            aria-labelledby="temario-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold">Contenido del Curso</h3>
+                                @if (auth()->user()->hasRole('Docente'))
+                                    <button class="btn btn-sm btn-primary"><i class="fas fa-plus me-2"></i>Añadir
+                                        Contenido</button>
+                                @endif
+                            </div>
+                            <div class="tab-pane fade show active" id="tab-actividades">
+                                <div class="container">
+                                    <!-- Nav tabs -->
+                                    <ul class="nav nav-tabs nav-fill mb-4" id="temasTabs" role="tablist">
+                                        @foreach ($temas as $index => $tema)
+                                            @php
+                                                $estaDesbloqueado =
+                                                    auth()->user()->hasRole('Docente') ||
+                                                    $tema->estaDesbloqueado($inscritos2->id);
+                                            @endphp
+                                            <li class="nav-item" role="presentation">
+                                                <button
+                                                    class="nav-link {{ $index === 0 ? 'active' : '' }} {{ !$estaDesbloqueado ? 'disabled' : '' }}"
+                                                    id="tema-{{ $tema->id }}-tab"
+                                                    data-bs-toggle="{{ $estaDesbloqueado ? 'tab' : 'popover' }}"
+                                                    data-bs-target="{{ $estaDesbloqueado ? '#tema-' . $tema->id : '' }}"
+                                                    type="button" role="tab"
+                                                    aria-controls="{{ $estaDesbloqueado ? 'tema-' . $tema->id : '' }}"
+                                                    aria-selected="{{ $index === 0 && $estaDesbloqueado ? 'true' : 'false' }}"
+                                                    aria-disabled="{{ !$estaDesbloqueado ? 'true' : 'false' }}"
+                                                    {{ !$estaDesbloqueado ? 'data-bs-content="Debes completar el tema anterior para desbloquear este."' : '' }}
+                                                    data-bs-placement="top">
+                                                    {{ $tema->titulo_tema }}
+                                                    {{ !$estaDesbloqueado ? '<i class="fas fa-lock"></i>' : '' }}
+                                                </button>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+
+
+
+                                    <!-- Tab panes -->
+                                    <div class="tab-content" id="temasContent">
+                                        @forelse ($temas as $index => $tema)
+                                            <div class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}"
+                                                id="tema-{{ $tema->id }}" role="tabpanel"
+                                                aria-labelledby="tema-{{ $tema->id }}-tab">
+                                                <div class="card my-3">
+                                                    <div class="card-body">
+                                                        <h1>{{ $tema->titulo_tema }}</h1>
+                                                        @if ($tema->imagen)
+                                                            <img class="img-fluid" src="{{ asset('storage/' . $tema->imagen) }}"
+                                                                alt="Imagen del tema" height="auto" width="500px">
+                                                        @endif
+
+                                                        <div class="my-3">
+                                                            <button class="btn btn-link" type="button"
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target="#descripcionTema-{{ $tema->id }}"
+                                                                aria-expanded="false"
+                                                                aria-controls="descripcionTema-{{ $tema->id }}">
+                                                                Ver Descripción del Tema
+                                                            </button>
+                                                            <div class="collapse"
+                                                                id="descripcionTema-{{ $tema->id }}">
+                                                                <div class="card card-body">
+                                                                    {{ $tema->descripcion }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="accordion"
+                                                            id="subtemasAccordion-{{ $tema->id }}">
+                                                            @foreach ($tema->subtemas as $subtemaIndex => $subtema)
+                                                                @php
+                                                                    $desbloqueado = $subtema->estaDesbloqueado(
+                                                                        $inscritos2->id,
+                                                                    );
+                                                                @endphp
+
+                                                                <div class="accordion-item">
+                                                                    <h2 class="accordion-header"
+                                                                        id="subtemaHeading-{{ $subtema->id }} {{ $subtema->estaDesbloqueado($inscritos2->id) }}">
+                                                                        @if (!$desbloqueado && auth()->user()->hasRole('Estudiante'))
+                                                                            <!-- Subtema bloqueado -->
+                                                                            <button class="accordion-button collapsed"
+                                                                                type="button" disabled>
+                                                                                {{ $subtema->titulo_subtema }} (Bloqueado)
+                                                                            </button>
+                                                                        @else
+                                                                            <!-- Subtema desbloqueado -->
+                                                                            <button
+                                                                                class="accordion-button {{ $subtemaIndex === 0 ? '' : 'collapsed' }}"
+                                                                                type="button" data-bs-toggle="collapse"
+                                                                                data-bs-target="#subtemaCollapse-{{ $subtema->id }}"
+                                                                                aria-expanded="{{ $subtemaIndex === 0 ? 'true' : 'false' }}"
+                                                                                aria-controls="subtemaCollapse-{{ $subtema->id }}">
+                                                                                {{ $subtema->titulo_subtema }}
+                                                                            </button>
+                                                                        @endif
+                                                                    </h2>
+                                                                    @if ($desbloqueado || auth()->user()->hasRole('Docente'))
+                                                                        <div id="subtemaCollapse-{{ $subtema->id }}"
+                                                                            class="accordion-collapse collapse {{ $subtemaIndex === 0 ? 'show' : '' }}"
+                                                                            aria-labelledby="subtemaHeading-{{ $subtema->id }}"
+                                                                            data-bs-parent="#subtemasAccordion-{{ $tema->id }}">
+                                                                            <div class="accordion-body">
+                                                                                <h2>{{ $subtema->titulo_subtema }}</h2>
+                                                                                @if ($subtema->imagen)
+                                                                                    <img class="img-fluid "
+                                                                                        src="{{ asset('storage/' . $subtema->imagen) }}"
+                                                                                        alt="Imagen del subtema">
+                                                                                @endif
+                                                                                <div class="my-3">
+                                                                                    <button class="btn btn-link"
+                                                                                        type="button"
+                                                                                        data-bs-toggle="collapse"
+                                                                                        data-bs-target="#descripcionSubtema-{{ $subtema->id }}"
+                                                                                        aria-expanded="false"
+                                                                                        aria-controls="descripcionSubtema-{{ $subtema->id }}">
+                                                                                        Ver Descripción del SubTema
+                                                                                    </button>
+                                                                                    <div class="collapse"
+                                                                                        id="descripcionSubtema-{{ $subtema->id }}">
+                                                                                        <div class="card card-body">
+                                                                                            {{ $subtema->descripcion }}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                                <div class="my-4">
+                                                                                    <h2>Recursos</h4>
+                                                                                </div>
+
+                                                                                <div class="accordion-item">
+                                                                                    <h2 class="accordion-header"
+                                                                                        id="headingRecursos-{{ $subtema->id }}">
+                                                                                        <button class="accordion-button"
+                                                                                            type="button"
+                                                                                            data-bs-toggle="collapse"
+                                                                                            data-bs-target="#collapseRecursos-{{ $subtema->id }}"
+                                                                                            aria-expanded="true"
+                                                                                            aria-controls="collapseRecursos-{{ $subtema->id }}">
+                                                                                            Recursos
+                                                                                        </button>
+                                                                                    </h2>
+                                                                                    <div id="collapseRecursos-{{ $subtema->id }}"
+                                                                                        class="accordion-collapse collapse show"
+                                                                                        aria-labelledby="headingRecursos-{{ $subtema->id }}"
+                                                                                        data-bs-parent="#accordionSubtema-{{ $subtema->id }}">
+                                                                                        <div class="accordion-body">
+                                                                                            @forelse ($subtema->recursos as $recursosSubtemas)
+                                                                                                <div class="card mb-3">
+                                                                                                    <div
+                                                                                                        class="card-body">
+                                                                                                        <h5>{{ $recursosSubtemas->nombreRecurso }}
+                                                                                                        </h5>
+                                                                                                        @if (Str::contains($recursosSubtemas->descripcionRecursos, ['<iframe', '<video', '<img']))
+                                                                                                            <div
+                                                                                                                class="ratio ratio-16x9">
+                                                                                                                {!! $recursosSubtemas->descripcionRecursos !!}
+                                                                                                            </div>
+                                                                                                        @else
+                                                                                                            <p>{!! nl2br(e($recursosSubtemas->descripcionRecursos)) !!}
+                                                                                                            </p>
+                                                                                                        @endif
+                                                                                                        @if ($recursosSubtemas->archivoRecurso)
+                                                                                                            <a href="{{ asset('storage/' . $recursosSubtemas->archivoRecurso) }}"
+                                                                                                                class="btn btn-primary btn-sm">Ver
+                                                                                                                Recurso</a>
+                                                                                                        @endif
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            @empty
+                                                                                                <div class="card mb-3">
+                                                                                                    <div
+                                                                                                        class="card-body">
+                                                                                                        <h5>NO HAY RECURSOS
+                                                                                                            CREADOS
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            @endforelse
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <!-- Sección de Actividades -->
+                                                                                <div class="accordion-item">
+                                                                                    <h2 class="accordion-header"
+                                                                                        id="headingActividades-{{ $subtema->id }}">
+                                                                                        <button
+                                                                                            class="accordion-button collapsed"
+                                                                                            type="button"
+                                                                                            data-bs-toggle="collapse"
+                                                                                            data-bs-target="#collapseActividades-{{ $subtema->id }}"
+                                                                                            aria-expanded="false"
+                                                                                            aria-controls="collapseActividades-{{ $subtema->id }}">
+                                                                                            Actividades
+                                                                                        </button>
+                                                                                    </h2>
+                                                                                    <div id="collapseActividades-{{ $subtema->id }}"
+                                                                                        class="accordion-collapse collapse"
+                                                                                        aria-labelledby="headingActividades-{{ $subtema->id }}"
+                                                                                        data-bs-parent="#accordionSubtema-{{ $subtema->id }}">
+                                                                                        <div class="accordion-body">
+                                                                                            <!-- Tareas del subtema -->
+                                                                                            @forelse ($subtema->tareas as $tarea)
+                                                                                                <div class="my-4 mb-3">
+                                                                                                    <h2>{{ $tarea->titulo_tarea }}
+                                                                                                    </h2>
+                                                                                                    <p class="text-light">
+                                                                                                        Entrega
+                                                                                                        Digital</p>
+                                                                                                    <p>Creado:
+                                                                                                        {{ $tarea->fecha_habilitacion }}
+                                                                                                        | Vence:
+                                                                                                        {{ $tarea->fecha_vencimiento }}
+                                                                                                    </p>
+                                                                                                    <div>
+                                                                                                        <a href="{{ route('VerTarea', $tarea->id) }}"
+                                                                                                            class="btn btn-primary btn-sm">Ver
+                                                                                                            Actividad</a>
+                                                                                                        @if (auth()->user()->hasRole('Estudiante'))
+                                                                                                            @if ($inscritos2->id != null)
+                                                                                                                @if ($tarea->isCompletedByInscrito($inscritos2->id))
+                                                                                                                    <button
+                                                                                                                        class="btn btn-success btn-sm"
+                                                                                                                        disabled>
+                                                                                                                        <i
+                                                                                                                            class="fas fa-check"></i>
+                                                                                                                        Completado
+                                                                                                                    </button>
+                                                                                                                @else
+                                                                                                                    <form
+                                                                                                                        method="POST"
+                                                                                                                        action="{{ route('tarea.completar', $tarea->id) }}">
+                                                                                                                        @csrf
+                                                                                                                        <input
+                                                                                                                            type="hidden"
+                                                                                                                            name="inscritos_id"
+                                                                                                                            value="{{ $inscritos[0] }}">
+                                                                                                                        <button
+                                                                                                                            type="submit"
+                                                                                                                            class="btn btn-outline-success btn-sm">
+                                                                                                                            Marcar
+                                                                                                                            como
+                                                                                                                            completada
+                                                                                                                        </button>
+                                                                                                                    </form>
+                                                                                                                @endif
+                                                                                                            @else
+                                                                                                                <p
+                                                                                                                    class="text-danger">
+                                                                                                                    No estás
+                                                                                                                    inscrito
+                                                                                                                    en
+                                                                                                                    este
+                                                                                                                    curso.
+                                                                                                                </p>
+                                                                                                            @endif
+                                                                                                        @endif
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            @empty
+                                                                                            @endforelse
+
+                                                                                            <!-- Cuestionarios del subtema -->
+                                                                                            @forelse($subtema->cuestionarios as $cuestionario)
+                                                                                                <div class="my-4 mb-3">
+                                                                                                    <h2>{{ $cuestionario->titulo_cuestionario }}
+                                                                                                    </h2>
+                                                                                                    <p class="text-light">
+                                                                                                        Cuestionario</p>
+                                                                                                    <p>Creado:
+                                                                                                        {{ $cuestionario->fecha_habilitacion }}
+                                                                                                        | Vence:
+                                                                                                        {{ $cuestionario->fecha_vencimiento }}
+                                                                                                    </p>
+                                                                                                    <div>
+                                                                                                        @if (auth()->user()->hasRole('Estudiante'))
+                                                                                                            @if ($inscritos2->id != null)
+                                                                                                                @if ($cuestionario->isCompletedByInscrito($inscritos2->id))
+                                                                                                                    <button
+                                                                                                                        class="btn btn-success btn-sm"
+                                                                                                                        disabled>
+                                                                                                                        <i
+                                                                                                                            class="fas fa-check"></i>
+                                                                                                                        Completado
+                                                                                                                    </button>
+                                                                                                                @else
+                                                                                                                    <form
+                                                                                                                        method="POST"
+                                                                                                                        action="{{ route('cuestionario.completar', $cuestionario->id) }}">
+                                                                                                                        @csrf
+                                                                                                                        <input
+                                                                                                                            type="hidden"
+                                                                                                                            name="inscritos_id"
+                                                                                                                            value="{{ $inscritos2->id }}">
+                                                                                                                        <button
+                                                                                                                            type="submit"
+                                                                                                                            class="btn btn-outline-success btn-sm">
+                                                                                                                            Marcar
+                                                                                                                            como
+                                                                                                                            completado
+                                                                                                                        </button>
+                                                                                                                    </form>
+                                                                                                                @endif
+                                                                                                            @else
+                                                                                                                <p
+                                                                                                                    class="text-danger">
+                                                                                                                    No estás
+                                                                                                                    inscrito
+                                                                                                                    en
+                                                                                                                    este
+                                                                                                                    curso.
+                                                                                                                </p>
+                                                                                                            @endif
+                                                                                                            <a href="{{ route('cuestionario.mostrar', $cuestionario->id) }}"
+                                                                                                                class="btn btn-primary btn-sm">Responder</a>
+                                                                                                        @endif
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            @empty
+                                                                                                @if ($subtema->tareas = !null)
+                                                                                                @else
+                                                                                                    <div
+                                                                                                        class="card mb-3">
+                                                                                                        <div
+                                                                                                            class="card-body">
+                                                                                                            <h5>NO HAY
+                                                                                                                ACTIVIDADES
+                                                                                                                CREADOS</h5>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                @endif
+                                                                                            @endforelse
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                            </div>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <div class="card mb-3">
+                                                <div class="card-body">
+                                                    <h5>NO HAY TEMAS DISPONIBLES</h5>
+                                                </div>
+                                            </div>
+                                        @endforelse
+
+
+
+
+                                    </div>
                                 </div>
                             </div>
-                        @empty
-                            <p>No hay evaluaciones asignadas.</p>
-                        @endforelse
-                    </div>
 
-                    <!-- Foros -->
-                    <div class="tab-pane fade" id="tab-foros">
-                        <h3>Foros</h3>
-                        @forelse ($foros as $foro)
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h5>{{ $foro->nombreForo }}</h5>
-                                    <p>Finaliza: {{ $foro->fechaFin }}</p>
-                                    <a href="{{ route('foro', [$foro->id]) }}" class="btn btn-primary btn-sm">Ir a
-                                        Foro</a>
-                                    @if (auth()->user()->hasRole('Docente'))
-                                        <a href="{{ route('EditarForo', $foro->id) }}"
-                                            class="btn btn-info btn-sm">Editar</a>
-                                        <a href="{{ route('quitarForo', $foro->id) }}" class="btn btn-danger btn-sm"
-                                            onclick="mostrarAdvertencia(event)">Eliminar</a>
-                                    @endif
-                                </div>
-                            </div>
-                        @empty
-                            <p>No hay foros creados.</p>
-                        @endforelse
-                    </div>
+                        </div>
 
-                    <!-- Recursos -->
-                    <div class="tab-pane fade" id="tab-recursos">
-                        <h3>Recursos Globales</h3>
-                        @forelse ($recursos as $recurso)
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h5>{{ $recurso->nombreRecurso }}</h5>
-                                    <p>{!! $recurso->descripcionRecursos !!}</p>
-                                    @if ($recurso->archivoRecurso)
-                                        <a href="{{ asset('storage/' . $recurso->archivoRecurso) }}"
-                                            class="btn btn-primary btn-sm">Ver Recurso</a>
-                                    @endif
-                                    @if (auth()->user()->hasRole('Docente'))
-                                        <a href="{{ route('editarRecursos', $recurso->id) }}"
-                                            class="btn btn-info btn-sm">Editar</a>
-                                        <a href="{{ route('quitarRecurso', $recurso->id) }}"
-                                            class="btn btn-danger btn-sm"
-                                            onclick="mostrarAdvertencia(event)">Eliminar</a>
-                                    @endif
-                                </div>
+                        <!-- Evaluaciones Tab -->
+                        <div class="tab-pane fade" id="tab-evaluaciones" role="tabpanel"
+                            aria-labelledby="evaluaciones-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold">Evaluaciones</h3>
+                                @if (auth()->user()->hasRole('Docente'))
+                                    <button class="btn btn-sm btn-primary"><i class="fas fa-plus me-2"></i>Nueva
+                                        Evaluación</button>
+                                @endif
                             </div>
-                        @empty
-                            <p>No hay recursos creados.</p>
-                        @endforelse
+
+                            @forelse ($evaluaciones as $evaluacion)
+                                <div class="card mb-3 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <h5 class="fw-bold">{{ $evaluacion->titulo_evaluacion }}</h5>
+                                                <div class="d-flex align-items-center text-muted mb-2">
+                                                    <i class="far fa-calendar-alt me-2"></i>
+                                                    <span>Creado: {{ $evaluacion->fecha_habilitacion }}</span>
+                                                    <span class="mx-2">|</span>
+                                                    <i class="far fa-clock me-2"></i>
+                                                    <span>Vence: {{ $evaluacion->fecha_vencimiento }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                                <a href="{{ route('VerEvaluacion', [$evaluacion->id]) }}"
+                                                    class="btn btn-primary">
+                                                    <i class="fas fa-clipboard-check me-2"></i>Ir a Evaluación
+                                                </a>
+                                                @if (auth()->user()->hasRole('Docente'))
+                                                    <div class="btn-group mt-2 mt-md-0 ms-md-2">
+                                                        <a href="{{ route('editarEvaluacion', $evaluacion->id) }}"
+                                                            class="btn btn-outline-primary">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="{{ route('quitarEvaluacion', $evaluacion->id) }}"
+                                                            class="btn btn-outline-danger"
+                                                            onclick="mostrarAdvertencia(event)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>No hay evaluaciones asignadas para este curso.
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <!-- Foros Tab -->
+                        <div class="tab-pane fade" id="tab-foros" role="tabpanel" aria-labelledby="foros-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold">Foros de Discusión</h3>
+                                @if (auth()->user()->hasRole('Docente'))
+                                    <button class="btn btn-sm btn-primary"><i class="fas fa-plus me-2"></i>Nuevo
+                                        Foro</button>
+                                @endif
+                            </div>
+
+                            @forelse ($foros as $foro)
+                                <div class="card mb-3 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <h5 class="fw-bold">{{ $foro->nombreForo }}</h5>
+                                                <div class="d-flex align-items-center text-muted mb-2">
+                                                    <i class="far fa-calendar-times me-2"></i>
+                                                    <span>Finaliza: {{ $foro->fechaFin }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                                <a href="{{ route('foro', [$foro->id]) }}" class="btn btn-primary">
+                                                    <i class="fas fa-comments me-2"></i>Ir a Foro
+                                                </a>
+                                                @if (auth()->user()->hasRole('Docente'))
+                                                    <div class="btn-group mt-2 mt-md-0 ms-md-2">
+                                                        <a href="{{ route('EditarForo', $foro->id) }}"
+                                                            class="btn btn-outline-primary">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="{{ route('quitarForo', $foro->id) }}"
+                                                            class="btn btn-outline-danger"
+                                                            onclick="mostrarAdvertencia(event)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>No hay foros creados para este curso.
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <!-- Recursos Tab -->
+                        <div class="tab-pane fade" id="tab-recursos" role="tabpanel" aria-labelledby="recursos-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold">Recursos Globales</h3>
+                                @if (auth()->user()->hasRole('Docente'))
+                                    <button class="btn btn-sm btn-primary"><i class="fas fa-plus me-2"></i>Nuevo
+                                        Recurso</button>
+                                @endif
+                            </div>
+
+                            <div class="row">
+                                @forelse ($recursos as $recurso)
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100 border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h5 class="fw-bold">{{ $recurso->nombreRecurso }}</h5>
+                                                <div class="my-3">
+                                                    <p class="text-muted">{!! $recurso->descripcionRecursos !!}</p>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                                    @if ($recurso->archivoRecurso)
+                                                        <a href="{{ asset('storage/' . $recurso->archivoRecurso) }}"
+                                                            class="btn btn-primary">
+                                                            <i class="fas fa-download me-2"></i>Ver Recurso
+                                                        </a>
+                                                    @endif
+
+                                                    @if (auth()->user()->hasRole('Docente'))
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('editarRecursos', $recurso->id) }}"
+                                                                class="btn btn-outline-primary">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="{{ route('quitarRecurso', $recurso->id) }}"
+                                                                class="btn btn-outline-danger"
+                                                                onclick="mostrarAdvertencia(event)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </a>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>No hay recursos creados para este
+                                            curso.
+                                        </div>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2056,9 +2223,6 @@
 </script>
 
 <script>
-
-
-
     function mostrarAdvertencia(event) {
         event.preventDefault();
 
@@ -2096,6 +2260,14 @@
     }
 </script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+        var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl);
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -111,27 +111,27 @@
             <div class="container" data-aos="fade-up">
 
                 <div class="section-title">
-                    <h2>Ultimos Congresos</h2>
+                    <h2>Últimos Congresos</h2>
                     <p>Explora los congresos próximos y regístrate para participar en eventos de alto impacto.</p>
                 </div>
 
                 <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
-                    <div class="swiper-wrapper ">
+                    <div class="swiper-wrapper">
                         @forelse ($congresos as $congreso)
                             @php
                                 $fecha_ini = Carbon::parse($congreso->fecha_ini);
                                 $fecha_fin = Carbon::parse($congreso->fecha_fin);
                             @endphp
-                            <div class="swiper-slide  ">
+                            <div class="swiper-slide">
                                 <div class="testimonial-item">
                                     <img src="{{ asset('assets2/img/congress.jpg') }}" class="congress-img"
                                         style="
-                                width: 100%;
-                                height: 150px;
-                                object-fit: cover;
-                                border-radius: 10px;
-                                margin-bottom: 15px;
-                            "
+                                            width: 100%;
+                                            height: 150px;
+                                            object-fit: cover;
+                                            border-radius: 10px;
+                                            margin-bottom: 15px;
+                                        "
                                         alt="Congreso Innovatech 2024">
                                     <h3>{{ $congreso->nombreCurso }}</h3>
                                     @if ($fecha_ini->month == $fecha_fin->month)
@@ -152,27 +152,18 @@
                                     </p>
                                     <!-- Botón que abre el Modal, enviando el id del congreso -->
                                     <a href="{{ route('congreso.detalle', $congreso->id) }}">
-                                    Inscribirse
+                                        Inscribirse
                                     </a>
-
-
                                 </div>
                             </div>
-
-
+                        @empty
+                            <div class="section-title">
+                                <h2>No hay Congresos Disponibles</h2>
+                            </div>
+                        @endforelse
                     </div>
-
-
-                    @empty
-                    <div class="section-title">
-                        <h2>No hay Congresos Disponibles</h2>
-                    </div>
-                    @endforelse
-
-
+                    <div class="swiper-pagination"></div>
                 </div>
-                <div class="swiper-pagination"></div>
-            </div>
 
             </div>
         </section>
@@ -609,7 +600,7 @@
             <div class="copyright">
                 <script>
                     document.write("&copy; " + new Date().getFullYear() +
-                        " <a href='' target='_blank'>Fundación para educar la vida</a>.");
+                        " <a href='' target='_blank'>Fundación educar para la vida</a>.");
                 </script>
             </div>
             <div class="credits">
@@ -617,7 +608,7 @@
                 <!-- You can delete the links only if you purchased the pro version. -->
                 <!-- Licensing information: https://bootstrapmade.com/license/ -->
                 <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/free-bootstrap-app-landing-page-template/ -->
-                Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+                {{-- Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> --}}
             </div>
         </div>
     </footer><!-- End Footer -->
