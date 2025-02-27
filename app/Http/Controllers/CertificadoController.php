@@ -324,7 +324,7 @@ class CertificadoController extends Controller
 
         // Notificar al estudiante
         if ($inscrito->estudiantes && $inscrito->estudiantes->email) {
-            // $inscrito->estudiantes->notify(new CertificadoGeneradoNotification($inscrito, $codigo_certificado));
+            $inscrito->estudiantes->notify(new CertificadoGeneradoNotification($inscrito, $codigo_certificado));
         } else {
             Log::warning("El estudiante con ID {$inscrito->estudiante_id} no tiene un correo electrónico registrado.");
         }
