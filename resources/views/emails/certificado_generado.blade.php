@@ -58,7 +58,7 @@
                 <img src="{{ asset('../assets/img/logof.png') }}" style="width: auto; height: 80px;">
             </a>
             <a class="navbar-brand logo-derecho" href="{{ route('Inicio') }}">
-                <img src="{{ asset('../assets/img/Acceder.png') }}" style="width: auto; height: 125px;">
+                <img src="{{ asset('../assets/img/Acceder.png') }}" style="width: auto; height: 50px;">
             </a>
         </div>
     </div>
@@ -66,10 +66,10 @@
     <!-- Contenido del correo -->
     <div class="email-content">
         <h1>¡Felicidades, {{ $inscrito->estudiantes->name }} {{ $inscrito->estudiantes->lastname1 }} {{ $inscrito->estudiantes->lastname2 }}!</h1>
-        <p>Has completado exitosamente el curso: <strong>{{ $inscrito->cursos->nombreCurso }}</strong>.</p>
+        <p>Has completado exitosamente el {{$inscrito->cursos->tipo}}: <strong>{{ $inscrito->cursos->nombreCurso }}</strong>.</p>
         <p>Puedes verificar tu certificado haciendo clic en el siguiente enlace:</p>
         <a href="{{ $url }}">Verificar Certificado</a>
-        <p>Gracias por participar en nuestro curso.</p>
+        <p>Gracias por participar en nuestro {{$inscrito->cursos->tipo}}.</p>
     </div>
 </body>
 

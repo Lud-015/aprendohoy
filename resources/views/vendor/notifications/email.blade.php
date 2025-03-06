@@ -65,7 +65,7 @@
                 <img src="{{ asset('../assets/img/logof.png') }}" style="width: auto; height: 80px;">
             </a>
             <a class="navbar-brand logo-derecho" href="{{ route('Inicio') }}">
-                <img src="{{ asset('../assets/img/Acceder.png') }}" style="width: auto; height: 125px;">
+                <img src="{{ asset('../assets/img/Acceder.png') }}" style="width: auto; height: 50px;">
             </a>
         </div>
     </div>

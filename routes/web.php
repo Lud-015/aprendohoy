@@ -102,7 +102,7 @@ Route::get('/registro', function () {
 Route::post('/resgistrarse', [UserController::class, 'storeUsuario'])->name('registrarse');
 
 
-Route::get('/congreso/detalle/{id}', [MenuController::class, 'detalle'])->name('congreso.detalle');
+Route::get('/item/detalle/{id}', [MenuController::class, 'detalle'])->name('congreso.detalle');
 Route::get('/Lista', [MenuController::class, 'lista'])->name('lista.cursos.congresos');
 Route::get('/home', [MenuController::class, 'home'])->middleware('noCache')->name('home');
 Route::get('/', [MenuController::class, 'home'])->middleware('noCache')->name('home');

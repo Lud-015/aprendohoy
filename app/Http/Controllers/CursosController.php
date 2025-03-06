@@ -212,13 +212,13 @@ class CursosController extends Controller
 
     public function ReporteAsistencia($id)
     {
-        $asistencia = Asistencia::where('curso_id', $id)->get();
+        $asistencias = Asistencia::where('curso_id', $id)->get();
 
         $writer = SimpleExcelWriter::streamDownload('report.xlsx');
 
         $writer->addRow(['Curso', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Fecha', 'Tipo Asistencia']);
 
-        foreach ($asistencia as $asistencia) {
+        foreach ($asistencias as $asistencia) {
             $writer->addRow([$asistencia->cursos->nombreCurso, $asistencia->inscritos->estudiantes->name, $asistencia->inscritos->estudiantes->lastname1, $asistencia->inscritos->estudiantes->lastname2, $asistencia->fechaasistencia, $asistencia->tipoAsitencia]);
         }
 
@@ -228,17 +228,21 @@ class CursosController extends Controller
     }
     public function ReporteFinal($id)
     {
+        // Obtener asistencias
         $asistencias = Asistencia::where('curso_id', $id)->get();
 
-        $notasTareas = NotaEntrega::all(); // Filtra las notas de tareas por curso
+        // Obtener notas de tareas filtradas por curso
+        $notasTareas = NotaEntrega::whereHas('tarea.subtema.tema', function($query) use ($id) {
+            $query->where('curso_id', $id);
+        })->get();
 
-        $notasEvaluaciones = NotaEvaluacion::all(); // Filtra las notas de evaluaciones por curso
+        // Obtener notas de evaluaciones filtradas por curso
+        $notasEvaluaciones = NotaEvaluacion::whereHas('evaluacion', function($query) use ($id) {
+            $query->where('cursos_id', $id);
+        })->get();
 
-
+        // Obtener inscritos en el curso
         $inscritos = Inscritos::where('cursos_id', $id)->get();
-
-
-
 
         // Inicializa el escritor de Excel
         $writer = SimpleExcelWriter::streamDownload('report_final.xlsx');
@@ -248,7 +252,6 @@ class CursosController extends Controller
         $asistenciasSheet->addRow(['Curso', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Fecha', 'Tipo Asistencia']);
 
         foreach ($asistencias as $asistencia) {
-
             $asistenciasSheet->addRow([
                 $asistencia->cursos->nombreCurso,
                 $asistencia->inscritos->estudiantes->name,
@@ -264,54 +267,62 @@ class CursosController extends Controller
         $tareasSheet->addRow(['Nombre Tarea', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA', 'RETROALIMENTACION']);
 
         foreach ($notasTareas as $notaTarea) {
-            if ($notaTarea->tarea->cursos_id == $id) {
-                $tareasSheet->addRow([
-                    // $notaTarea->tarea->titulo_tarea,
-                    $notaTarea->tarea->titulo_tarea,
-                    $notaTarea->inscripcion->estudiantes->name,
-                    $notaTarea->inscripcion->estudiantes->lastname1,
-                    $notaTarea->inscripcion->estudiantes->lastname2,
-                    $notaTarea->nota,
-                    $notaTarea->retroalimentacion
-                ]);
-            }
+            $tareasSheet->addRow([
+                $notaTarea->tarea->titulo_tarea,
+                $notaTarea->inscripcion->estudiantes->name,
+                $notaTarea->inscripcion->estudiantes->lastname1,
+                $notaTarea->inscripcion->estudiantes->lastname2,
+                $notaTarea->nota,
+                $notaTarea->retroalimentacion
+            ]);
         }
 
         // Hoja de Evaluaciones
         $evaluacionesSheet = $writer->addNewSheetAndMakeItCurrent('Evaluaciones');
-        $evaluacionesSheet->addRow(['Nombre Evaluación',  'Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA', 'RETROALIMENTACION']);
+        $evaluacionesSheet->addRow(['Nombre Evaluación', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA', 'RETROALIMENTACION']);
 
         foreach ($notasEvaluaciones as $notaEvaluacion) {
-            if ($notaEvaluacion->evaluacion->cursos_id == $id) {
-                $evaluacionesSheet->addRow([
-                    $notaEvaluacion->evaluacion->titulo_evaluacion,
-                    $notaEvaluacion->inscripcion->estudiantes->name,
-                    $notaEvaluacion->inscripcion->estudiantes->lastname1,
-                    $notaEvaluacion->inscripcion->estudiantes->lastname2,
-                    $notaEvaluacion->nota,
-                    $notaEvaluacion->retroalimentacion
-                ]);
-            }
-        }
-
-
-        $promfinalSheet = $writer->addNewSheetAndMakeItCurrent('PromedioFinal');
-        $promfinalSheet->addRow(['Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA PROMEDIO TAREAS', 'NOTA PROMEDIO EVALUAICIONES', 'PROMEDIO FINAL']);
-
-        foreach ($inscritos as $inscritos) {
-            $promfinalSheet->addRow([
-                $inscritos->estudiantes->name,
-                $inscritos->estudiantes->lastname1,
-                $inscritos->estudiantes->lastname2,
-                round($inscritos->notatarea->avg('nota')),
-                round($inscritos->notaevaluacion->avg('nota')),
-                round(($inscritos->notatarea->avg('nota') + $inscritos->notaevaluacion->avg('nota')) / 2),
+            $evaluacionesSheet->addRow([
+                $notaEvaluacion->evaluacion->titulo_evaluacion,
+                $notaEvaluacion->inscripcion->estudiantes->name,
+                $notaEvaluacion->inscripcion->estudiantes->lastname1,
+                $notaEvaluacion->inscripcion->estudiantes->lastname2,
+                $notaEvaluacion->nota,
+                $notaEvaluacion->retroalimentacion
             ]);
         }
 
+        // Hoja de Promedio Final
+        $promfinalSheet = $writer->addNewSheetAndMakeItCurrent('PromedioFinal');
+        $promfinalSheet->addRow(['Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA PROMEDIO TAREAS', 'NOTA PROMEDIO EVALUACIONES', 'PROMEDIO FINAL']);
 
+        foreach ($inscritos as $inscrito) {
+            // Calcular promedio de tareas
+            $promedioTareas = $inscrito->notatarea()
+                ->whereHas('tarea.subtema.tema', function($query) use ($id) {
+                    $query->where('curso_id', $id);
+                })
+                ->avg('nota');
 
+            // Calcular promedio de evaluaciones
+            $promedioEvaluaciones = $inscrito->notaevaluacion()
+                ->whereHas('evaluacion', function($query) use ($id) {
+                    $query->where('cursos_id', $id);
+                })
+                ->avg('nota');
 
+            // Calcular promedio final
+            $promedioFinal = ($promedioTareas + $promedioEvaluaciones) / 2;
+
+            $promfinalSheet->addRow([
+                $inscrito->estudiantes->name,
+                $inscrito->estudiantes->lastname1,
+                $inscrito->estudiantes->lastname2,
+                round($promedioTareas, 2), // Redondear a 2 decimales
+                round($promedioEvaluaciones, 2), // Redondear a 2 decimales
+                round($promedioFinal, 2), // Redondear a 2 decimales
+            ]);
+        }
 
         // Descarga el archivo
         $writer->toBrowser();

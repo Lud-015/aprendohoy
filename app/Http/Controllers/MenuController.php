@@ -25,8 +25,8 @@ class MenuController extends Controller
 
 
     public function lista() {
-        $curso = Cursos::paginate(9); // 9 cursos por página
-        return view('listacursoscongresos')->with('cursos', $curso);
+        $cursos = Cursos::paginate(9); // 9 cursos por página
+        return view('listacursoscongresos')->with('cursos', $cursos);
     }
 
 

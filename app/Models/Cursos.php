@@ -103,4 +103,6 @@ class Cursos extends Model
 
         return $progreso;
     }
+
+    
 }

@@ -7,11 +7,6 @@
 
 
 
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- Bootstrap Bundle con JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
 
@@ -576,9 +571,8 @@
 @section('content')
     @if (auth()->user()->hasRole('Docente') && $cursos->docente_id == auth()->user()->id)
         @section('nav')
-            @forelse ($temas as $index => $tema)
+            @forelse ($temas as $index => $tema)    
                 @php
-                    // Verificar si el tema está desbloqueado para el estudiante
                     $estaDesbloqueado = auth()->user()->hasRole('Docente') || $tema->estaDesbloqueado($inscritos2->id);
                 @endphp
 
@@ -695,7 +689,7 @@
                                                 data-bs-target="#tema-{{ $tema->id }}" type="button" role="tab"
                                                 aria-controls="tema-{{ $tema->id }}"
                                                 aria-selected="{{ $index === 0 ? 'true' : 'false' }}">
-                                                {{ $tema->titulo_tema }}
+                                                Tema {{ $loop->iteration}}
                                             </button>
                                         </li>
                                     @endforeach
@@ -991,7 +985,7 @@
                                                                         @foreach ($subtema->tareas as $tarea)
                                                                             <div class="my-4 mb-3">
                                                                                 <h2>{{ $tarea->titulo_tarea }}</h2>
-                                                                                <p class="text-light">Entrega Digital</p>
+                                                                                <p class="text-gray">Entrega Digital</p>
                                                                                 <p>Creado: {{ $tarea->fecha_habilitacion }}
                                                                                     | Vence:
                                                                                     {{ $tarea->fecha_vencimiento }}</p>
@@ -1016,7 +1010,7 @@
                                                                             <div class="my-4 mb-3">
                                                                                 <h2>{{ $cuestionario->titulo_cuestionario }}
                                                                                 </h2>
-                                                                                <p class="text-light">Cuestionario</p>
+                                                                                <p class="text-gray">Cuestionario</p>
                                                                                 <p>Creado:
                                                                                     {{ $cuestionario->fecha_habilitacion }}
                                                                                     | Vence:
@@ -1510,7 +1504,7 @@
                                 <span class="badge bg-primary rounded-pill fs-6">{{ $cursos->calcularProgreso($inscritos2->id) }}%</span>
                             </div>
                             <div class="progress" style="height: 10px;">
-                                <div class="progress-bar bg-primary" role="progressbar" 
+                                <div class="progress-bar bg-primary" role="progressbar"
                                     style="width: {{ $cursos->calcularProgreso($inscritos2->id) }}%;"
                                     aria-valuenow="{{ $cursos->calcularProgreso($inscritos2->id) }}"
                                     aria-valuemin="0" aria-valuemax="100"></div>
@@ -1592,8 +1586,8 @@
                                                     aria-disabled="{{ !$estaDesbloqueado ? 'true' : 'false' }}"
                                                     {{ !$estaDesbloqueado ? 'data-bs-content="Debes completar el tema anterior para desbloquear este."' : '' }}
                                                     data-bs-placement="top">
-                                                    {{ $tema->titulo_tema }}
-                                                    {{ !$estaDesbloqueado ? '<i class="fas fa-lock"></i>' : '' }}
+                                                    Tema {{ $loop->iteration }}
+                                                    {{ !$estaDesbloqueado ? '🔒' : '' }}
                                                 </button>
                                             </li>
                                         @endforeach
@@ -1773,7 +1767,7 @@
                                                                                                 <div class="my-4 mb-3">
                                                                                                     <h2>{{ $tarea->titulo_tarea }}
                                                                                                     </h2>
-                                                                                                    <p class="text-light">
+                                                                                                    <p class="text-gray">
                                                                                                         Entrega
                                                                                                         Digital</p>
                                                                                                     <p>Creado:
@@ -1834,7 +1828,7 @@
                                                                                                 <div class="my-4 mb-3">
                                                                                                     <h2>{{ $cuestionario->titulo_cuestionario }}
                                                                                                     </h2>
-                                                                                                    <p class="text-light">
+                                                                                                    <p class="text-gray">
                                                                                                         Cuestionario</p>
                                                                                                     <p>Creado:
                                                                                                         {{ $cuestionario->fecha_habilitacion }}
@@ -2099,7 +2093,6 @@
             </div>
         </div>
     @endif
-
 
 
     @if ($errors->any())

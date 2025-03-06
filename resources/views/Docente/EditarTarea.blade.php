@@ -111,7 +111,7 @@ Editar Tarea
             </div>
             <div class="form-group">
                 <label for="taskDescription">Descripción de la Tarea:</label>
-                <textarea id="taskDescription" name="tareaDescripcion" rows="4" required>{{$tarea->descripcionTarea}}</textarea>
+                <textarea id="taskDescription" name="tareaDescripcion" rows="4" >{{$tarea->descripcionTarea}}</textarea>
             </div>
             <div class="form-group">
                 <label for="dueDate">Fecha de habilitación:</label>

@@ -5,76 +5,94 @@
 
 
 @section('content')
-    <div class="p-4  bordertable-container">
-        <h1>Tabla de Aportes/Pagos</h1>
 
 
+<div class="container mt-5">
+    <div class="card p-4 shadow">
+        <h1 class="mb-4 text-center">Tabla de Aportes/Pagos</h1>
 
         <form action="{{ route('registrarpagopost') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <label >Nombre / Razon Social:</label>
-            <input type="text" name="pagante" required>
 
-            <label >CI :</label>
-            <input type="number" name="paganteci"  required>
+            <!-- Nombre / Razón Social -->
+            <div class="mb-3">
+                <label class="form-label">Nombre / Razón Social:</label>
+                <input type="text" name="pagante" class="form-control" required>
+            </div>
 
+            <!-- CI -->
+            <div class="mb-3">
+                <label class="form-label">CI:</label>
+                <input type="number" name="paganteci" class="form-control" required>
+            </div>
 
             <hr>
-            <input type="text" id="estudiante_id" name="estudiante_id" value="{{ auth()->user()->id }}" hidden>
 
-            <label for="nombre_estudiante">Curso:</label>
-            <select name="curso_id" id="estudiante_id">
-                    @forelse ($cursos as $curso)
-                        <option value="{{ $curso->id }}">{{ $curso->nombreCurso }} </option>
-                    @empty
-                        <option value="">No hay cursos disponibles</option>
-                    @endforelse
-            </select>
+            <!-- Campo oculto con ID del estudiante -->
+            <input type="hidden" id="estudiante_id" name="estudiante_id" value="{{ auth()->user()->id }}">
 
-            <label for="nombre_estudiante">Nombre del Estudiante:</label>
-            <select name="estudiante_id" id="estudiante_id">
-                    @forelse ($estudiantes as $estudiante)
-                        <option value="{{ $estudiante->id }}">{{ $estudiante->name }} {{ $estudiante->lastname1 }} {{ $estudiante->lastname2 }}</option>
-                    @empty
-                        <option value="">No hay estudiantes registrados</option>
-                    @endforelse
-            </select>
+            <div class="row">
+                <!-- Curso -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Curso:</label>
+                    <select name="curso_id" class="form-select">
+                        @forelse ($cursos as $curso)
+                            <option value="{{ $curso->id }}">{{ $curso->nombreCurso }}</option>
+                        @empty
+                            <option value="">No hay cursos disponibles</option>
+                        @endforelse
+                    </select>
+                </div>
 
-
-
-
-
-
-            <div style="flex: auto;">
-                <label for="monto">Monto a Pagar:</label>
-                <input type="number" id="monto" name="montopagar" min="1" step="any" required>
-                <span>Bs.</span>
+                <!-- Nombre del Estudiante -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nombre del Estudiante:</label>
+                    <select name="estudiante_id" class="form-select">
+                        @forelse ($estudiantes as $estudiante)
+                            <option value="{{ $estudiante->id }}">{{ $estudiante->name }} {{ $estudiante->lastname1 }} {{ $estudiante->lastname2 }}</option>
+                        @empty
+                            <option value="">No hay estudiantes registrados</option>
+                        @endforelse
+                    </select>
+                </div>
             </div>
 
-            <div style="flex: auto;">
-                <label for="monto">Monto Cancelado:</label>
-                <input type="number" id="monto" name="montocancelado" min="1" step="any" required>
-                <span>Bs.</span>
+            <div class="row">
+                <!-- Monto a Pagar -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Monto a Pagar:</label>
+                    <div class="input-group">
+                        <input type="number" name="montopagar" class="form-control" min="1" step="any" required>
+                        <span class="input-group-text">Bs.</span>
+                    </div>
+                </div>
+
+                <!-- Monto Cancelado -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Monto Cancelado:</label>
+                    <div class="input-group">
+                        <input type="number" name="montocancelado" class="form-control" min="1" step="any" required>
+                        <span class="input-group-text">Bs.</span>
+                    </div>
+                </div>
             </div>
 
+            <!-- Descripción -->
+            <div class="mb-3">
+                <label class="form-label">Descripción:</label>
+                <textarea id="descripcion" name="descripcion" class="form-control" rows="4" required></textarea>
+            </div>
 
-                <label for="descripcion">Descripción:</label>
-                <br>
-            <textarea  id="descripcion" name="descripcion" rows="6" cols="50"   required ></textarea><br><br>
-
-            <input class="btn btn-success" type="submit" class="button-generic" value="Guardar">
+            <!-- Botón de enviar -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save"></i> Guardar
+                </button>
+            </div>
         </form>
 
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
     </div>
+</div>
 
 
 

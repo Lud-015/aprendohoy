@@ -44,6 +44,7 @@
             var forums = @json($foros);
 
             var cursos = @json($cursos->pluck('nombreCurso', 'id')->toArray());
+            console.log(cursos);
 
             function getEvents() {
                 var events = [];
@@ -53,7 +54,7 @@
                         return {
                             startDate:  new Date(task.fecha_vencimiento),
                             endDate: new Date(task.fecha_vencimiento),
-                            name: task.titulo_tarea,
+                            name: task.titulo_tarea ,
                             description: cursos[task.cursos_id],
                             type: 'Tarea'
                         };

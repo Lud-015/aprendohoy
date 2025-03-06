@@ -94,9 +94,9 @@
                         <div class="bg-white shadow-lg rounded-lg overflow-hidden">
                             <img src="{{ asset('./assets/img/course-default.jpg') }}" class="w-full h-40 object-cover" alt="Imagen curso">
                             <div class="p-4">
-                                <span class="text-sm bg-blue-500 text-white px-2 py-1 rounded">
+                                {{-- <span class="text-sm bg-blue-500 text-white px-2 py-1 rounded">
                                     {{ $inscrito->cursos->institucion ?? 'Nombre Institución' }}
-                                </span>
+                                </span> --}}
                                 <h3 class="text-xl font-semibold mt-2">{{ $inscrito->cursos->nombreCurso }}</h3>
                                 <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
                                     <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $inscrito->progreso }}%;"></div>

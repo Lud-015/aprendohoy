@@ -94,7 +94,9 @@
 
 
         <div class="qr-container">
-            <img src="{{ storage_path('app/public/' . $qr) }}" alt="Código QR" class="qr-code" >
+            <div class="qr-code">
+                <img src="{{ storage_path('app/public/' . $qr_url) }}" alt="Código QR de verificación" style="width: 200px; height: 200px;">
+            </div>
         </div>
     </div>
 
