@@ -1,5 +1,5 @@
 @section('titulo')
-Restear Contraseña
+Resetear Contraseña
 @endsection
 
 
@@ -19,7 +19,7 @@ Restear Contraseña
                         <div class="form-group mb-3">
                             <label hidden for="email" class="form-label">{{ __('Correo Electrónico') }}</label>
                             <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                                   name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus hidden>
+                            name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus readonly>
                             @error('email')
                                 <div class="invalid-feedback">
                                     {{ $message }}

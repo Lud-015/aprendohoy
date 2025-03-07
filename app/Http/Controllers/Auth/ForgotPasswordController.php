@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
@@ -43,15 +44,31 @@ class ForgotPasswordController extends Controller
            // Enviar notificación personalizada
            $user->notify(new ResetPasswordNotification($token));
 
-           return back()->with('status', 'Te hemos enviado un correo con el enlace para restablecer tu contraseña.');
+           return back()->with('success', 'Te hemos enviado un correo con el enlace para restablecer tu contraseña.');
        }
 
        // Muestra el formulario para restablecer la contraseña
        public function showResetForm(Request $request, $token = null)
        {
-           return view('auth.reset-password', [
+           // Obtener todos los registros y verificar el hash
+           $resetData = DB::table('password_resets')->get();
+
+           $email = null;
+           foreach ($resetData as $entry) {
+               if (Hash::check($token, $entry->token)) {
+                   $email = $entry->email;
+                   break;
+               }
+           }
+
+           // Si no se encuentra el token, redirigir con error
+           if (!$email) {
+               return redirect()->route('password.request')->with('error', 'El enlace de restablecimiento es inválido o ha expirado.');
+           }
+
+           return view('auth.reset-password')->with([
                'token' => $token,
-               'email' => $request->email,
+               'email' => $email // Pasamos el email a la vista
            ]);
        }
 
@@ -81,7 +98,7 @@ class ForgotPasswordController extends Controller
 
            // Redireccionar con un mensaje de éxito o error
            return $status == Password::PASSWORD_RESET
-               ? redirect()->route('login.signin')->with('status', __($status))
+               ? redirect()->route('login.signin')->with('success', __($status))
                : back()->withErrors(['email' => [__($status)]]);
        }
 }

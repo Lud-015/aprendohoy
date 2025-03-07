@@ -59,7 +59,7 @@ class MenuController extends Controller
     }
 
     public function ListaDeCursosEliminados(){
-
+ 
         $cursos = Cursos::onlyTrashed()->get();
 
         return view('Administrador.ListadeCursosEliminados')->with('cursos' ,$cursos);
