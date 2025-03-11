@@ -4,16 +4,16 @@
 @endsection
 
 @section('content')
-<div class="container pt-lg-6">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-5">
-            <div class="card bg-translucent-light shadow border-0">
+            <div class="card bg-gray-transparent shadow border-0">
                 <div class="card-body px-lg-4 py-lg-4">
                     @if (auth()->check())
                         <!-- Si el usuario ya ha iniciado sesión -->
                         <div class="text-center text-muted mb-4">
                             <h5 class="text-white">Ya has iniciado sesión</h5>
-                            <a class="btn btn-facebook" href="{{ route('Inicio') }}">
+                            <a class="btn btn-primary" href="{{ route('Inicio') }}">
                                 Volver al inicio
                             </a>
                         </div>
@@ -29,40 +29,31 @@
                             <!-- Campo de correo electrónico -->
                             <div class="form-group mb-3">
                                 <label for="email" class="sr-only">Correo Electrónico</label>
-                                <div class="input-group input-group-addon">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" style="border-radius: 20px 0 0 20px;"><i class="ni ni-email-83"></i></span>
-                                    </div>
-                                    <input id="email" class="form-control" style="border-radius: 0 20px 20px 0;" placeholder="Correo Electrónico"
+                                <div class="input-group">
+                                    <span class="input-group-text rounded-start-pill"><i class="ni ni-email-83"></i></span>
+                                    <input id="email" class="form-control rounded-end-pill" placeholder="Correo Electrónico"
                                            type="email" name="email" value="{{ old('email') }}" required autofocus>
                                 </div>
                             </div>
 
+                            <!-- Campo de contraseña -->
                             <div class="form-group mb-3">
                                 <label for="password" class="sr-only">Contraseña</label>
-                                <div class="input-group input-group-alternative">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" style="border-radius: 20px 0 0 20px;">
-                                            <i class="ni ni-lock-circle-open"></i>
-                                        </span>
-                                    </div>
-                                    <input id="password" class="form-control" style="border-radius: 0 20px 20px 0;" placeholder="Contraseña"
+                                <div class="input-group">
+                                    <span class="input-group-text rounded-start-pill">
+                                        <i class="ni ni-lock-circle-open"></i>
+                                    </span>
+                                    <input id="password" class="form-control" placeholder="Contraseña"
                                            type="password" name="password" required>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-secondary" style="border-radius: 0 20px 20px 0;" type="button"
-                                                onclick="togglePasswordVisibility(this)">
-                                            <i class="fa fa-eye"></i> <!-- Ícono dentro del botón -->
-                                        </button>
-                                    </div>
+                                    <button class="btn btn-secondary  rounded-end-pill" type="button" id="togglePassword">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
                                 </div>
                             </div>
 
-
-
-
                             <!-- Botón de envío -->
                             <div class="text-center">
-                                <button type="submit" class="btn btn-facebook my-4" style="border-radius: 20px;">Acceder</button>
+                                <button type="submit" class="btn btn-primary my-4 rounded-pill">Acceder</button>
                             </div>
                         </form>
 
@@ -78,22 +69,30 @@
     </div>
 </div>
 
+
 <script>
-    function togglePasswordVisibility(button) {
-        const passwordInput = document.getElementById('password'); // Obtener el campo de contraseña
-        const icon = button.querySelector('i'); // Obtener el ícono dentro del botón
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
 
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text'; // Mostrar la contraseña
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password'; // Ocultar la contraseña
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
-    }
+        toggleButton.addEventListener('click', function() {
+            // Toggle type attribute
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // Toggle icon
+            const icon = toggleButton.querySelector('i');
+            if (type === 'password') {
+                icon.classList.remove('fa fa-eye-slash');
+                icon.classList.add('fa fa-eye');
+            } else {
+                icon.classList.remove('fa fa-eye');
+                icon.classList.add('fa fa-eye-slash');
+            }
+        });
+    });
 </script>
-@endsection
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+@endsection
 @include('layoutlogin')

@@ -7,174 +7,149 @@
 @section('content')
 
 
-    <div class="container pt-lg-6 border-2">
-        <div class="row justify-content-center">
-            <div class="col-lg-8"> <!-- Aumenté el ancho de col-lg-5 a col-lg-8 -->
-                <!-- Contenedor personalizado en lugar de un card -->
-                <div class="bg-translucent-light shadow border-0 p-5 rounded"> <!-- Añadí padding y bordes redondeados -->
-                    <!-- Título del formulario -->
-                    <div class="text-center text-muted mb-4">
-                        <h5 class="text-white">Regístrate</h5>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="bg-gray-transparent shadow border-0 p-5 rounded">
+                <!-- Título del formulario -->
+                <div class="text-center mb-4">
+                    <h5 style="color: white">Regístrate</h5>
+                </div>
+
+                <!-- Mensajes de error -->
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Formulario de registro -->
+                <form action="{{ route('registrarse') }}" method="post">
+                    @csrf
+
+                    <!-- Campo de correo electrónico -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label text-white">Correo Electrónico</label>
+                        <div class="input-group">
+                            <span class="input-group-text rounded-start-pill"><i class="fa fa-envelope"></i></span>
+                            <input type="email" class="form-control rounded-end-pill" id="email" name="email"
+                                   placeholder="Correo Electrónico" value="{{ old('email') }}" required>
+                        </div>
                     </div>
 
-                    <!-- Mensajes de error -->
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <!-- Formulario de registro -->
-                    <form action="{{ route('registrarse') }}" method="post">
-                        @csrf
-                        <!-- Campo de correo electrónico -->
-                        <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
-                            <label for="email" class="sr-only">Correo Electrónico</label>
-                            <div class="input-group input-group-alternative">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="ni ni-email-83"></i></span>
-                                </div>
-                                <input type="email" class="form-control" id="email" name="email"
-                                    placeholder="Correo Electrónico" value="{{ old('email') }}" required>
+                    <!-- Campos de contraseña y confirmación -->
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="password" class="form-label text-white">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text rounded-start-pill"><i class="fa fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password"
+                                       placeholder="Contraseña" required>
+                                <button class="btn btn-secondary rounded-end-pill toggle-password" type="button"
+                                        data-target="password">
+                                    <i class="fa fa-eye"></i>
+                                </button>
                             </div>
                         </div>
-
-                        <!-- Campos de contraseña y confirmación de contraseña -->
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <div class="form-group mb-4">
-                                    <label for="password" class="sr-only">Contraseña</label>
-                                    <div class="input-group input-group-alternative">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
-                                        </div>
-                                        <input type="password" class="form-control" id="password" name="password"
-                                            placeholder="Contraseña" required>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-secondary" type="button"
-                                                onclick="togglePasswordVisibility(this)">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="form-group mb-4">
-                                    <label for="password_confirmation" class="sr-only">Confirmar Contraseña</label>
-                                    <div class="input-group input-group-alternative">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
-                                        </div>
-                                        <input type="password" class="form-control" id="password_confirmation"
-                                            name="password_confirmation" placeholder="Confirmar Contraseña" required>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-secondary" type="button"
-                                                onclick="togglePasswordVisibility(this)">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="password_confirmation" class="form-label text-white">Confirmar Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text rounded-start-pill"><i class="fa fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password_confirmation"
+                                       name="password_confirmation" placeholder="Confirmar Contraseña" required>
+                                <button class="btn btn-secondary rounded-end-pill toggle-password" type="button"
+                                        data-target="password_confirmation">
+                                    <i class="fa fa-eye"></i>
+                                </button>
                             </div>
                         </div>
-                        <!-- Campos de nombre y apellidos -->
-                        <div class="row">
+                    </div>
+                    <!-- Campo de país -->
+                    <div class="mb-3">
+                        <label for="country" class="form-label text-white">País</label>
+                        <div class="input-group">
+                            <span class="input-group-text rounded-start-pill"><i class="fa fa-globe"></i></span>
+                            <select class="form-control rounded-end-pill" id="country" name="country" required>
+                                <option value="">Selecciona tu país</option>
+                            </select>
+                        </div>
+                    </div>
 
-                            <div class="col-sm-6">
-                                <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
-                                    <label for="country" class="sr-only">País</label>
-                                    <div class="input-group input-group-alternative">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="ni ni-world"></i></span>
-                                        </div>
-                                        <select class="form-control" id="country" name="country" required>
-                                            <option value="">Selecciona tu país</option>
-                                            <!-- Aquí puedes agregar opciones de países -->
-                                        </select>
-                                    </div>
-                                </div>
+                    <!-- Campos de nombre y apellidos -->
+                    <div class="row">
+                        <div class="col-sm-4 mb-3">
+                            <label for="name" class="form-label text-white">Nombre</label>
+                            <div class="input-group">
+                                <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
+                                <input type="text" class="form-control rounded-end-pill" id="name" name="name"
+                                       placeholder="Nombre" value="{{ old('name') }}" required>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
-                                    <label for="name" class="sr-only">Nombre</label>
-                                    <div class="input-group input-group-alternative">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="ni ni-single-02"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" id="name" name="name"
-                                            placeholder="Nombre" value="{{ old('name') }}" required>
-                                    </div>
-                                </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="lastname1" class="form-label text-white">Apellido Paterno</label>
+                            <div class="input-group">
+                                <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
+                                <input type="text" class="form-control rounded-end-pill" id="lastname1" name="lastname1"
+                                       placeholder="Apellido Paterno" value="{{ old('lastname1') }}" required>
                             </div>
-                            <div class="row col-sm-6">
-                                    <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
-                                        <label for="lastname2" class="sr-only">Apellido Paterno</label>
-                                        <div class="input-group input-group-alternative">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="ni ni-single-02"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" id="lastname2" name="lastname2"
-                                                placeholder="Apellido Paterno" value="{{ old('lastname2') }}" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group mb-4"> <!-- Aumenté el margen inferior -->
-                                        <label for="lastname1" class="sr-only">Apellido Materno</label>
-                                        <div class="input-group input-group-alternative">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="ni ni-single-02"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" id="lastname1" name="lastname1"
-                                                placeholder="Apellido Materno" value="{{ old('lastname1') }}" required>
-                                        </div>
-                                    </div>
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                            <label for="lastname2" class="form-label text-white">Apellido Materno</label>
+                            <div class="input-group">
+                                <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
+                                <input type="text" class="form-control rounded-end-pill" id="lastname2" name="lastname2"
+                                       placeholder="Apellido Materno" value="{{ old('lastname2') }}" required>
                             </div>
-
                         </div>
+                    </div>
 
-                        <!-- Campo de apellido paterno y país -->
+                    <!-- reCAPTCHA -->
+                    <div class="g-recaptcha mb-3" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
 
-                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
-
-                        <!-- Botón de envío -->
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-facebook my-4">Registrarse</button>
-                        </div>
-                    </form>
-
-                    <!-- Enlace para volver al inicio de sesión -->
+                    <!-- Botón de envío -->
                     <div class="text-center">
-                        <p class="text-white">¿Ya tienes una cuenta? <a href="{{ route('login.signin') }}"
-                                class="text-white">Inicia sesión aquí</a></p>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Registrarse</button>
                     </div>
+                </form>
+
+                <!-- Enlace para volver al inicio de sesión -->
+                <div class="text-center mt-3">
+                    <p class="text-white">¿Ya tienes una cuenta? <a href="{{ route('login.signin') }}" class="text-white">Inicia sesión aquí</a></p>
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <script>
-        function togglePasswordVisibility(button) {
-            const inputGroup = button.closest('.input-group'); // Encuentra el contenedor padre más cercano
-            const input = inputGroup.querySelector('input'); // Obtiene el campo de contraseña dentro del mismo grupo
-            const icon = button.querySelector('i'); // Obtiene el ícono dentro del botón
+</div>
 
-            if (input.type === 'password') {
-                input.type = 'text'; // Muestra la contraseña
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password'; // Oculta la contraseña
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Seleccionar todos los botones con la clase toggle-password
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+
+        // Agregar event listener a cada botón
+        toggleButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Obtener el ID del campo de contraseña desde el atributo data-target
+                const targetId = this.getAttribute('data-target');
+                const passwordField = document.getElementById(targetId);
+
+                // Cambiar el tipo de input
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    this.querySelector('i').classList.remove('fa-eye');
+                    this.querySelector('i').classList.add('fa-eye-slash');
+                } else {
+                    passwordField.type = 'password';
+                    this.querySelector('i').classList.remove('fa-eye-slash');
+                    this.querySelector('i').classList.add('fa-eye');
+                }
+            });
+        });
+    });
     </script>
 
 @endsection

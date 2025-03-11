@@ -14,8 +14,9 @@
     <link href="{{asset('assets/css/font-awesome.css')}}" rel="stylesheet" />
     <link href="{{asset('assets/css/nucleo-svg.css')}}" rel="stylesheet" />
     <!-- CSS Files -->
-    <link href="{{asset('assets/css/argon-design-system.css')}}" rel="stylesheet" />
     <link href="{{asset('assets/css/log.css')}}" rel="stylesheet" />
+    <link href="{{asset('assets2/css/style.css')}}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* Estilos para la card con desenfoque */
@@ -58,6 +59,14 @@
         .card:hover .card-img {
             filter: blur(0);
             /* Remover desenfoque al pasar el ratón */
+        }
+
+        .bg-gray-transparent {
+            background: rgba(108, 117, 125, 0.75); /* Gris (Bootstrap gray-600) con 75% de opacidad */
+        }
+
+        .rounded-input {
+            border-radius: 20px !important;
         }
     </style>
 </head>

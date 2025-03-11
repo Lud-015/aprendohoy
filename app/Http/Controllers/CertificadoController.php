@@ -280,12 +280,10 @@ class CertificadoController extends Controller
 
     public function generarCertificadoAdmin($inscrito_id)
     {
-
         $inscrito = Inscritos::findOrFail(decrypt($inscrito_id));
 
         // Buscar el curso
         $curso = Cursos::findOrFail($inscrito->cursos_id);
-
 
         // Verificar que el curso sea de tipo "congreso"
         if ($curso->tipo != 'congreso') {
@@ -296,9 +294,8 @@ class CertificadoController extends Controller
             return back()->with('error', 'El certificado no está Disponible.');
         }
 
-
         if (!$inscrito) {
-            return back()->with('error', 'El usuario no esta inscrito en este curso.');
+            return back()->with('error', 'El usuario no está inscrito en este curso.');
         }
 
         // Verificar que exista una plantilla de certificado
@@ -312,33 +309,34 @@ class CertificadoController extends Controller
             ->where('inscrito_id', $inscrito->id)
             ->first();
 
-        // Si ya existe, usamos el código existente, sino generamos uno nuevo
+        // Si ya existe, usamos el código existente
         if ($certificadoExistente) {
             $codigo_certificado = $certificadoExistente->codigo_certificado;
             $regenerando = true;
         } else {
+            // Si no existe, generamos un nuevo código
             $codigo_certificado = Str::uuid();
             $regenerando = false;
+
+            // Crear registro de certificado
+            Certificado::create([
+                'curso_id' => $curso->id,
+                'inscrito_id' => $inscrito->id,
+                'codigo_certificado' => $codigo_certificado,
+            ]);
         }
 
-        $codigo_certificado = Str::uuid();
+        // Generar el código QR solo si no existe o si se está regenerando
+        $qrCode = QrCode::format('svg')
+        ->size(200)
+        ->generate(route('verificar.certificado', ['codigo' => $codigo_certificado]));
 
-        $path = storage_path('app/public/qrcode.png');
-        QrCode::format('png')->size(200)->generate(route('verificar.certificado', ['codigo' => $codigo]), $path);
+    // Guardar el código QR en el almacenamiento
+        $qrPath = "certificados/{$inscrito->cursos_id}/qrcode_{$inscrito->id}.svg";
+        Storage::put("public/$qrPath", $qrCode);
 
-        $qrBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($path));
-
-
-
-        // Crear registro de certificado sin generar PDF
-        Certificado::create([
-            'curso_id' => $curso->id,
-            'inscrito_id' => $inscrito->id,
-            'codigo_certificado' => $codigo_certificado,
-        ]);
-
-        // Enviar notificación con el link de verificación
-        if ($inscrito->estudiantes && $inscrito->estudiantes->email) {
+        // Enviar notificación con el link de verificación solo si no se está regenerando
+        if (!$regenerando && $inscrito->estudiantes && $inscrito->estudiantes->email) {
             $link_verificacion = route('verificar.certificado', ['codigo' => $codigo_certificado]);
             $inscrito->estudiantes->notify(new CertificadoGeneradoNotification($inscrito, $link_verificacion));
         }
