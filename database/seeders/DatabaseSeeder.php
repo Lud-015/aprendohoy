@@ -58,5 +58,9 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]
         ]);
+
+
+        $this->call(RolesPermisosSeeder::class);
+        $this->call(AdministradorSeeder::class);
     }
 }

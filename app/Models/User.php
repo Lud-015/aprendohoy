@@ -18,9 +18,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Permission\Models\Role;
 
-class User extends Authenticatable implements MustVerifyEmail
+
+class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
+    use HasRoles,HasApiTokens, HasFactory, Notifiable;
 
     public function routeNotificationForMail()
     {
@@ -32,44 +33,32 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new ResetPasswordNotification($token));
     }
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
-        'lastname1',
-        'lastname2',
+        'appaterno',
+        'apmaterno',
         'CI',
         'Celular',
         'fechadenac',
         'PaisReside',
         'CiudadReside',
+        'CI',
+        'Celular',
+        'fechadenac',
         'email',
         'password',
         'avatar',
-        'cv_file', 
+        'cv_file',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function atributosdocente(){
+        return $this->hasOne(AtributosDocentes::class, 'id' , 'docente_id');
+    }
 
     protected $softDeletes = true;
 
@@ -79,10 +68,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-    public function atributosDocente(): HasOne
-    {
-        return $this->hasOne(AtributosDocente::class, 'docente_id');
-    }
 
 
     public function tutor(): HasOne
@@ -142,4 +127,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new CustomVerifyEmail);
     }
+
+
 }

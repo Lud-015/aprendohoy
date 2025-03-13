@@ -48,18 +48,8 @@ use App\Http\Controllers\BotManController;
 use App\Http\Controllers\ChatbotController;
 
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 
+Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 
 Route::get('/botman/tinker', function () {
     return view('botman.tinker');
@@ -129,19 +119,6 @@ Route::get('/password/reset/{token}', [ForgotPasswordController::class, 'showRes
 Route::post('/password/reset', [ForgotPasswordController::class, 'reset'])
     ->middleware('guest')
     ->name('password.update');
-
-
-
-
-
-
-
-// Route::get('/send-test-email', function () {
-//     $content = "Este es el contenido dinámico del correo.";
-//     Mail::to('ludtp350@gmail.com')->send(new TestEmail($content));
-
-//     return "Correo enviado correctamente.";
-// });
 
 
 Route::fallback(function () {
@@ -454,3 +431,4 @@ Route::group(['middleware' => ['auth']], function () {
     // Ruta para inscribirse utilizando el QR
     Route::get('/inscribirse/{id}/{token}', [InscritosController::class, 'inscribirse'])->name('inscribirse.qr');
 });
+

@@ -11,7 +11,9 @@ class TutorRepresentanteLegal extends Model
 {
     use HasFactory, SoftDeletes;
     protected $softDelete = true;
-    public function estudiante():BelongsTo{
+
+
+    public function estudianteMenor(){
 
         return $this->belongsTo(User::class, 'estudiante_id');
 
