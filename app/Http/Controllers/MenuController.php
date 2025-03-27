@@ -21,7 +21,7 @@ class MenuController extends Controller
     public function detalle($id)
     {
         $curso = Cursos::findOrFail($id);
-        return view('layoutlanding')->with('cursos', $curso);
+        return view('cursosDetalle')->with('cursos', $curso);
     }
 
 

@@ -16,36 +16,19 @@ use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\BoletinController;
 use App\Http\Controllers\CertificadoController;
 use App\Http\Controllers\CuestionarioController;
-use App\Http\Controllers\EdadDirigidaController;
 use App\Http\Controllers\EvaluacionesController;
 use App\Http\Controllers\EvaluacionEntregaController;
 use App\Http\Controllers\HorarioController;
-use App\Http\Controllers\NivelController;
 use App\Http\Controllers\NotaEntregaController;
 use App\Http\Controllers\OpcionesController;
 use App\Http\Controllers\PreguntaController;
-use App\Http\Controllers\PreguntaTareaController;
-use App\Http\Controllers\RespuestaTareasController;
-use App\Http\Middleware\AddCrossOriginHeaders;
 use App\Http\Controllers\TemaController;
 use App\Http\Controllers\SubtemaController;
-use App\Http\Controllers\TareaController;
-use App\Mail\NuevoUsuarioRegistrado;
-use App\Models\Boletin;
-use App\Models\Cursos;
-use App\Models\EdadDirigida;
-use App\Models\NotaEntrega;
-use Database\Seeders\Administrador;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\TestEmail;
-use App\Models\Certificado;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\RecursoSubtemaController;
-use App\Models\ActividadCompletion;
 use App\Http\Controllers\BotManController;
-use App\Http\Controllers\ChatbotController;
 
 
 
@@ -79,7 +62,6 @@ Route::post('/email/resend-verification-notification', function (Request $reques
 
 
 
-
 Route::get('/login', function () {
     return view('login');
 })->middleware('noCache')->name('login');
@@ -91,6 +73,9 @@ Route::get('/registro', function () {
 
 Route::post('/resgistrarse', [UserController::class, 'storeUsuario'])->name('registrarse');
 
+Route::post('/resgistrarse/Congreso/{id}', [CertificadoController::class, 'register'])->name('registrarseCongreso');
+Route::post('/congreso/inscribir', [CertificadoController::class, 'inscribir'])
+     ->name('congreso.inscribir');
 
 Route::get('/item/detalle/{id}', [MenuController::class, 'detalle'])->name('congreso.detalle');
 Route::get('/Lista', [MenuController::class, 'lista'])->name('lista.cursos.congresos');
@@ -126,14 +111,10 @@ Route::fallback(function () {
 });
 
 Route::get('/cuestionario', [CuestionarioController::class, 'responder']);
-
 Route::get('/quizzprueba', [MenuController::class, 'quizz']);
 
 
-
 Route::post('/login', [UserController::class, 'authenticate'])->name('login.signin');
-
-
 Route::get('/verificar-certificado/{codigo}', [CertificadoController::class, 'verificarCertificado'])->name('verificar.certificado');
 
 
@@ -141,9 +122,8 @@ Route::get('/verificar-certificado/{codigo}', [CertificadoController::class, 've
 Route::group(['middleware' => ['auth']], function () {
 
 
-
+    //Solo Estudiante
     Route::group(['middleware' => ['role:Estudiante']], function () {
-        // Inscribirse a un congreso
         Route::post('/Inscribirse-Curso/{id}', [InscritosController::class, 'storeCongreso'])
             ->name('inscribirse_congreso');
     });
@@ -369,11 +349,13 @@ Route::group(['middleware' => ['auth']], function () {
 
     //ESTUDIANTE
     Route::group(['middleware' => ['role:Estudiante|Docente|Administrador']], function () {
-        // Route::get('/descargarRecurso/{nombreArchivo}', [RecursosController::class, 'descargar'])->name('descargar');
+
+        Route::get('/recursos/descargar/{archivo}', [RecursosController::class, 'descargar'])
+        ->name('recursos.descargar');
         //Calendario
         Route::get('listaParticipantes/cursoid={id}', [CursosController::class, 'listaCurso'])->name('listacurso');
         // Ruta para obtener el certificado
-        Route::get('/certificados/obtener/{id}', [CertificadoController::class, 'obtenerCertificado'])
+        Route::post('/certificados/obtener/{id}', [CertificadoController::class, 'obtenerCertificado'])
             ->name('certificados.obtener');
         Route::get('/Notificaciones', [UserController::class, 'notificaciones'])->name('notificaciones');
         Route::get('/user/{id}', [UserController::class, 'Profile'])->name('perfil');

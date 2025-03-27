@@ -421,3 +421,4 @@ class CursosController extends Controller
         return back()->with('success', 'Certificados activados correctamente.');
     }
 }
+ 

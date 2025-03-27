@@ -21,7 +21,7 @@ use Spatie\Permission\Models\Role;
 
 class User extends Authenticatable
 {
-    use HasRoles,HasApiTokens, HasFactory, Notifiable;
+    use HasRoles,HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     public function routeNotificationForMail()
     {
@@ -35,8 +35,8 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
-        'appaterno',
-        'apmaterno',
+        'lastname1',
+        'lastname2',
         'CI',
         'Celular',
         'fechadenac',

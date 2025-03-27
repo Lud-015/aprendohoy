@@ -32,7 +32,7 @@
         <!-- Tabla de alumnos -->
         <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle">
-                <thead class="table-dark">
+                <thead>
                     <tr>
                         <th scope="col">Nro</th>
                         <th scope="col">Nombre y Apellidos</th>
@@ -58,9 +58,9 @@
                                 <td>{{ $inscrito->estudiantes->Celular ?? '' }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        <a class="btn btn-sm btn-info"
-                                            href="{{ route('perfil', [$inscrito->estudiantes->id]) }}">
-                                            <i class="bi bi-eye"></i>
+                                         <a class="btn  btn-info"
+                                            href="{{ route('perfil', [$inscrito->estudiantes->id]) }}"><i class="fa fa-eye"></i></a>
+
 
                                         @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Administrador'))
                                             <a class="btn btn-sm btn-danger" href="{{ route('quitar', [$inscrito->id]) }}"

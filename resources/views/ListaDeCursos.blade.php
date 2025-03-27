@@ -29,8 +29,8 @@
 
         <div class="table-responsive">
             @if (auth()->user()->hasRole('Administrador'))
-                <table class="table table-hover table-striped table-bordered align-middle">
-                    <thead class="table-dark">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead >
                         <tr>
                             <th>Nº</th>
                             <th>Nombre Curso</th>

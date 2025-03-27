@@ -11,42 +11,43 @@
             <a href="{{ route('Inicio') }}" class="btn btn-sm btn-primary">
                 &#9668; Volver
             </a>
-            <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#crearPreguntaModal">
+
+            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#crearPreguntaModal">
                 Crear Pregunta
             </button>
+
         </div>
 
+
         <!-- Modal para Crear Pregunta -->
-        <div class="modal fade" id="crearPreguntaModal" tabindex="-1" aria-labelledby="crearPreguntaLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="crearPreguntaModal" tabindex="-1" aria-labelledby="crearPreguntaLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form method="POST" action="{{ route('pregunta.store', $cuestionario->id) }}">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="crearPreguntaLabel">Crear Pregunta</h5>
-                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label for="preguntaTexto">Texto de la Pregunta</label>
+                            <div class="mb-3"> <!-- Cambiado de form-group a mb-3 -->
+                                <label for="preguntaTexto" class="form-label">Texto de la Pregunta</label>
                                 <input type="text" class="form-control" id="preguntaTexto" name="pregunta" required>
                             </div>
-                            <div class="form-group">
-                                <label for="preguntaTipo">Tipo de Pregunta</label>
-                                <select class="form-control" id="preguntaTipo" name="tipo_preg" required>
+                            <div class="mb-3">
+                                <label for="preguntaTipo" class="form-label">Tipo de Pregunta</label>
+                                <select class="form-select" id="preguntaTipo" name="tipo_preg" required>
                                     <option value="multiple">Opción Múltiple</option>
                                     <option value="abierta">Respuesta Abierta</option>
                                 </select>
                             </div>
-                            <label for="preguntaTipo">Puntos</label>
-
-                            <div class="form-group">
-                                <input type="number" name="puntos">
+                            <div class="mb-3">
+                                <label for="puntosPregunta" class="form-label">Puntos</label>
+                                <input type="number" class="form-control" id="puntosPregunta" name="puntos" required>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                             <button type="submit" class="btn btn-primary">Crear</button>
                         </div>
                     </form>
@@ -61,42 +62,47 @@
                 <div class="modal-content">
                     <form method="POST" action="{{ route('opcion.store', $cuestionario->id) }}">
                         @csrf
-                        <div class="modal-header">
+                        <div class="modal-header bg-primary text-white">
                             <h5 class="modal-title" id="crearRespuestaLabel">Crear Respuesta</h5>
-                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <input type="hidden" name="pregunta_id" value="">
-                            <div class="form-group">
-                                <label for="respuestaTexto">Texto de la Respuesta</label>
-                                <input type="text" class="form-control" id="respuestaTexto" name="respuesta"
-                                    required>
+                            <input type="hidden" name="pregunta_id" id="pregunta_id" value="">
+
+                            <div class="mb-3">
+                                <label for="respuestaTexto" class="form-label">Texto de la Respuesta</label>
+                                <input type="text" class="form-control" id="respuestaTexto" name="respuesta" required>
                             </div>
-                            <div class="form-group">
-                                <label>¿Es correcta?</label>
-                                <div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="vf" id="verdadero"
-                                            value="1" required>
-                                        <label class="form-check-label" for="verdadero">Verdadero</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="vf" id="falso"
-                                            value="0" required>
-                                        <label class="form-check-label" for="falso">Falso</label>
-                                    </div>
+
+                            <div class="mb-3">
+                                <label class="form-label d-block">¿Es correcta?</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="es_correcta" id="verdadero"
+                                        value="1" required>
+                                    <label class="form-check-label" for="verdadero">Verdadero</label>
                                 </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="es_correcta" id="falso"
+                                        value="0">
+                                    <label class="form-check-label" for="falso">Falso</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="puntosRespuesta" class="form-label">Puntos (opcional)</label>
+                                <input type="number" class="form-control" id="puntosRespuesta" name="puntos"
+                                    min="0">
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                            <button type="submit" class="btn btn-primary">Añadir</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Respuesta</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-
         <!-- Buscador -->
         <div class="input-group mb-3">
             <div class="input-group-prepend">
@@ -126,9 +132,10 @@
                         <td>{{ $pregunta->puntos }}</td>
                         <td>
                             @if ($pregunta->tipo === 'multiple' || $pregunta->tipo === 'verdadero_falso')
-                                <button class="btn btn-sm btn-success" data-toggle="modal"
-                                    data-target="#crearRespuestaModal{{ $pregunta->id }}">
-                                    Añadir Respuesta
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                    data-bs-target="#crearRespuestaModal{{ $pregunta->id }}"
+                                    onclick="setPreguntaId({{ $pregunta->id }})">
+                                    <i class="fas fa-plus-circle me-1"></i> Añadir Respuesta
                                 </button>
                             @else
                                 <span class="text-muted">No aplica</span>
@@ -136,9 +143,9 @@
                         </td>
                         <td colspan="2">
                             <!-- Botón para abrir el modal de edición -->
-                            <button class="btn btn-sm btn-warning" data-toggle="modal"
-                                data-target="#editarPreguntaModal{{ $pregunta->id }}">
-                                Editar
+                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                data-bs-target="#editarPreguntaModal{{ $pregunta->id }}" title="Editar pregunta">
+                                <i class="fas fa-edit me-1"></i> Editar
                             </button>
 
                             @if ($pregunta->trashed())
@@ -219,10 +226,12 @@
                                 <td colspan="2">{{ $opcion->texto }}</td>
                                 <td>{{ $opcion->es_correcta ? 'Correcta' : 'Incorrecta' }}</td>
                                 <td colspan="2">
-                                    <button class="btn btn-sm btn-warning" data-toggle="modal"
-                                        data-target="#editarRespuestaModal{{ $opcion->id }}">
-                                        Editar
-                                    </button>
+                                    <button class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editarRespuestaModal{{ $opcion->id }}"
+                                    title="Editar esta respuesta">
+                                <i class="fas fa-edit me-1"></i> Editar
+                            </button>
                                     @if ($opcion->trashed())
                                         <!-- Si la pregunta está eliminada, mostrar el botón de Restaurar -->
                                         <form action="{{ route('opcion.restore', $opcion->id) }}" method="POST"

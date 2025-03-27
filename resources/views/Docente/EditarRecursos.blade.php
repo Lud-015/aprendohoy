@@ -35,83 +35,181 @@
                 </div>
 
 
-
                 <div class="icon-gallery">
+                    <!-- Documentos -->
+                    <div class="icon-category mb-4">
+                        <h5 class="category-title mb-3 border-bottom pb-2">Documentos</h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/word.png')}}" alt="Word" data-value="word" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Word</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/excel.png')}}" alt="Excel" data-value="excel" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Excel</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/powerpoint.png')}}" alt="PowerPoint" data-value="powerpoint" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">PowerPoint</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/pdf.png')}}" alt="PDF" data-value="pdf" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">PDF</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/doc.png')}}" alt="Docs" data-value="docs" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Docs</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/word.png')}}" alt="word" data-value="word" height="50px">
-                        <p>Word</p>
+                    <!-- Google Workspace -->
+                    <div class="icon-category mb-4">
+                        <h5 class="category-title mb-3 border-bottom pb-2">Google Workspace</h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/drive.png')}}" alt="Drive" data-value="drive" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Drive</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/forms.png')}}" alt="Forms" data-value="forms" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Forms</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/excel.png')}}" alt="excel" data-value="excel" height="50px">
-                        <p>Excel</p>
+
+                    <!-- Multimedia -->
+                    <div class="icon-category mb-4">
+                        <h5 class="category-title mb-3 border-bottom pb-2">Multimedia</h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/imagen.png')}}" alt="Imagen" data-value="imagen" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Imagen</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/video.png')}}" alt="Video" data-value="video" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Video</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/audio.png')}}" alt="Audio" data-value="audio" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Audio</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/youtube.png')}}" alt="YouTube" data-value="youtube" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">YouTube</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/powerpoint.png')}}" alt="powerpoint" data-value="powerpoint" height="50px">
-                        <p>PowerPoint</p>
+
+                    <!-- Videoconferencia -->
+                    <div class="icon-category mb-4">
+                        <h5 class="category-title mb-3 border-bottom pb-2">Videoconferencia</h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/zoom.png')}}" alt="Zoom" data-value="zoom" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Zoom</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/meet.png')}}" alt="Meet" data-value="meet" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Meet</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/teams.png')}}" alt="Teams" data-value="teams" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Teams</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/pdf.png')}}" alt="pdf" data-value="pdf" height="50px">
-                        <p>PDF</p>
+
+                    <!-- Herramientas Educativas -->
+                    <div class="icon-category mb-4">
+                        <h5 class="category-title mb-3 border-bottom pb-2">Herramientas Educativas</h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/kahoot.png')}}" alt="Kahoot" data-value="kahoot" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Kahoot</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/canva.png')}}" alt="Canva" data-value="canva" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Canva</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/archivos-adjuntos.png')}}" alt="archivos-adjuntos" data-value="archivos-adjuntos" height="50px">
-                        <p>Archivos Adjuntos</p>
+
+                    <!-- Otros -->
+                    <div class="icon-category mb-4">
+                        <h5 class="category-title mb-3 border-bottom pb-2">Otros</h5>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/enlace.png')}}" alt="Enlace" data-value="enlace" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Enlace</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="icon-option text-center p-2 rounded hover-shadow">
+                                    <img src="{{asset('resources/icons/archivos-adjuntos.png')}}" alt="Archivos" data-value="archivos-adjuntos" height="50px" class="img-fluid mb-2">
+                                    <p class="mb-0 small">Archivos</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/doc.png')}}" alt="docs" data-value="docs" height="50px">
-                        <p>Docs</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/forms.png')}}" alt="forms" data-value="forms" height="50px">
-                        <p>Forms</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/drive.png')}}" alt="drive" data-value="drive" height="50px">
-                        <p>Drive</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/youtube.png')}}" alt="youtube" data-value="youtube" height="50px">
-                        <p>YouTube</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/kahoot.png')}}" alt="kahoot" data-value="kahoot" height="50px">
-                        <p>Kahoot</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/canva.png')}}" alt="canva" data-value="canva" height="50px">
-                        <p>Canva</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/zoom.png')}}" alt="zoom" data-value="zoom" height="50px">
-                        <p>Zoom</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/meet.png')}}" alt="meet" data-value="meet" height="50px">
-                        <p>Meet</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/teams.png')}}" alt="teams" data-value="teams" height="50px">
-                        <p>Teams</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/enlace.png')}}" alt="enlace" data-value="enlace" height="50px">
-                        <p>Enlace</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/imagen.png')}}" alt="imagen" data-value="imagen" height="50px">
-                        <p>Imagen</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/video.png')}}" alt="video" data-value="video" height="50px">
-                        <p>Video</p>
-                    </div>
-                    <div class="icon-option">
-                        <img src="{{asset('resources/icons/audio.png')}}" alt="audio" data-value="audio" height="50px">
-                        <p>Audio</p>
-                    </div>
-                    <!-- Agrega más opciones de iconos según sea necesario -->
                 </div>
+
+                <style>
+                    .icon-gallery {
+                        padding: 20px;
+                    }
+                    .category-title {
+                        color: #3f51b5;
+                        font-weight: 600;
+                    }
+                    .icon-option {
+                        transition: all 0.3s ease;
+                        cursor: pointer;
+                    }
+                    .icon-option:hover {
+                        background-color: #f5f5f5;
+                        transform: translateY(-3px);
+                    }
+                    .hover-shadow {
+                        transition: box-shadow 0.3s ease;
+                    }
+                    .hover-shadow:hover {
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    }
+                </style>
                 <input id="input-seleccionado" type="text" name="tipoRecurso" value="" hidden >
                  <p id="icono-seleccionado">Seleccionado: Ninguno</p>
 

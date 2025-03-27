@@ -44,7 +44,7 @@
                         <p class="card-text text-black mb-0">{{ $mensaje->mensaje }}</p>
 
                         <!-- Botón para abrir modal de respuesta -->
-                        <div class="d-flex gap-2">
+                        <div class="d-inline-flex gap-1">
                             <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#replyModal-{{ $mensaje->id }}">
                                 <i class="bi bi-reply-fill"></i> Responder
@@ -190,43 +190,6 @@
 
                     </div>
                 </article>
-                <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="commentModalLabel">Publicar Comentario</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Cerrar"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- Formulario de comentario -->
-                                <form class="comment-form" method="POST"
-                                    action="{{ route('foro.mensaje.store', $foro->id) }}">
-                                    @csrf
-                                    <input type="hidden" name="foro_id" value="{{ $foro->id }}">
-                                    <input type="hidden" name="estudiante_id" value="{{ auth()->user()->id }}">
-
-                                    <div class="mb-3">
-                                        <label for="tituloMensaje" class="form-label fw-bold">Título de mensaje</label>
-                                        <input type="text" class="form-control" name="tituloMensaje"
-                                            placeholder="Título del Mensaje" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="mensaje" class="form-label fw-bold">Mensaje</label>
-                                        <textarea class="form-control" name="mensaje" cols="100" rows="4"
-                                            placeholder="Escribe tu comentario aquí" required></textarea>
-                                    </div>
-
-                                    <button class="btn btn-primary w-100" type="submit">
-                                        <i class="bi bi-send-fill"></i> Publicar
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="modal fade" id="editMessageModal-{{ $mensaje->id }}" tabindex="-1"
                     aria-labelledby="editMessageModalLabel-{{ $mensaje->id }}" aria-hidden="true">
@@ -265,6 +228,43 @@
             @endforelse
         </div>
 
+        <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentModalLabel">Publicar Comentario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulario de comentario -->
+                    <form class="comment-form" method="POST"
+                        action="{{ route('foro.mensaje.store', $foro->id) }}">
+                        @csrf
+                        <input type="hidden" name="foro_id" value="{{ $foro->id }}">
+                        <input type="hidden" name="estudiante_id" value="{{ auth()->user()->id }}">
+
+                        <div class="mb-3">
+                            <label for="tituloMensaje" class="form-label fw-bold">Título de mensaje</label>
+                            <input type="text" class="form-control" name="tituloMensaje"
+                                placeholder="Título del Mensaje" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mensaje" class="form-label fw-bold">Mensaje</label>
+                            <textarea class="form-control" name="mensaje" cols="100" rows="4"
+                                placeholder="Escribe tu comentario aquí" required></textarea>
+                        </div>
+
+                        <button class="btn btn-primary w-100" type="submit">
+                            <i class="bi bi-send-fill"></i> Publicar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     </div>
@@ -290,4 +290,3 @@
 
 
 @include('layout')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

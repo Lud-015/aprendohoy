@@ -34,7 +34,7 @@
 
     <div class="table-responsive mt-3">
         <table class="table table-hover table-striped align-middle">
-            <thead class="table-dark">
+            <thead class="">
                 <tr>
                     <th scope="col">Nro</th>
                     <th scope="col">Nombre y Apellidos</th>

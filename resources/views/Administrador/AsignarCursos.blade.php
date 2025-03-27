@@ -3,10 +3,12 @@
 @endsection
 
 
+
+
 @section('content')
 <div class="container py-5">
     <div class="card shadow">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-sec text-white">
             <h2 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Asignar Cursos a Estudiantes</h2>
         </div>
         <div class="card-body">
@@ -42,7 +44,7 @@
                                     <div id="lista-estudiantes" class="list-group">
                                         <!-- Los estudiantes se cargarán aquí dinámicamente -->
                                         <div class="text-center text-muted py-5">
-                                            <i class="fas fa-info-circle mb-2 display-6"></i>
+                                            <i class="fa fa-info-circle "></i>
                                             <p>Seleccione un curso para ver los estudiantes disponibles</p>
                                         </div>
                                     </div>
@@ -63,10 +65,9 @@
             </form>
         </div>
     </div>
-</div>
+</div>  
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script>
     $(document).ready(function() {

@@ -31,7 +31,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card border-0 shadow rounded-lg">
                 <!-- Sección de avatar -->
-                <div class="card-header bg-gradient-primary text-white text-center py-4 rounded-top">
+                <div class="card-header bg-sec text-white text-center py-4 rounded-top">
                     <h4 class="mb-0">Perfil de Usuario</h4>
                 </div>
 

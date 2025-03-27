@@ -19,12 +19,19 @@
     <!-- Icons -->
     <link href="{{ asset('./assets/js/plugins/nucleo/css/nucleo.css') }}" rel="stylesheet" />
     <link href="{{ asset('./assets/js/plugins/@fortawesome/fontawesome-free/css/all.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('./assets/js/argon-dashboard.min.js') }}" rel="stylesheet" />
+
+
+
+
 
     <!-- CSS Files -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
 </head>
+
+
 
 <style>
     .styled-textarea {
@@ -177,6 +184,90 @@
 </style>
 
 
+<style>
+    /* Paleta de colores */
+:root {
+    --primary-color: #2197BD;  /* Azul oscuro */
+    --secondary-color: #39a6cb; /* Celeste */
+    --tertiary-color: #63becf;  /* Azul claro */
+    --info-color: #63becf;
+    --light-blue: #2197BD;
+    --dark-blue: #145DA0;
+    --extra-blue: #2A81C2;
+    --success-color: #198754; /* Mantiene el verde Bootstrap */
+}
+
+bg-third
+
+/* Estilos generales de la tabla */
+.table {
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1); /* Sombra suave */
+}
+
+.bg-sec {
+    background-color: var(--primary-color);
+}
+
+/* Encabezado de la tabla */
+.table thead {
+    background-color: #1a4789; /* Azul oscuro */
+    color: white;
+}
+
+/* Bordes y espaciado en celdas */
+.table th,
+.table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* Línea separadora */
+}
+
+/* Filas alternas con color */
+.table tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* Gris claro */
+}
+
+/* Hover en filas */
+.table tbody tr:hover {
+    background-color: #d7ebf4; /* Azul claro */
+    transition: background 0.3s ease-in-out;
+}
+
+
+/* Cambiar colores de botones */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    border-color: var(--info-color);
+}
+
+.btn-info:hover {
+    background-color: var(--light-blue);
+    border-color: var(--light-blue);
+}
+
+/* Personalizar texto */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-info {
+    color: var(--info-color) !important;
+}
+
+</style>
+
+
 
 
 
@@ -272,23 +363,23 @@
 
 
     <div class="content">
-        <div class="header pt-2 pt-md-4">
+        <div class="header pt-md-1">
             <div class="container-fluid">
                 <div class="header-body">
                     <style>
 
-.navbar-main {
-    overflow: visible !important; /* Asegura que los elementos hijos no se corten */
-}
+                        .navbar-main {
+                            overflow: visible !important; /* Asegura que los elementos hijos no se corten */
+                        }
 
 
-.notification-dropdown .dropdown-menu {
-    position: absolute !important;
-    right: 0;
-    left: auto;
-    transform: translateY(10px); /* Ajuste opcional */
-    z-index: 1050; /* Asegura que esté por encima de otros elementos */
-}
+                        .notification-dropdown .dropdown-menu {
+                            position: absolute !important;
+                            right: 0;
+                            left: auto;
+                            transform: translateY(10px); /* Ajuste opcional */
+                            z-index: 1050; /* Asegura que esté por encima de otros elementos */
+                        }
 
                         /* Navbar Estilos */
                         .navbar-main {
@@ -345,11 +436,11 @@
                         }
 
                         .notification-dropdown .dropdown-item:hover {
-                            background-color: rgba(255, 255, 255, 0.1);
+                            background-color: #9bf0ff;
                         }
 
                         .notification-dropdown small {
-                            color: #6c757d !important;
+                            color: #055c9d !important;
                         }
 
                         .notification-dropdown .badge {
@@ -365,7 +456,7 @@
                         }
 
                         .notification-dropdown .nav-link {
-                            color: rgb(255, 255, 255);
+                            color: rgb(243, 243, 243);
                         }
 
                         .notification-view-all {
@@ -373,7 +464,7 @@
                             text-align: center;
                             padding: 0.5rem;
                             color: white;
-                            background-color: rgba(82, 163, 255, 0.2);
+                            background-color: #63becf;
                             text-decoration: none;
                         }
 
@@ -414,7 +505,7 @@
                                     <div class="dropdown">
                                         <a class="nav-link dropdown-toggle" href="#" role="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                             <div class="bell-container">
-                                                <i class="fa fa-bell text-blue"></i>
+                                                <i class="fa fa-bell text-secondary"></i>
 
                                             </div>
                                         </a>
@@ -445,146 +536,36 @@
                         </div>
                     </nav>
 
-                    <!-- Contenido adicional -->
                     @yield('contentup')
                 </div>
             </div>
         </div>
-        {{-- <div class="header  pt-2 pt-md-4">
-            <div class="container-fluid">
-                <div class="header-body">
-                    <style>
-                        /* Navbar Estilos */
-                        .navbar-main {
-                            background: linear-gradient(145deg, rgba(26, 71, 137, 1) 40%, rgba(34, 77, 141, 1) 53%, rgba(255, 255, 255, 1) 53%);
-                            width: 100%;
-                            border: none;
-                            position: relative;
-                            overflow: hidden;
-                            padding: 15px 20px;
-                            /* Espaciado interno */
-                        }
 
-                        /* Contenedor de la navbar */
-                        .navbar-container {
-                            display: flex;
-                            align-items: center;
-                            justify-content: space-between;
-                            width: 100%;
-                        }
-
-                        /* Ajuste de la altura y tamaño del navbar en pantallas grandes */
-                        @media (min-width: 992px) {
-                            .navbar-main {
-                                height: 140px;
-                                /* Solo en pantallas grandes */
-                            }
-                        }
-
-                        /* Ajustes de logos */
-                        .navbar-brand img {
-                            max-height: 80px;
-                            /* Tamaño máximo del logo */
-                            width: auto;
-                        }
-
-                        /* Logo derecho (Acceder) más pequeño */
-                        .logo-acceder img {
-                            max-height: 45px;
-                        }
-
-                        /* Responsividad: Ajustar la navbar en pantallas pequeñas */
-                        @media (max-width: 768px) {
-                            .navbar-main {
-                                height: auto;
-                                /* Altura dinámica en móviles */
-                                padding: 10px 15px;
-                                /* Reducir padding */
-                            }
-
-                            .navbar-container {
-                                flex-direction: column;
-                                /* Elementos en columna */
-                                text-align: center;
-                                gap: 10px;
-                                /* Separación entre logos */
-                            }
-
-                            .navbar-brand img {
-                                max-height: 20px;
-                            }
-
-                            .logo-acceder img {
-                                max-height: 10px;
-                            }
-                        }
-                    </style> <!-- Card stats -->
-                    <!-- Navbar -->
-                    <nav id="navbar-main" class="navbar navbar-expand-lg navbar-light navbar-main">
-                        <div class="container d-flex justify-content-between align-items-center">
-                            <!-- Logo izquierdo -->
-                            <a class="navbar-brand" href="{{ route('Inicio') }}">
-                                <img src="{{ asset('../assets/img/logof.png') }}" alt="Logo Izquierdo" class="logo"
-                                   >
-                            </a>
-
-                            <!-- Logo derecho -->
-                            <a class="logo-acceder" href="{{ route('Inicio') }}">
-                                <img src="{{ asset('../assets/img/Acceder.png') }}" alt="Logo Derecho"
-                                    class="logo-acceder" >
-                            </a>
-                        </div>
-                    </nav>
-                    <!-- Contenido adicional -->
-                    @yield('contentup')
-                </div>
-            </div>
-        </div> --}}
-
-
-
-
-
-
-        <div class="container-fluid mt-4">
-            <div class="row mt-5">
-                <div class="col-12">
-                    <div class="card shadow">
-                        <div class="card-body">
-                            <div class="table-responsive">
+        <div class="container-fluid mt-2">
                                 @yield('content')
-                            </div>
-                            @yield('contentini')
-                        </div>
+                                @yield('contentini')
+        </div>
+        <footer class="footer mt-4">
+            <div class="container">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-md-6 text-center text-md-start text-muted">
+                        &copy; <script>document.write(new Date().getFullYear());</script>
+                        <a href="#" target="_blank">Fundación Educar para la Vida</a>.
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <!-- Espacio para enlaces adicionales si los necesitas -->
                     </div>
                 </div>
             </div>
-
-            <!-- Footer -->
-            <footer class="footer mt-4">
-                <div class="container">
-                    <div class="row align-items-center justify-content-between">
-                        <div class="col-md-6 text-center text-md-start text-muted">
-                            &copy; <script>document.write(new Date().getFullYear());</script>
-                            <a href="#" target="_blank">Fundación Educar para la Vida</a>.
-                        </div>
-                        <div class="col-md-6 text-center text-md-end">
-                            <!-- Espacio para enlaces adicionales si los necesitas -->
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        </div>
+        </footer>
 
     </div>
     <!--   Core   -->
     <script src="{{ asset('./assets/js/plugins/jquery/dist/jquery.min.js') }}"></script>
-    <script src="{{ asset('./assets/js/plugins/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
     <!--   Optional JS   -->
     <script src="{{ asset('./assets/js/plugins/chart.js/dist/Chart.min.js') }}"></script>
     <script src="{{ asset('./assets/js/plugins/chart.js/dist/Chart.extension.js') }}"></script>
     <!--   Argon JS   -->
-    <script src="{{ asset('./assets/js/argon-dashboard.min.js?v=1.1.2') }}"></script>
     <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
     <script>
         window.TrackJS &&
@@ -669,6 +650,8 @@
             introMessage: "¡Hola! ¿En qué puedo ayudarte?"
         };
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js"></script>
 
 

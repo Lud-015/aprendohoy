@@ -7,7 +7,7 @@ use App\Models\Cursos;
 use App\Models\Recursos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\Storage;
 
 class RecursosController extends Controller
 {
@@ -99,9 +99,13 @@ class RecursosController extends Controller
     }
 
 
-    public function descargar($nombreArchivo)
+    public function descargar($archivo)
     {
-        $rutaArchivo = storage_path('/app/public/'.$nombreArchivo);
+        $rutaArchivo = storage_path($archivo);
+
+        if (!file_exists($rutaArchivo)) {
+            abort(404);
+        }
 
         return response()->download($rutaArchivo);
     }
