@@ -21,7 +21,13 @@ class MenuController extends Controller
     public function detalle($id)
     {
         $curso = Cursos::findOrFail($id);
-        return view('cursosDetalle')->with('cursos', $curso);
+
+
+        $usuarioInscrito = $curso->inscritos->contains('estudiante_id', Auth::id());
+
+        return view('cursosDetalle')
+        ->with('cursos', $curso)
+        ->with('usuarioInscrito', $usuarioInscrito);
     }
 
 

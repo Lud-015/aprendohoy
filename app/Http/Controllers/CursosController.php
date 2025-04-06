@@ -61,8 +61,16 @@ class CursosController extends Controller
             ->where('estudiante_id', auth()->user()->id)
             ->pluck('estudiante_id');
 
+        $pago_completado = Inscritos::where('cursos_id', $id)
+            ->where('estudiante_id', auth()->user()->id)
+            ->pluck('pago_completado');
+
+
         if ($inscritos->isEmpty() && Auth::user()->hasRole('Estudiante')) {
             return redirect()->back()->with('error', 'No estás inscrito en este curso.');
+
+        }elseif($pago_completado[0] == 0 && $cursos->tipo == 'curso'){
+            return view('LoadingPage.Loading');
         }
 
         // Obtener recursos, temas, evaluaciones, foros y horarios
@@ -93,7 +101,7 @@ class CursosController extends Controller
             $recurso->descripcionRecursos = TextHelper::createClickableLinksAndPreviews($recurso->descripcionRecursos);
         }
 
-        // Retornar la vista con los datos
+
         return view('Cursos', [
             'foros' => $foros,
             'recursos' => $recursos,
@@ -328,6 +336,42 @@ class CursosController extends Controller
         $writer->toBrowser();
     }
 
+
+    public function update(Request $request, $id)
+    {
+        // Validación de los datos
+        $request->validate([
+            'precio' => 'required|numeric|min:0',
+            'es_publico' => 'required|boolean',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        // Buscar el curso a actualizar
+        $curso = Cursos::findOrFail($id);
+
+        // Actualizar los campos básicos
+        $curso->precio = $request->precio;
+        $curso->es_publico = $request->es_publico;
+
+        // Manejar la imagen si se subió una nueva
+        if ($request->hasFile('imagen')) {
+            // Eliminar la imagen anterior si existe
+            if ($curso->imagen) {
+                Storage::delete('public/' . $curso->imagen);
+            }
+
+            // Guardar la nueva imagen
+            $imagenPath = $request->file('imagen')->store('cursos', 'public');
+            $curso->imagen = $imagenPath;
+        }
+
+        // Guardar los cambios
+        $curso->save();
+
+        // Redireccionar con mensaje de éxito
+        return redirect()->back()->with('success', 'Curso actualizado correctamente');
+    }
+
     public function restaurarCurso($id)
     {
 
@@ -421,4 +465,3 @@ class CursosController extends Controller
         return back()->with('success', 'Certificados activados correctamente.');
     }
 }
- 

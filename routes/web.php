@@ -149,6 +149,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['middleware' => ['role:Administrador']], function () {
 
+
+        Route::post('/Curso/{id}', [CursosController::class, 'update'])->name('cursos.update');
+
         Route::get('certificadosCongreso/generarAdm/{id}/', [CertificadoController::class, 'generarCertificadoAdmin'])->name( 'certificadosCongreso.generar.admin');
 
         Route::post('/cursos/{id}/activar-certificados', [CursosController::class, 'activarCertificados'])

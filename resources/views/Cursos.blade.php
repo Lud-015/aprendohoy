@@ -144,9 +144,16 @@
                                                 <i class="fas fa-file-pdf text-danger me-2"></i> Ver Plan Del Curso
                                             </a>
                                         </li>
+
+                                        <li>
+                                            <a class="dropdown-item py-2" href="{{ route('editarCurso', [$cursos->id]) }}">
+                                                <i class="fas fa-edit text-info me-2"></i> Editar Curso
+                                            </a>
+                                        </li>
                                     @endif
 
                                     <!-- Certificate Options -->
+                                    @if ($cursos->tipo === 'congreso')
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -161,6 +168,7 @@
                                     @endif
 
                                     @if ($cursos->estado === 'Activo')
+
                                         <li>
                                             <form action="{{ route('cursos.activarCertificados', ['id' => $cursos->id]) }}"
                                                 method="POST">
@@ -171,6 +179,8 @@
                                                 </button>
                                             </form>
                                         </li>
+
+                                    @endif
                                     @endif
 
                                     <!-- Admin-only Certificate Template Options -->

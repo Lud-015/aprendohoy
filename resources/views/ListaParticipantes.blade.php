@@ -11,14 +11,17 @@
             <a href="{{ route('Curso', ['id' => $cursos->id]) }}" class="btn btn-primary">
                 <i class="bi bi-arrow-left"></i> Volver
             </a>
-            @if (auth()->user()->id == $cursos->docente_id || auth()->user()->hasRole('Administrador'))
-                <div class="btn-group">
+            <div class="btn-group">
+                    @if (auth()->user()->id == $cursos->docente_id || auth()->user()->hasRole('Administrador'))
                     <a class="btn btn-instagram" href="{{ route('listaretirados', $cursos->id) }}">Lista Retirados</a>
+                    @if ($cursos->tipo == 'congreso')
+
                     <a class="btn btn-info" href="{{ route('certificadosCongreso.generar', $cursos->id) }}">Generar
                         Certificado</a>
+                    @endif
                     <a class="btn btn-success" href="{{ route('lista', $cursos->id) }}">Descargar Lista</a>
+                    @endif
                 </div>
-            @endif
         </div>
 
         <!-- Barra de búsqueda -->
@@ -49,11 +52,17 @@
                                     {{ $inscrito->estudiantes->name ?? 'Estudiante Eliminado' }}
                                     {{ $inscrito->estudiantes->lastname1 ?? '' }}
                                     {{ $inscrito->estudiantes->lastname2 ?? '' }}
+                                    @role('Administrador')
+                                    @if ($cursos->tipo == 'curso')
+
+
                                     @if ($inscrito->pago_completado == true)
-                                        (Cancelado)
                                     @else
-                                        (Pendiente)
+                                        (Pago en Revision)
                                     @endif
+                                    @endif
+
+                                    @endrole
                                 </td>
                                 <td>{{ $inscrito->estudiantes->Celular ?? '' }}</td>
                                 <td>

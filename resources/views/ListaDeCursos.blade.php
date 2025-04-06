@@ -56,11 +56,67 @@
                                     <a class="btn btn-sm btn-warning" href="{{ route('editarCurso', $curso->id) }}" title="Editar">
                                         <i class="bi bi-pencil-square"></i> Editar
                                     </a>
+
+                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#courseModal2{{ $curso->id }}">
+                                        <i class="bi bi-info-circle"></i> Editar 2
+                                    </button>
+
+                                    <div class="modal fade" id="courseModal2{{ $curso->id }}" tabindex="-1" aria-labelledby="courseModalLabel{{ $curso->id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="courseModalLabel{{ $curso->id }}">Detalles del Curso</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form action="{{ route('cursos.update', $curso->id) }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <div class="form-group">
+                                                                <label for="precio">Precio</label>
+                                                                <input type="number" class="form-control" name="precio" id="precio" value="{{ $curso->precio }}" step="0.01" min="0">
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <label>Visibilidad</label><br>
+                                                                <div class="form-check form-check-inline">
+                                                                    <input class="form-check-input" type="radio" name="es_publico" id="mostrar" value="1" {{ $curso->es_publico ? 'checked' : '' }}>
+                                                                    <label class="form-check-label" for="mostrar">Mostrar</label>
+                                                                </div>
+                                                                <div class="form-check form-check-inline">
+                                                                    <input class="form-check-input" type="radio" name="es_publico" id="ocultar" value="0" {{ !$curso->es_publico ? 'checked' : '' }}>
+                                                                    <label class="form-check-label" for="ocultar">Ocultar</label>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <label for="imagen">Imagen del Curso</label>
+                                                                <input type="file" class="form-control-file" name="imagen" id="imagen">
+                                                                @if($curso->imagen)
+                                                                    <small class="form-text text-muted">
+                                                                        Imagen actual: <a href="{{ asset('storage/' . $curso->imagen) }}" target="_blank">Ver imagen</a>
+                                                                    </small>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                                            <button type="submit" class="btn btn-success">Guardar cambios</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <a class="btn btn-sm btn-danger btn-delete" href="{{ route('quitarCurso', [$curso->id]) }}" title="Eliminar">
                                         <i class="bi bi-trash"></i> Borrar
                                     </a>
+
                                 </td>
                                 <td class="text-center">
                                     <a class="btn btn-sm btn-info" href="{{ route('Curso', [$curso->id]) }}" title="Ver Curso">
@@ -70,7 +126,6 @@
                                         <i class="bi bi-info-circle"></i> Detalles
                                     </button>
 
-                                    <!-- Modal para cada curso -->
                                     <div class="modal fade" id="courseModal{{ $curso->id }}" tabindex="-1" aria-labelledby="courseModalLabel{{ $curso->id }}" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">

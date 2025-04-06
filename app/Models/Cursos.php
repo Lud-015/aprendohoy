@@ -39,7 +39,7 @@ class Cursos extends Model
     }
     public function inscritos(): HasMany
     {
-        return $this->hasMany(Inscritos::class,  'id', 'estudiante_id');
+        return $this->hasMany(Inscritos::class,  'cursos_id', 'id');
     }
     public function foros(): HasMany
     {
@@ -104,5 +104,5 @@ class Cursos extends Model
         return $progreso;
     }
 
-    
+
 }
