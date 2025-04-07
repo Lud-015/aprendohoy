@@ -129,7 +129,7 @@
                                                 <h5 class="modal-title" id="compraCursoModalLabel">Completar Compra</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form action="{{ route('registrarpagopost') }}" method="POST">
+                                            <form action="{{ route('pagarCurso') }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 <div class="modal-body">
                                                     <!-- Nombre / Razón Social -->

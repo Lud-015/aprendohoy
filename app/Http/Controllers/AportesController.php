@@ -177,56 +177,46 @@ public function factura($id)
     public function comprarCurso(Request $request)
     {
         $request->validate([
-            'pagante' => 'r equired',
-            'paganteci' => 'required',
-            'montopagar' => 'required|numeric|min:0', // Validar que el monto a pagar sea un número no negativo
-            'montocancelado' => 'required|numeric|min:0', // Validar que el monto cancelado sea un número no negativo
+            'comprobante' => 'required|file|mimes:pdf,jpg,png|max:2048',
+            'montopagar' => 'required|numeric|min:0',
             'descripcion' => 'required',
-        ], [
-            'pagante.required' => 'El nombre del pagante es obligatorio.',
-            'paganteci.required' => 'La cédula del pagante es obligatoria.',
-            'montopagar.required' => 'El monto a pagar es obligatorio.',
-            'montopagar.numeric' => 'El monto a pagar debe ser un número.',
-            'montopagar.min' => 'El monto a pagar no puede ser negativo.',
-            'montocancelado.required' => 'El monto cancelado es obligatorio.',
-            'montocancelado.numeric' => 'El monto cancelado debe ser un número.',
-            'montocancelado.min' => 'El monto cancelado no puede ser negativo.',
-            'descripcion.required' => 'La descripción del pago es obligatoria.',
+            'curso_id' => 'required|exists:cursos,id' // Ensure curso_id exists
         ]);
 
         $aportes = new Aportes();
         $aportes->codigopago = uniqid();
 
-        $aportes->pagante = $request->pagante;
-        $aportes->paganteci = $request->paganteci;
+        // User information
+        $user = auth()->user();
+        $aportes->pagante = $user->name.' '.$user->lastname1.' '.$user->lastname2;
+        $aportes->paganteci = $user->CI;
+        $aportes->estudiante_id = $user->id;
 
+        // Student data
+        $aportes->datosEstudiante = $user->name.' '.$user->lastname1.' '.$user->lastname2.' '.$user->CI;
 
-        $estudiante_id = $request->input('estudiante_id');
-        $estudiante = User::find($estudiante_id);
-
-        $aportes->datosEstudiante = $estudiante->name .' '. $estudiante->lastname1 . ' ' . $estudiante->lastname2 . ' // ' . $estudiante->CI;
-        $aportes->DescripcionDelPago = $request->descripcion;
-
-        $aportes->monto_pagado = $request->montocancelado;
+        // Payment information
+        $aportes->DescripcionDelPago = $request->input('descripcion');
+        $aportes->monto_pagado = 0;
         $aportes->monto_a_pagar = $request->montopagar;
+        $aportes->restante_a_pagar = $request->montopagar; // Since monto_pagado is 0
+        $aportes->cursos_id = $request->curso_id;
+        $aportes->tipopago = 'Comprobante';
+        $aportes->saldo = 0;
 
-
-        // Calcular el restante a pagar utilizando el método max para evitar números negativos
-        $aportes->restante_a_pagar = max(0, $request->montopagar - $request->montocancelado);
-
-        // Calcular el cambio (si tiene sentido en tu lógica de negocio)
-        $aportes->saldo = max(0, $request->montocancelado - $request->montopagar);
-
-        $aportes->estudiante_id = $estudiante_id;
-
-        $aportes->comprobante = '';
+        // Handle file upload
+        if ($request->hasFile('comprobante')) {
+            $rutaArchivo = $request->file('comprobante')->store('comprobantes', 'public');
+            $aportes->comprobante = $rutaArchivo; // Store the path, not the file object
+        }
 
         $aportes->save();
 
-
-
-        return redirect(route('Inicio'))->with('success', 'Pago registrado exitosamente!');
+        return redirect(route('Inicio'))->with('success', 'Tu pago será validado, por favor espere!');
     }
+
+
+    
 
     /**
      * Display the specified resource.

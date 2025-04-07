@@ -364,6 +364,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/user/{id}', [UserController::class, 'Profile'])->name('perfil');
 
         Route::get('/pago/{$id}', [AportesController::class, 'factura'])->name('factura');
+        Route::post('/realizarpago', [AportesController::class, 'comprarCurso'])->name('pagarCurso');
 
 
         Route::get('/Calendario', [MenuController::class, 'calendario'])->middleware('noCache')->name('calendario');
@@ -410,6 +411,10 @@ Route::group(['middleware' => ['auth']], function () {
         //CUESTIONARIO
         Route::get('/cuestionario/{id}/responder', [CuestionarioController::class, 'mostrarCuestionario'])->name('cuestionario.mostrar');
         Route::post('/cuestionario/{id}/responder', [CuestionarioController::class, 'procesarRespuestas'])->name('cuestionario.responder');
+        Route::get('/descargar-comprobante/{ruta}', function ($ruta) {
+            $rutaCompleta = "comprobantes/" . $ruta;
+            return Storage::disk('public')->download($rutaCompleta);
+        })->name('descargar.comprobante');
     });
     Route::get('certificado/qr/{codigo}', [CertificadoController::class, 'descargarQR'])->name('descargar.qr');
     //QR
