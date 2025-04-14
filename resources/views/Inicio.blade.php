@@ -73,114 +73,147 @@
     @endif
 
     @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Estudiante'))
+    <style>
+        .list-view .card {
+            flex-direction: row;
+            align-items: center;
+        }
 
-        <div class="container mx-auto p-4">
-            <h2 class="text-2xl font-bold mb-4">Vista general de curso</h2>
+        .list-view .card img {
+            width: 200px;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0;
+        }
 
-            <div class="flex items-center mb-4 space-x-2">
-                <select class="border p-2 rounded">
+        .list-view .card-body {
+            flex: 1;
+        }
+
+        .list-view .col-12,
+        .list-view .col-sm-6,
+        .list-view .col-lg-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    </style>
+
+    <div class="container py-5">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 gap-3">
+            <h2 class="h4 fw-semibold mb-0">Tus Cursos</h2>
+
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <select class="form-select form-select-sm w-auto">
                     <option value="all">Todos</option>
                 </select>
-                <input type="text" placeholder="Buscar" class="border p-2 rounded w-1/3">
-                <button class="border p-2 rounded bg-gray-200">Ordenar por nombre del curso</button>
-                <button class="border p-2 rounded bg-gray-200">Tarjeta</button>
+                <input type="text" placeholder="Buscar" class="form-control form-control-sm w-auto" style="min-width: 200px;">
+                <div class="btn-group" role="group">
+                    <button id="btnGrid" class="btn btn-outline-secondary btn-sm active">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                    </button>
+                    <button id="btnList" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-list-ul"></i>
+                    </button>
+                </div>
             </div>
+        </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @if (auth()->user()->hasRole('Estudiante'))
-                    @forelse ($inscritos as $inscrito)
-                        @if (auth()->user()->id == $inscrito->estudiante_id && $inscrito->cursos && $inscrito->cursos->deleted_at === null)
-                            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-
+        <div class="row g-4">
+            @if (auth()->user()->hasRole('Estudiante'))
+                @forelse ($inscritos as $inscrito)
+                    @if (auth()->user()->id == $inscrito->estudiante_id && $inscrito->cursos && $inscrito->cursos->deleted_at === null)
+                        <div class="col-12 col-sm-6 col-lg-4">
+                            <div class="card h-100 shadow-sm border-0">
                                 <img src="{{ $inscrito->cursos->imagen ? asset('storage/' . $inscrito->cursos->imagen) : asset('./assets/img/course-default.jpg') }}"
-                                class="w-full h-40 object-cover"
-                                alt="Imagen curso">
-                                <div class="p-4">
-                                    <h3 class="text-xl font-semibold mt-2">{{ $inscrito->cursos->nombreCurso }}</h3>
+                                     class="card-img-top" style="height: 200px; object-fit: cover;" alt="Imagen curso">
+                                <div class="card-body">
+                                    <h5 class="card-title text-truncate">{{ $inscrito->cursos->nombreCurso }}</h5>
 
-                                    <!-- Mostrar etiqueta si es congreso -->
                                     @if ($inscrito->cursos->tipo == 'congreso')
-                                        <span
-                                            class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded mb-2">
+                                        <span class="badge bg-success mb-2">
                                             <i class="bi bi-ticket-perforated"></i> Evento Gratuito
                                         </span>
                                     @endif
 
-                                    <!-- Barra de progreso -->
-                                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                        <div class="bg-blue-500 h-2 rounded-full"
-                                            style="width: {{ $inscrito->progreso }}%;"></div>
+                                    <div class="progress mb-2" style="height: 5px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $inscrito->progreso }}%;"></div>
                                     </div>
-                                    <p class="text-sm text-gray-500 mt-1">{{ $inscrito->progreso }}% completado</p>
+                                    <small class="text-muted">{{ $inscrito->progreso }}% completado</small>
 
-                                    <!-- Lógica de acceso -->
                                     @if ($inscrito->cursos->tipo == 'congreso')
-                                        <!-- Acceso directo para congresos -->
-                                        <a href="{{ route('Curso', $inscrito->cursos_id) }}"
-                                            class="block text-center mt-4 bg-green-500 hover:bg-green-600 text-white py-2 rounded transition">
-                                            <i class="bi bi-door-open"></i> ACCEDER AL CONGRESO
+                                        <a href="{{ route('Curso', $inscrito->cursos_id) }}" class="btn btn-success btn-sm w-100 mt-3">
+                                            <i class="bi bi-door-open"></i> Acceder al Congreso
                                         </a>
                                     @elseif($inscrito->pago_completado)
-                                        <!-- Acceso para cursos pagados -->
-                                        <a href="{{ route('Curso', $inscrito->cursos_id) }}"
-                                            class="block text-center mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition">
-                                            <i class="bi bi-play-circle"></i> IR AL CURSO
+                                        <a href="{{ route('Curso', $inscrito->cursos_id) }}" class="btn btn-primary btn-sm w-100 mt-3">
+                                            <i class="bi bi-play-circle"></i> Ir al Curso
                                         </a>
                                     @else
-                                        <!-- Estados para cursos no pagados -->
-                                        <div class="text-center mt-4">
+                                        <div class="text-center mt-3">
                                             @if ($inscrito->created_at->diffInDays(now()) < 2)
-                                                <button
-                                                    class="w-full bg-yellow-500 text-white py-2 rounded cursor-not-allowed"
-                                                    disabled>
-                                                    <i class="bi bi-hourglass"></i> PAGO EN REVISIÓN
+                                                <button class="btn btn-warning btn-sm w-100" disabled>
+                                                    <i class="bi bi-hourglass-split"></i> Pago en Revisión
                                                 </button>
-                                                <p class="text-xs text-gray-500 mt-1">Estamos verificando tu información</p>
-                                            @else
-                                                <button class="w-full bg-red-500 text-white py-2 rounded cursor-not-allowed"
-                                                    disabled>
-                                                    <i class="bi bi-lock"></i> PENDIENTE DE PAGO
-                                                </button>
-                                                <a href=""
-                                                    class="inline-block mt-2 text-blue-500 hover:text-blue-700 text-sm">
-                                                    <i class="bi bi-credit-card"></i> Completar pago ahora
-                                                </a>
+                                                <small class="d-block text-muted mt-1">Estamos verificando tu información</small>
                                             @endif
                                         </div>
                                     @endif
                                 </div>
                             </div>
-                        @endif
-                    @empty
-                        <p class="col-span-3 text-center text-gray-500">No tienes cursos asignados.</p>
-                    @endforelse
-                @endif
+                        </div>
+                    @endif
+                @empty
+                    <div class="col-12 text-center text-muted">No tienes cursos asignados.</div>
+                @endforelse
+            @endif
 
-                @if (auth()->user()->hasRole('Docente'))
-                    @forelse ($cursos2 as $cursos)
-                        @if (auth()->user()->id == $cursos->docente_id)
-                            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-                                <img src="{{ asset('./assets/img/course-default.jpg') }}" class="w-full h-40 object-cover"
-                                    alt="Imagen curso">
-                                <div class="p-4">
-                                    <span class="text-sm bg-blue-500 text-white px-2 py-1 rounded">
-                                        Docente
-                                    </span>
-                                    <h3 class="text-xl font-semibold mt-2">{{ $cursos->nombreCurso }}</h3>
-                                    <a href="{{ route('Curso', $cursos->id) }}"
-                                        class="block text-center mt-4 bg-blue-500 text-white py-2 rounded">
-                                        IR AL CURSO
+            @if (auth()->user()->hasRole('Docente'))
+                @forelse ($cursos2 as $cursos)
+                    @if (auth()->user()->id == $cursos->docente_id)
+                        <div class="col-12 col-sm-6 col-lg-4">
+                            <div class="card h-100 shadow-sm border-0">
+                                <img src="{{ asset('./assets/img/course-default.jpg') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Imagen curso">
+                                <div class="card-body">
+                                    <span class="badge bg-primary mb-2"><i class="bi bi-person-badge"></i> Docente</span>
+                                    <h5 class="card-title text-truncate">{{ $cursos->nombreCurso }}</h5>
+                                    <a href="{{ route('Curso', $cursos->id) }}" class="btn btn-primary btn-sm w-100 mt-3">
+                                        <i class="bi bi-arrow-right-circle"></i> Ir al Curso
                                     </a>
                                 </div>
                             </div>
-                        @endif
-                    @empty
-                        <p class="col-span-3 text-center text-gray-500">No tienes cursos asignados.</p>
-                    @endforelse
-                @endif
-            </div>
+                        </div>
+                    @endif
+                @empty
+                    <div class="col-12 text-center text-muted">No tienes cursos asignados.</div>
+                @endforelse
+            @endif
         </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const gridBtn = document.getElementById("btnGrid");
+            const listBtn = document.getElementById("btnList");
+            const courseContainer = document.querySelector(".row.g-4");
+
+            gridBtn.addEventListener("click", () => {
+                courseContainer.classList.remove("list-view");
+                gridBtn.classList.add("active");
+                listBtn.classList.remove("active");
+            });
+
+            listBtn.addEventListener("click", () => {
+                courseContainer.classList.add("list-view");
+                gridBtn.classList.remove("active");
+                listBtn.classList.add("active");
+            });
+        });
+    </script>
+
+
     @endif
+
+
 
 
 @endsection
@@ -265,86 +298,87 @@
 
 @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Estudiante'))
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const searchInput = document.querySelector("input[placeholder='Buscar']");
-            const courseCards = document.querySelectorAll(".bg-white.shadow-lg");
-            const sortButton = document.querySelector("button:nth-child(3)");
-            const viewToggleButton = document.querySelector("button:nth-child(4)");
+            const courseCards = document.querySelectorAll(".card.h-100");
+            const sortButton = document.querySelector("button:nth-of-type(3)");
+            const viewToggleButton = document.querySelector("button:nth-of-type(4)");
             const selectFilter = document.querySelector("select");
 
             let isAscending = true;
             let currentView = "grid"; // Puede ser 'grid' o 'list'
 
-            // 🔍 Filtrar cursos por nombre en tiempo real
-            searchInput.addEventListener("input", function() {
+            // 🔍 Filtrar cursos por nombre
+            searchInput.addEventListener("input", function () {
                 const query = searchInput.value.toLowerCase();
 
                 courseCards.forEach(card => {
-                    const title = card.querySelector("h3").textContent.toLowerCase();
-                    card.style.display = title.includes(query) ? "block" : "none";
+                    const title = card.querySelector(".card-title").textContent.toLowerCase();
+                    card.parentElement.style.display = title.includes(query) ? "block" : "none";
                 });
             });
 
-            // 🔄 Ordenar los cursos al hacer clic en "Ordenar por nombre"
-            sortButton.addEventListener("click", function() {
-                const container = document.querySelector(".grid");
-                let coursesArray = Array.from(courseCards);
+            // 🔄 Ordenar cursos por nombre
+            sortButton.addEventListener("click", function () {
+                const container = document.querySelector(".row.g-4");
+                let cardsArray = Array.from(courseCards).map(card => card.parentElement);
 
-                coursesArray.sort((a, b) => {
-                    const titleA = a.querySelector("h3").textContent.toLowerCase();
-                    const titleB = b.querySelector("h3").textContent.toLowerCase();
-
-                    return isAscending ? titleA.localeCompare(titleB) : titleB.localeCompare(
-                    titleA);
+                cardsArray.sort((a, b) => {
+                    const titleA = a.querySelector(".card-title").textContent.toLowerCase();
+                    const titleB = b.querySelector(".card-title").textContent.toLowerCase();
+                    return isAscending ? titleA.localeCompare(titleB) : titleB.localeCompare(titleA);
                 });
 
-                isAscending = !isAscending; // Alternar el orden
-
-                container.innerHTML = ""; // Limpiar contenedor
-                coursesArray.forEach(course => container.appendChild(course));
+                isAscending = !isAscending;
+                container.innerHTML = "";
+                cardsArray.forEach(card => container.appendChild(card));
             });
 
             // 🖼 Cambiar entre vista de Tarjeta y Lista
-            viewToggleButton.addEventListener("click", function() {
-                const container = document.querySelector(".grid");
+            viewToggleButton.addEventListener("click", function () {
+                const container = document.querySelector(".row.g-4");
 
                 if (currentView === "grid") {
-                    container.classList.remove("grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3");
-                    container.classList.add("flex", "flex-col", "space-y-4");
+                    container.classList.remove("row", "g-4");
+                    container.classList.add("d-flex", "flex-column", "gap-3");
+                    courseCards.forEach(card => {
+                        card.parentElement.className = "w-100";
+                    });
                     currentView = "list";
                     viewToggleButton.textContent = "Tarjeta";
                 } else {
-                    container.classList.remove("flex", "flex-col", "space-y-4");
-                    container.classList.add("grid", "grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3");
+                    container.classList.remove("d-flex", "flex-column", "gap-3");
+                    container.classList.add("row", "g-4");
+                    courseCards.forEach(card => {
+                        card.parentElement.className = "col-12 col-md-6 col-lg-4";
+                    });
                     currentView = "grid";
                     viewToggleButton.textContent = "Lista";
                 }
             });
 
-            // 🎯 Filtrar cursos según la selección
-            selectFilter.addEventListener("change", function() {
-                const filterValue = selectFilter.value; // Captura el valor del filtro
+            // 🎯 Filtrar según estado de curso (completado/activo)
+            selectFilter.addEventListener("change", function () {
+                const filterValue = selectFilter.value;
 
                 courseCards.forEach(card => {
-                    if (filterValue === "all") {
-                        card.style.display = "block";
-                    } else {
-                        const completionText = card.querySelector("p.text-sm").textContent;
-                        const isCompleted = completionText.includes("100%");
+                    const progressText = card.querySelector("small.text-muted");
+                    const isCompleted = progressText && progressText.textContent.includes("100%");
+                    const wrapper = card.parentElement;
 
-                        if (filterValue === "completados" && isCompleted) {
-                            card.style.display = "block";
-                        } else if (filterValue === "activos" && !isCompleted) {
-                            card.style.display = "block";
-                        } else {
-                            card.style.display = "none";
-                        }
+                    if (filterValue === "all") {
+                        wrapper.style.display = "block";
+                    } else if (filterValue === "completados" && isCompleted) {
+                        wrapper.style.display = "block";
+                    } else if (filterValue === "activos" && !isCompleted) {
+                        wrapper.style.display = "block";
+                    } else {
+                        wrapper.style.display = "none";
                     }
                 });
             });
         });
     </script>
-
 
     @include('FundacionPlantillaUsu.index')
 @endif

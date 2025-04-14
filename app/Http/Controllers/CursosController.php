@@ -53,25 +53,39 @@ class CursosController extends Controller
         // Obtener el curso
         $cursos = Cursos::findOrFail($id);
 
+        // Obtener el template del certificado
         $certificado_template = CertificateTemplate::where('curso_id', $id)->first();
 
-
-
+        // Verificar si el usuario está inscrito en el curso
         $inscritos = Inscritos::where('cursos_id', $id)
             ->where('estudiante_id', auth()->user()->id)
-            ->pluck('estudiante_id');
-
+            ->exists();  // Esto devuelve un booleano
+            
+        // Verificar si el pago está completado
         $pago_completado = Inscritos::where('cursos_id', $id)
             ->where('estudiante_id', auth()->user()->id)
-            ->pluck('pago_completado');
+            ->pluck('pago_completado')->first(); // Esto devuelve un solo valor
 
+        $user = Auth::user();
+        $esEstudiante = $user->hasRole('Estudiante');
+        $esDocente = $user->id == $cursos->docente_id;
+        $pagoIncompleto = $pago_completado == 0; // Aquí comparamos con 0 si no ha completado el pago
+        $esCursoNormal = $cursos->tipo == 'curso';
 
-        if ($inscritos->isEmpty() && Auth::user()->hasRole('Estudiante')) {
+        // Si es estudiante y no está inscrito
+        if (!$inscritos && $esEstudiante) {
             return redirect()->back()->with('error', 'No estás inscrito en este curso.');
+        }
 
-        }elseif($pago_completado[0] == 0 && $cursos->tipo == 'curso'){
+        // Si es estudiante y no ha completado el pago de un curso normal
+        elseif ($esEstudiante && $esCursoNormal && $pagoIncompleto) {
             return view('LoadingPage.Loading');
         }
+
+        // Si es docente o si el estudiante ya pagó, continua el proceso
+        // (Aquí no es necesario agregar más condiciones porque ya están cubiertas)
+
+
 
         // Obtener recursos, temas, evaluaciones, foros y horarios
         $recursos = Recursos::where('cursos_id', $id)->get();
@@ -240,12 +254,12 @@ class CursosController extends Controller
         $asistencias = Asistencia::where('curso_id', $id)->get();
 
         // Obtener notas de tareas filtradas por curso
-        $notasTareas = NotaEntrega::whereHas('tarea.subtema.tema', function($query) use ($id) {
+        $notasTareas = NotaEntrega::whereHas('tarea.subtema.tema', function ($query) use ($id) {
             $query->where('curso_id', $id);
         })->get();
 
         // Obtener notas de evaluaciones filtradas por curso
-        $notasEvaluaciones = NotaEvaluacion::whereHas('evaluacion', function($query) use ($id) {
+        $notasEvaluaciones = NotaEvaluacion::whereHas('evaluacion', function ($query) use ($id) {
             $query->where('cursos_id', $id);
         })->get();
 
@@ -307,14 +321,14 @@ class CursosController extends Controller
         foreach ($inscritos as $inscrito) {
             // Calcular promedio de tareas
             $promedioTareas = $inscrito->notatarea()
-                ->whereHas('tarea.subtema.tema', function($query) use ($id) {
+                ->whereHas('tarea.subtema.tema', function ($query) use ($id) {
                     $query->where('curso_id', $id);
                 })
                 ->avg('nota');
 
             // Calcular promedio de evaluaciones
             $promedioEvaluaciones = $inscrito->notaevaluacion()
-                ->whereHas('evaluacion', function($query) use ($id) {
+                ->whereHas('evaluacion', function ($query) use ($id) {
                     $query->where('cursos_id', $id);
                 })
                 ->avg('nota');

@@ -577,7 +577,7 @@
 
 @section('content')
     @if((auth()->user()->hasRole('Docente') && $cursos->docente_id == auth()->user()->id) ||
-        (auth()->user()->hasRole('Estudiante') && $inscritos[0] == auth()->user()->id))
+        (auth()->user()->hasRole('Estudiante') && $inscritos))
 
         @section('nav')
             <!-- Nav común para ambos roles -->

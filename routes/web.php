@@ -199,6 +199,10 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/ListaAportes', [MenuController::class, 'ListaAportes'])->name('aportesLista');
 
+        Route::put('/ActualizarPago/{codigopago}', [AportesController::class, 'actualizarPago'])->name('pagos.update');
+
+
+
 
         Route::get('/validar-certificado/{codigo}', [CertificadoController::class, 'validarCertificado']);
         Route::put('/listaParticipantes/{inscrito}/actualizar-pago', [InscritosController::class, 'actualizarPago'])->name('curso.actualizarPago');

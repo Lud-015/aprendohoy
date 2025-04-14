@@ -5,20 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Aportes extends Model
 {
     use HasFactory, SoftDeletes;
     protected $softDelete = true;
-    /**
-     * Get the user that owns the Aportes
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'estudiante_id');
+    }
+
+    public function curso(): BelongsTo
+    {
+        return $this->belongsTo(Cursos::class,  'cursos_id');
     }
 
     protected static function boot()

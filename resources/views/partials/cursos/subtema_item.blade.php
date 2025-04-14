@@ -186,6 +186,10 @@
                         @endif
 
                         @if(auth()->user()->hasRole('Docente'))
+                            <a href="{{ route('calificarT', $tarea->id) }}"
+                                class="btn btn-sm btn-outline-info me-2">
+                                <i class="fas fa-calculator"></i> Calificar Tarea
+                            </a>
                             <a href="{{ route('editarTarea', $tarea->id) }}"
                                class="btn btn-sm btn-outline-info me-2">
                                 <i class="fas fa-edit"></i> Editar

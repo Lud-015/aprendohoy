@@ -83,18 +83,7 @@ if (!empty($errors)) {
 
     }
 
-    public function show($id){
-
-        $cursos = Cursos::findOrFail($id);
-        $inscritos = Inscritos::where('cursos_id', $id)->whereNull('deleted_at')->get();
-        $asistencias  = Asistencia::where('curso_id', $id)->whereNull('deleted_at')->get();
-
-
-        return view('Docente.HistorialAsistencia')->with('asistencias', $asistencias)->with('inscritos', $inscritos)->with('cursos', $cursos);
-
-
-
-    }
+ 
 
     public function edit(Request $request){
 

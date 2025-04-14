@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\EstudianteEvent;
 use App\Models\Aportes;
 use App\Models\Cursos;
+use App\Models\Inscritos;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -18,7 +19,8 @@ class AportesController extends Controller
      */
     public function index()
     {
-        $aportes = Aportes::all();
+        $aportes = Aportes::where('estudiante_id', auth()->user()->id)->paginate(10);
+
         return view('FundacionPlantillaUsu.aportes')->with('aportes', $aportes);
     }
 
@@ -75,10 +77,6 @@ public function factura($id)
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -216,50 +214,54 @@ public function factura($id)
     }
 
 
-    
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Aportes  $aportes
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Aportes $aportes)
+
+
+
+    public function actualizarPago(Request $request, $codigopago)
     {
-        //
+        $request->validate([
+            'monto_pagado' => 'required|numeric|min:0',
+        ]);
+
+        $pago = Aportes::where('codigopago', $codigopago)->firstOrFail();
+
+        if ($pago->monto_pagado > 0) {
+            return redirect()->back()->with('error', 'Este pago ya fue procesado anteriormente');
+        }
+
+        if ($request->monto_pagado > $pago->restante_a_pagar) {
+            return redirect()->back()->with('error', 'El monto excede el saldo pendiente');
+        }
+
+        $pago->monto_pagado = $request->monto_pagado;
+        $pago->restante_a_pagar = $pago->monto_a_pagar - $pago->monto_pagado;
+        $pago->Saldo = max(0, $pago->restante_a_pagar);
+        $pago->save();
+
+        // Solo si ya terminó de pagar
+        if ($pago->restante_a_pagar == 0) {
+            $this->cambiarEstadoIns($pago->estudiante_id, $pago->cursos_id);
+        }
+
+        return redirect()->back()->with('success', 'Pago registrado exitosamente');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Aportes  $aportes
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Aportes $aportes)
+    protected function cambiarEstadoIns($estudiante_id, $curso_id)
     {
-        //
+        $inscrito = Inscritos::where('cursos_id', $curso_id)
+                             ->where('estudiante_id', $estudiante_id)
+                             ->first();
+
+        if (!$inscrito) {
+            \Log::warning("No se encontró inscripción del estudiante $estudiante_id en el curso $curso_id");
+            return; // salir silenciosamente
+        }
+
+        // Ejemplo: cambiar estado
+        $inscrito->pago_completado = true;
+        $inscrito->save();
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Aportes  $aportes
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Aportes $aportes)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Aportes  $aportes
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Aportes $aportes)
-    {
-        //
-    }
 }

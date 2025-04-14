@@ -78,26 +78,29 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Editar Pago #{{ $aportes->id }}</h5>
+                                        <h5 class="modal-title">Editar Pago </h5>
+
+
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
-                                    {{-- {{ route('pagos.update', $aportes->id) }} --}}
-                                    <form action="" method="POST"
-                                        enctype="multipart/form-data">
+
+                                    <div class="m-3">
+                                        <label for="">Nombre Estudiante: {{$aportes->user->name}} {{$aportes->user->lastname1}} {{$aportes->user->lastname2}}</label>
+                                        <label for="">Curso: {{ $aportes->curso->nombreCurso }}</label>
+
+                                    </div>
+                                    <form action=" {{ route('pagos.update', $aportes->codigopago) }}" method="POST"
+                                        >
                                         @csrf
                                         @method('PUT')
+                                        <input type="text" name="codigopago" value="{{$aportes->codigopago}}" readonly hidden>
                                         <div class="modal-body">
                                             <div class="mb-3">
-                                                <label>Monto:</label>
-                                                <input type="number" name="monto" class="form-control"
-                                                    value="{{ $aportes->monto }}" step="0.01" required>
+                                                <label>Monto Pagado:</label>
+                                                <input type="number" name="monto_pagado" class="form-control"
+                                                    value="{{ $aportes->monto_pagado }}" step="0.01" required>
                                             </div>
-                                            <div class="mb-3">
-                                                <label>Descripción:</label>
-                                                <textarea name="descripcion" class="form-control" rows="3" required>{{ $aportes->descripcion }}</textarea>
-                                            </div>
-                                            <!-- Agrega más campos según necesites -->
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
@@ -118,13 +121,6 @@
 
         </tbody>
     </table>
-
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
 
 
     <!-- Agrega esto en tu archivo Blade antes de </body> -->

@@ -1,183 +1,209 @@
-@section('titulo')
-    Editar Curso
-@endsection
+@extends('layout')
 
-
+@section('titulo', 'Editar Curso')
 
 @section('content')
-    <div class="col-xl-12">
-        <a href="javascript:history.back()" class="btn btn-sm btn-primary">
-            &#9668; Volver
-        </a>
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <a href="javascript:history.back()" class="btn btn-sm btn-primary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+            <h6 class="m-0 font-weight-bold text-primary">Editar Curso: {{ $cursos->nombreCurso }}</h6>
+        </div>
 
+        <div class="card-body">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show">
+                    {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
 
-        <br>
-        <br>
-        <div class="border p-3 mb-3 col-xl-12">
-            <form class="form ml-3 col-10" action="{{ route('editarCursoPost', $cursos->id) }}" method="POST"
-                enctype="multipart/form-data">
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            <form action="{{ route('editarCursoPost', $cursos->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                <div class="form-group">
-                    <label for="nombre">Nombre Curso</label>
-                    <input type="text" value="{{ $cursos->nombreCurso }}" name="nombre"
-                        class="form-control custom-input">
-                </div>
-
-                <div class="form-group">
-                    <label for="descripcion">Descripción Curso</label>
-                    <input type="text" value="{{ $cursos->descripcionC }}" name="descripcion"
-                        class="form-control custom-input">
-                </div>
-
-                <div style="display: flex; align-items: center;" class="mb-4">
-
-                    <div class="mr-8">
-
-                        <label @if (auth()->user()->hasRole('Docente')) disable hidden @endif for="fecha_ini">Fecha Inicio</label>
-                        @if ($cursos->tipo == 'congreso')
-                        <input @if (auth()->user()->hasRole('Docente')) disable hidden @endif type="datetime-local"
-                        value="{{ $cursos->fecha_ini }}" name="fecha_ini" class="form-control w-auto">
-                        @else
-                        <input @if (auth()->user()->hasRole('Docente')) disable hidden @endif type="date"
-                        value="{{ $cursos->fecha_ini }}" name="fecha_ini" class="form-control w-auto">
-                        @endif
-
-                    </div>
-
-                    <div class="ml-3">
-                        <label for="fecha_fin" @if (auth()->user()->hasRole('Docente')) disable hidden @endif>Fecha Fin</label>
-                        @if ($cursos->tipo == 'congreso')
-                        <input type="datetime-local" value="{{ $cursos->fecha_fin }}" name="fecha_fin" class="form-control w-auto"
-                            @if (auth()->user()->hasRole('Docente')) disable hidden @endif>
-                        @else
-                        <input type="date" value="{{ $cursos->fecha_fin }}" name="fecha_fin" class="form-control w-auto"
-                        @if (auth()->user()->hasRole('Docente')) disable hidden @endif>
-                        @endif
-
-
-
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center;" class="mb-4">
-
-                    <div class="mr-3">
-                        <label for="fecha_fin">Nota Aprobación(Por defecto 51.)</label>
-                        <input type="number" value="{{ $cursos->notaAprobacion ?? '' }}" name="nota"
-                            class="form-control custom-input">
-                    </div>
-                    @if (auth()->user()->hasRole('Docente'))
-                        <div class="ml-3">
-                            <label for="fecha_fin">Tabla de Contenidos</label>
-                            <br>
-                            <input type="file" value="{{ $cursos->archivoContenidodelCurso ?? '' }}" name="archivo"
-                                class="form-control custom-input">
-
+                <div class="row">
+                    <!-- Información Básica -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nombre">Nombre del Curso</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre"
+                                   value="{{ $cursos->nombreCurso }}" required>
                         </div>
 
-                        @if ($cursos->archivoContenidodelCurso == '')
-                            <div class="">
+                        <div class="form-group">
+                            <label for="descripcion">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion"
+                                      rows="3" required>{{ $cursos->descripcionC }}</textarea>
+                        </div>
 
-                                <span>No se ha cargado ningún archivo todavía</span>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="nota">Nota de Aprobación</label>
+                                <input type="number" class="form-control" id="nota" name="nota"
+                                       value="{{ $cursos->notaAprobacion ?? 51 }}" min="0" max="100">
+                                <small class="text-muted">Por defecto: 51</small>
                             </div>
-                        @else
-                            <div>
-                                Archivo actual: <br>
-                                <embed src="{{ asset('storage/' . $cursos->archivoContenidodelCurso) }}"
-                                    type="application/pdf" width="100%" height="250px" />
-                            </div>
-                        @endif
-                    @endif
-
-                </div>
-
-
-                <div style="display: flex; align-items: center;" class="mb-4">
-
-                    <div class="mr-8">
-                        <label for="formato">Formato</label>
-                        <select name="formato" id="formato" class="form-control w-auto">
-                            <option value="Presencial" {{ $cursos->formato === 'Presencial' ? 'selected' : '' }}>
-                                Presencial</option>
-                            <option value="Virtual" {{ $cursos->formato === 'Virtual' ? 'selected' : '' }}>Virtual
-                            </option>
-                            <option value="Híbrido" {{ $cursos->formato === 'Híbrido' ? 'selected' : '' }}>Híbrido
-                            </option>
-                        </select>
-                    </div>
-                    <div class="mr-8">
-                        <label for="tipo">Tipo</label>
-                        <select name="tipo" id="formato" class="form-control w-auto">
-                            <option value="curso" {{ $cursos->tipo === 'curso' ? 'selected' : '' }}>Curso</option>
-                            <option value="congreso" {{ $cursos->tipo === 'congreso' ? 'selected' : '' }}>Congreso
-                            </option>
-                        </select>
+                        </div>
                     </div>
 
-                    @if (auth()->user()->hasRole('Docente'))
-                        <input type="text" value="{{ auth()->user()->id }}" name="docente_id" hidden readonly>
-                    @endif
+                    <!-- Fechas y Tipo -->
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="fecha_ini">Fecha Inicio</label>
+                                <input type="{{ $cursos->tipo == 'congreso' ? 'datetime-local' : 'date' }}"
+                                       class="form-control" id="fecha_ini" name="fecha_ini"
+                                       value="{{ $cursos->fecha_ini }}"
+                                       @if(auth()->user()->hasRole('Docente')) readonly @endif>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="fecha_fin">Fecha Fin</label>
+                                <input type="{{ $cursos->tipo == 'congreso' ? 'datetime-local' : 'date' }}"
+                                       class="form-control" id="fecha_fin" name="fecha_fin"
+                                       value="{{ $cursos->fecha_fin }}"
+                                       @if(auth()->user()->hasRole('Docente')) readonly @endif>
+                            </div>
+                        </div>
 
-                    @if (auth()->user()->hasRole('Administrador'))
-                        <div class="ml-3">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="formato">Formato</label>
+                                <select class="form-control" id="formato" name="formato">
+                                    <option value="Presencial" {{ $cursos->formato === 'Presencial' ? 'selected' : '' }}>Presencial</option>
+                                    <option value="Virtual" {{ $cursos->formato === 'Virtual' ? 'selected' : '' }}>Virtual</option>
+                                    <option value="Híbrido" {{ $cursos->formato === 'Híbrido' ? 'selected' : '' }}>Híbrido</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="tipo">Tipo</label>
+                                <select class="form-control" id="tipo" name="tipo">
+                                    <option value="curso" {{ $cursos->tipo === 'curso' ? 'selected' : '' }}>Curso</option>
+                                    <option value="congreso" {{ $cursos->tipo === 'congreso' ? 'selected' : '' }}>Congreso</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        @if(auth()->user()->hasRole('Administrador'))
+                        <div class="form-group">
                             <label for="docente_id">Docente</label>
-                            <select name="docente_id" id="" class="form-control w-auto">
-                                @foreach ($docente as $docente)
-                                    <option @selected($cursos->docente_id == $docente->id) @class([
-                                        'bg-purple-600 text-white' => $cursos->docente_id == $docente->id,
-                                    ])
-                                        value="{{ $docente->id }}">{{ $docente->name }} {{ $docente->lastname1 }}
-                                        {{ $docente->lastname2 }}</option>
+                            <select class="form-control" id="docente_id" name="docente_id">
+                                @foreach($docente as $doc)
+                                <option value="{{ $doc->id }}" {{ $cursos->docente_id == $doc->id ? 'selected' : '' }}>
+                                    {{ $doc->name }} {{ $doc->lastname1 }} {{ $doc->lastname2 }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>
-                    @endif
-                </div>
-
-                <div style="display: flex; align-items: center;" class="mb-4">
-
-                    <div class="mr-8">
-                        <label for="edad_id">Edad Dirigida</label>
-                        <input name="edad_id" value="{{ $cursos->edad_dirigida }}" class="form-control w-auto">
-                        </input>
-                    </div>
-
-                    <div class="ml-3">
-                        <label for="nivel_id">Niveles</label>
-                        <input name="nivel_id" value="{{ $cursos->nivel }}" class="form-control w-auto">
-                        </input>
+                        @else
+                        <input type="hidden" name="docente_id" value="{{ auth()->user()->id }}">
+                        @endif
                     </div>
                 </div>
 
+                <!-- Niveles y Edades -->
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="edad_id">Edad Dirigida</label>
+                            <input type="text" class="form-control" id="edad_id" name="edad_id"
+                                   value="{{ $cursos->edad_dirigida }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nivel_id">Niveles</label>
+                            <input type="text" class="form-control" id="nivel_id" name="nivel_id"
+                                   value="{{ $cursos->nivel }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archivo de Contenido (Docente) -->
+                @if(auth()->user()->hasRole('Docente'))
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="archivo">Tabla de Contenidos</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="archivo" name="archivo">
+                                <label class="custom-file-label" for="archivo">
+                                    {{ $cursos->archivoContenidodelCurso ? 'Cambiar archivo' : 'Seleccionar archivo' }}
+                                </label>
+                            </div>
+
+                            @if($cursos->archivoContenidodelCurso)
+                            <div class="mt-3">
+                                <p>Archivo actual:</p>
+                                <div class="embed-responsive embed-responsive-16by9" style="max-height: 250px;">
+                                    <embed class="embed-responsive-item"
+                                           src="{{ asset('storage/' . $cursos->archivoContenidodelCurso) }}"
+                                           type="application/pdf">
+                                </div>
+                                <a href="{{ asset('storage/' . $cursos->archivoContenidodelCurso) }}"
+                                   class="btn btn-sm btn-primary mt-2" target="_blank">
+                                    <i class="fas fa-download"></i> Descargar
+                                </a>
+                            </div>
+                            @else
+                            <div class="alert alert-info mt-3">
+                                No se ha cargado ningún archivo todavía
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <div class="row mt-4">
+                    <div class="col-md-12 text-center">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
-
-        <br>
-        <input class="btn btn btn-success" type="submit" value="Guardar Cambios">
-        <br>
-        <br>
-
-
-
-        </form>
-
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
     </div>
+</div>
+
+<script>
+// Cambiar el label del input file cuando se selecciona un archivo
+document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+    var fileName = document.getElementById("archivo").files[0].name;
+    var nextSibling = e.target.nextElementSibling;
+    nextSibling.innerText = fileName;
+});
+
+// Cambiar el tipo de input de fecha según el tipo de curso
+document.getElementById('tipo').addEventListener('change', function() {
+    var tipo = this.value;
+    var fechaIni = document.getElementById('fecha_ini');
+    var fechaFin = document.getElementById('fecha_fin');
+
+    if(tipo === 'congreso') {
+        fechaIni.type = 'datetime-local';
+        fechaFin.type = 'datetime-local';
+    } else {
+        fechaIni.type = 'date';
+        fechaFin.type = 'date';
+    }
+});
+</script>
 @endsection
-
-
-@include('layout')

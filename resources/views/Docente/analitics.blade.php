@@ -2,31 +2,42 @@
 
 
 @section('content')
-    @forelse ($cursos2 as $cursos)
-        @if (auth()->user()->id == $cursos->docente_id)
-            <div class="w-full md:w-1/2 xl:w-1/3 p-3">
+<div class="container py-4">
+    <div class="row g-4">
+        @forelse ($cursos2 as $curso)
+            @if (auth()->user()->id == $curso->docente_id)
+                <div class="col-12 col-md-6 col-xl-4">
+                    <a href="{{ route('rfc', $curso->id) }}" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0 hover-shadow">
+                            <div class="card-body d-flex align-items-center">
+                                <!-- Icono -->
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-journal-text fs-4"></i>
+                                </div>
 
-                {{-- <a href="{{ route('Curso', Crypt::encrypt($cursos->id)) }}" class="block bg-white border rounded shadow p-2"> --}}
-                <a href="{{ route('rfc', $cursos->id) }}" class="block bg-white border rounded shadow p-2">
-                    <div class="flex flex-row items-center">
-                        <div class="flex-shrink pr-4">
-                            <div class="rounded p-3 bg-blue-400"><i class="fa fa-bars fa-2x fa-fw fa-inverse"></i>
+                                <!-- Info -->
+                                <div>
+                                    <h5 class="card-title text-dark mb-1">{{ $curso->nombreCurso }}</h5>
+                                    <small class="text-muted">Docente asignado</small>
+                                </div>
+
+                                <!-- Flecha derecha -->
+                                <div class="ms-auto text-primary">
+                                    <i class="bi bi-arrow-right-circle fs-5"></i>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex-1 text-right md:text-center">
-                            <h3 class="atma text-3xl">{{ $cursos->nombreCurso }} <span class="text-green-500"></span>
-                            </h3>
-                            <h5 class="alegreya uppercase"></h5>
-                            <span class="inline-block mt-2">IR</span>
-                        </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
+            @endif
+        @empty
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle-fill me-2"></i> No tienes cursos asignados.
+                </div>
             </div>
-        @else
-        @endif
-    @empty
-        <div class="card pb-3 pt-3 col-xl-12">
-            <h4>NO TIENES CURSOS ASIGNADOS</h4>
-        </div>
-    @endforelse
+        @endforelse
+    </div>
+</div>
 @endsection
+

@@ -34,6 +34,7 @@ class EvaluacionesController extends Controller
 
         $request->validate([
             'tituloEvaluacion' => 'required',
+            'tema_id' => 'required',
             'evaluacionDescripcion' => 'required',
             'fechaHabilitacion' => 'required',
             'fechaVencimiento' => 'required',
@@ -42,6 +43,7 @@ class EvaluacionesController extends Controller
 
         $evaluaciones = new Evaluaciones();
         $evaluaciones->titulo_evaluacion =  $request->tituloEvaluacion;
+        $evaluaciones->temas_id =  $request->tema_id;
         $evaluaciones->descripcionEvaluacion =  $request->evaluacionDescripcion;
         $evaluaciones->fecha_habilitacion =  date("Y-m-d", strtotime($request->fechaHabilitacion));
         $evaluaciones->fecha_vencimiento =  date("Y-m-d", strtotime($request->fechaVencimiento));

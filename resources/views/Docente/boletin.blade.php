@@ -1,248 +1,234 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boleta de Calificaciones</title>
-    <style>
-        /* Estilos CSS aquí */
-        body {
-            background-color: #e8e8e8;
-            color: #000;
-            /* Cambié el color del texto a negro */
-            font-family: 'AB', sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boleta de Calificaciones</title>
 
-        .header-main {
-            background: linear-gradient(to right bottom, #1A4789 49.5%, #FFFF 50%);
-            height: 100%;
-            /* Altura del 100% para ocupar todo el alto de la página */
-            width: 55%;
-            border: none;
-            border-radius: 0;
-            position: relative;
-            overflow: hidden;
-            margin: 0 auto;
-            /* Esto centra horizontalmente el elemento en la página */
-            border-radius: 10px;
-        }
+  <!-- Bootstrap CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-        /* Estilo para el contenedor de la navbar */
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 100%;
-            width: 100%;
-        }
-
-        /* Estilo para los elementos de la navbar */
-        .header-brand {
-            height: 100%;
-            width: auto;
-            display: flex;
-            align-items: center;
-        }
-
-        @font-face {
-            font-family: AB;
-            src: url(resources/fonts/AB.ttf);
-        }
-
-        h1 {
-            font-family: 'AB', sans-serif;
-            font-size: 20px;
-            margin-left: 20px;
-        }
-
-        input {
-            margin: 0% border: 0;
-        }
-
-        .container {
-            max-width: 50%;
-            margin: 20px auto;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .two-column-container {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .table-container {
-            margin-top: 20px;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th,
-        td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-
-        th {
-            background-color: #63becf;
-            color: #fff;
-        }
-
-        .diagnostic-input {
-            width: 70%;
-        }
-
-        .nota-input {
-            width: 30%;
-        }
-
-        .comentarios-input {
-            width: 100%;
-        }
-
-        .firma-container {
-            margin-top: 20px;
-        }
-        .custom-btn {
-        background-color: #63becf;
-        color: white;
-        border: 1px solid #63becf;
-        border-radius: 5px;
-        margin: 10px; /* Puedes ajustar el valor según tus preferencias */
-        box-shadow: 0 0 10px #1a4789;
+  <style>
+    @font-face {
+      font-family: AB;
+      src: url(resources/fonts/AB.ttf);
     }
-    </style>
+
+    body {
+      background-color: #e8e8e8;
+      color: #000;
+      font-family: 'AB', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header-main {
+      background: linear-gradient(to right bottom, #1A4789 49.5%, #FFFF 50%);
+      width: 55%;
+      border: none;
+      margin: 0 auto;
+      border-radius: 10px;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 1rem;
+    }
+
+    h1 {
+      font-family: 'AB', sans-serif;
+      font-size: 20px;
+      margin-left: 20px;
+    }
+
+    .container {
+      max-width: 50%;
+      margin: 20px auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .two-column-container {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .table-container {
+      margin-top: 20px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #63becf;
+      color: #fff;
+    }
+
+    .comentarios-input {
+      width: 100%;
+    }
+
+    .firma-container {
+      margin-top: 20px;
+    }
+
+    .custom-btn {
+      background-color: #63becf;
+      color: white;
+      border: 1px solid #63becf;
+      border-radius: 5px;
+      margin: 10px;
+      box-shadow: 0 0 10px #1a4789;
+    }
+  </style>
 </head>
 
 <body>
-<div class="border p-3">
-    <a href="javascript:history.back()" class="btn btn-primary" style="background-color: #63becf; color: white; border: 1px solid #63becf;">
-        &#9668; Volver
-    </a>
-    <br>
-    <br>
-</div>
 
-    <header id="header-main" class="header header-main header-expand-lg header-transparent header-light py-10">
-        <div class="header-container">
-            <a class="header-brand logo-izquierdo" href="{{ route('Inicio') }}">
-                <img src="{{ asset('resources/img/logof.png') }}" style="width: auto; height: 80px;">
-            </a>
-            <a class="header-brand logo-derecho" href="{{ route('Inicio') }}">
-                <img src="{{ asset('resources/img/logoedin.png') }}" style="width: auto; height: 125px;">
-            </a>
-        </div>
-    </header>
-
-    <div class="titulo-main">
-        <h1>BOLETA DE CALIFICACIONES</h1>
+  <!-- Navbar Back Button -->
+  <nav class="navbar bg-light border-bottom mb-4">
+    <div class="container-fluid">
+      <a href="javascript:history.back()" class="btn custom-btn">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
     </div>
-    <form action="{{route('boletinPost', $inscritos->id)}}" method="POST">
+  </nav>
+
+  <!-- Header -->
+  <header class="header-main">
+    <div class="header-container">
+      <a class="header-brand logo-izquierdo" href="{{ route('Inicio') }}">
+        <img src="{{ asset('resources/img/logof.png') }}" style="height: 80px;">
+      </a>
+      <a class="header-brand logo-derecho" href="{{ route('Inicio') }}">
+        <img src="{{ asset('resources/img/logoedin.png') }}" style="height: 125px;">
+      </a>
+    </div>
+  </header>
+
+  <!-- Título -->
+  <div class="mt-4">
+    <h1>BOLETA DE CALIFICACIONES</h1>
+  </div>
+
+  <!-- Formulario -->
+  <form action="{{ route('boletinPost', $inscritos->id) }}" method="POST">
     @csrf
     <div class="container">
-        <div class="two-column-container">
-            <div>
-                <input type="text" name="estudiante" value="{{ $inscritos->id }}" hidden>
-                <p>Estudiante:  {{ $inscritos->estudiantes->name }} {{ $inscritos->estudiantes->lastname1 }} {{ $inscritos->estudiantes->lastname2 }}
-                <p>Docente: {{ $inscritos->cursos->docente->name }} {{ $inscritos->cursos->docente->lastname1 }}
-                    {{ $inscritos->cursos->docente->lastname2 }}</p>
-                <p>Periodo: {{ $inscritos->cursos->fecha_ini }} al {{ $inscritos->cursos->fecha_fin }}</p>
-            </div>
-            <div>
-                <p>Curso: {{ $inscritos->cursos->nombreCurso }}</p>
-                <p>Nivel: {{ $inscritos->cursos->nivel->nombre }}</p>
 
-            </div>
+      <!-- Datos generales -->
+      <div class="two-column-container">
+        <div class="text-start">
+          <input type="text" name="estudiante" value="{{ $inscritos->id }}" hidden>
+          <p><strong>Estudiante:</strong> {{ $inscritos->estudiantes->name }} {{ $inscritos->estudiantes->lastname1 }} {{ $inscritos->estudiantes->lastname2 }}</p>
+          <p><strong>Docente:</strong> {{ $inscritos->cursos->docente->name }} {{ $inscritos->cursos->docente->lastname1 }} {{ $inscritos->cursos->docente->lastname2 }}</p>
+          <p><strong>Periodo:</strong> {{ $inscritos->cursos->fecha_ini }} al {{ $inscritos->cursos->fecha_fin }}</p>
         </div>
-        <div class="table-container">
-            <table id="miTabla">
-                <tr>
-                    <th>Diagnóstico</th>
-                    <th>Nota</th>
-                </tr>
-
-                <tr>
-                <td>EVALUACIONES</td>
-                <td>
-                    @if($promedioNotasEvaluacion > 0)
-                    <input class="form-control" type="text" name="evaluaciones" value="evaluaciones{{ $inscritos->estudiantes->name }} {{ $inscritos->estudiantes->lastname1 }} {{ $inscritos->estudiantes->lastname2 }}" hidden>
-                    <input class="form-control" type="text" name="notaEvaluacion" value="{{round($promedioNotasEvaluacion)}}" hidden>
-                    <p>
-                        {{round($promedioNotasEvaluacion)}}
-                    </p>
-                    @else
-                    <p>No se encontraron notas para este estudiante.</p>
-                    @endif</td>
-                </tr>
-                <tr>
-                <td>TAREAS</td>
-                    <td>
-                        @if($promedioNotasTareas > 0)
-                        <input class="form-control" type="text" name="tareas" value="tareas {{ $inscritos->estudiantes->name }} {{ $inscritos->estudiantes->lastname1 }} {{ $inscritos->estudiantes->lastname2 }}" hidden>
-                        <input class="form-control" type="text" name="notaTarea" value="{{round($promedioNotasTareas)}}" hidden>
-                        <p>
-                            {{round($promedioNotasTareas)}}
-                        </p>
-                        @else
-                        <p>No se encontraron notas para este estudiante.</p>
-                        @endif
-                    </td>
-
-                </tr>
-
-
-            </table>
-            <table>
-                <tr>
-                    <td>CALIFICACIÓN FINAL</td>
-                    <td>
-                        <p>{{round(($promedioNotasTareas+$promedioNotasEvaluacion)/2)}}</p>
-                        <input type="text" name="notafinal" value="{{round(($promedioNotasTareas+$promedioNotasEvaluacion)/2)}}" hidden>
-                    </td>
-                </tr>
-            </table>
-            <p>Comentarios y recomendaciones del docente:</p>
-            <textarea class="comentarios-input" name="comentario" value="{{old('comentario')}}" rows="4" required></textarea>
+        <div class="text-start">
+          <p><strong>Curso:</strong> {{ $inscritos->cursos->nombreCurso }}</p>
+          <p><strong>Nivel:</strong> {{ $inscritos->cursos->nivel }}</p>
         </div>
-        <div class="firma-container">
-            <p>DIRECCIÓN EJECUTIVA: FUNDACIÓN EDUCAR PARA LA VIDA</p>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-container">
+        <table class="table table-bordered mt-3">
+          <thead>
+            <tr>
+              <th>Diagnóstico</th>
+              <th>Nota</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>EVALUACIONES</td>
+              <td>
+                @if($promedioNotasEvaluacion > 0)
+                <input type="text" name="evaluaciones" value="evaluaciones {{ $inscritos->estudiantes->name }} {{ $inscritos->estudiantes->lastname1 }} {{ $inscritos->estudiantes->lastname2 }}" hidden>
+                <input type="text" name="notaEvaluacion" value="{{ round($promedioNotasEvaluacion) }}" hidden>
+                <p>{{ round($promedioNotasEvaluacion) }}</p>
+                @else
+                <p>No se encontraron notas para este estudiante.</p>
+                @endif
+              </td>
+            </tr>
+            <tr>
+              <td>TAREAS</td>
+              <td>
+                @if($promedioNotasTareas > 0)
+                <input type="text" name="tareas" value="tareas {{ $inscritos->estudiantes->name }} {{ $inscritos->estudiantes->lastname1 }} {{ $inscritos->estudiantes->lastname2 }}" hidden>
+                <input type="text" name="notaTarea" value="{{ round($promedioNotasTareas) }}" hidden>
+                <p>{{ round($promedioNotasTareas) }}</p>
+                @else
+                <p>No se encontraron notas para este estudiante.</p>
+                @endif
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="table table-bordered">
+          <tr>
+            <td><strong>CALIFICACIÓN FINAL</strong></td>
+            <td>
+              <p>{{ round(($promedioNotasTareas + $promedioNotasEvaluacion) / 2) }}</p>
+              <input type="text" name="notafinal" value="{{ round(($promedioNotasTareas + $promedioNotasEvaluacion) / 2) }}" hidden>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Comentarios -->
+        <div class="mt-3 text-start">
+          <label for="comentario" class="form-label">Comentarios y recomendaciones del docente:</label>
+          <textarea class="form-control comentarios-input" name="comentario" rows="4" required>{{ old('comentario') }}</textarea>
         </div>
-        <br><br>
-        <input type="submit" value="GUARDAR">
+      </div>
+
+      <!-- Firma -->
+      <div class="firma-container">
+        <p>DIRECCIÓN EJECUTIVA: FUNDACIÓN EDUCAR PARA LA VIDA</p>
+      </div>
+
+      <!-- Botón submit -->
+      <button type="submit" class="btn custom-btn">GUARDAR</button>
     </div>
-    </form>
+  </form>
 
+  <!-- Validaciones -->
+  @if ($errors->any())
+  <div class="alert alert-danger w-50 mx-auto mt-3">
+    <ul class="mb-0">
+      @foreach ($errors->all() as $error)
+      <li>{{ $error }}</li>
+      @endforeach
+    </ul>
+  </div>
+  @endif
 
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-   @endif
+  @if(session('success'))
+  <div class="alert alert-success w-50 mx-auto mt-3">
+    {{ session('success') }}
+  </div>
+  @endif
 
-   @if(session('success'))
-   <div class="alert alert-success">
-       {{ session('success') }}
-   </div>
-   @endif
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
 </body>
-
-
-
-
-
-
 </html>
