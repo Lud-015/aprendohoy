@@ -19,7 +19,8 @@ class Inscritos extends Model
         'estudiante_id',
         'cursos_id',
         'progreso',
-        'completado'
+        'completado',
+        'pago_completado'
     ];
     protected $softDelete = true;
 

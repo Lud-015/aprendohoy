@@ -60,7 +60,7 @@ class CursosController extends Controller
         $inscritos = Inscritos::where('cursos_id', $id)
             ->where('estudiante_id', auth()->user()->id)
             ->exists();  // Esto devuelve un booleano
-            
+
         // Verificar si el pago está completado
         $pago_completado = Inscritos::where('cursos_id', $id)
             ->where('estudiante_id', auth()->user()->id)
@@ -170,47 +170,55 @@ class CursosController extends Controller
     }
     public function EditC($id, Request $request)
     {
+        $user = auth()->user();
 
         $request->validate([
-            'nombre' => 'required',
-            'fecha_ini' => 'required',
-            'fecha_fin' => 'required',
-            'formato' => 'required'
+            'nombre' => 'required|string|max:255',
+            'fecha_ini' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_ini',
+            'formato' => 'required|in:Presencial,Virtual,Híbrido',
+            'tipo' => 'required|in:curso,congreso',
+            'nota' => 'nullable|numeric|min:0|max:100',
+            'archivo' => 'nullable|file|max:20480', // 20MB max
+            'docente_id' => $user->hasRole('Administrador') ? 'required|exists:users,id' : '',
         ]);
 
-
         $curso = Cursos::findOrFail($id);
+
         $curso->nombreCurso = $request->nombre;
         $curso->descripcionC = $request->descripcion ?? '';
-        $curso->fecha_ini = Carbon::parse($request->fecha_ini)->format('Y-m-d H:i:s');
-        if ($request->tipo === 'congreso') {
-            $curso->fecha_fin = Carbon::parse($request->fecha_ini)->endOfDay()->format('Y-m-d H:i:s');
-        } else {
-            $curso->fecha_fin = Carbon::parse($request->fecha_fin)->format('Y-m-d H:i:s');
-        }
-        $curso->fecha_ini = Carbon::parse($request->fecha_ini)->format('Y-m-d H:i:s');
-        $curso->fecha_fin = Carbon::parse($request->fecha_fin)->format('Y-m-d H:i:s');
         $curso->formato = $request->formato;
-        $curso->docente_id = $request->docente_id;
+        $curso->tipo = $request->tipo;
+        $curso->notaAprobacion = $request->nota;
         $curso->edad_dirigida = $request->edad_id;
         $curso->nivel = $request->nivel_id;
-        $curso->estado = ($curso->fecha_fin < now()) ? 'Expirado' : 'Activo';
-        $curso->notaAprobacion = $request->nota;
-        $curso->tipo = $request->tipo;
 
+        // Manejo de fechas
+        $fecha_ini = Carbon::parse($request->fecha_ini)->format('Y-m-d H:i:s');
+        $fecha_fin = $request->tipo === 'congreso'
+            ? Carbon::parse($request->fecha_ini)->endOfDay()->format('Y-m-d H:i:s')
+            : Carbon::parse($request->fecha_fin)->format('Y-m-d H:i:s');
+
+        $curso->fecha_ini = $fecha_ini;
+        $curso->fecha_fin = $fecha_fin;
+
+        $curso->estado = ($fecha_fin < now()) ? 'Expirado' : 'Activo';
+
+        // Asignar docente según rol
+        if ($user->hasRole('Administrador')) {
+            $curso->docente_id = $request->docente_id;
+        } else {
+            $curso->docente_id = $user->id;
+        }
+
+        // Manejo de archivo
         if ($request->hasFile('archivo')) {
-            // Elimina el archivo anterior si existe
             if ($curso->archivoContenidodelCurso) {
                 Storage::delete('public/' . $curso->archivoContenidodelCurso);
             }
 
-            // Guarda el nuevo archivo en el sistema de archivos
             $cursoArchivo = $request->file('archivo')->store('ArchivoCurso', 'public');
-            // Actualiza el campo del archivo en el modelo Curso
             $curso->archivoContenidodelCurso = $cursoArchivo;
-        } else {
-            // Si no se proporciona un nuevo archivo, mantén el archivo existente
-            $curso->archivoContenidodelCurso = $curso->archivoContenidodelCurso;
         }
 
         $curso->updated_at = now();
@@ -219,6 +227,7 @@ class CursosController extends Controller
 
         return back()->with('success', 'El curso ha sido editado correctamente');
     }
+
 
     public function eliminarCurso($id)
     {

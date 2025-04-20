@@ -30,7 +30,7 @@
                             <td class="text-center">
                                 <a href="{{ route('factura', $aporte->id) }}" class="btn btn-outline-primary btn-sm">
                                     <i class="bi bi-file-earmark-text"></i> Ver Factura
-                                </a>
+
                             </td>
                         </tr>
                     @endif
@@ -53,3 +53,4 @@
 
 
 @include('FundacionPlantillaUsu.index')
+</a>

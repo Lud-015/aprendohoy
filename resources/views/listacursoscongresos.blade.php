@@ -40,19 +40,31 @@
                         carrera
                     </p>
 
-                    <div class="search-form animate__animated animate__fadeInUp">
-                        <div class="input-group input-group-lg shadow-lg rounded-pill overflow-hidden">
-                            <input type="text" class="form-control border-0 px-4" id="searchInput"
-                                placeholder="¿Qué quieres aprender hoy?" style="height: 65px;">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary px-4" type="button" style="height: 65px;"
-                                    id="searchButton">
-                                    <i class="bi bi-search me-2"></i>
-                                    Buscar
-                                </button>
-                            </div>
+                    <form method="GET" action="{{ route('lista.cursos.congresos') }}" class="row g-3 align-items-end mb-4">
+                        <div class="col-md-4">
+                            <p for="type" class="text-white form-label">Tipo</p>
+                            <select name="type" id="type" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="curso" {{ request('type') == 'curso' ? 'selected' : '' }}>Curso</option>
+                                <option value="congreso" {{ request('type') == 'congreso' ? 'selected' : '' }}>Congreso</option>
+                            </select>
                         </div>
-                    </div>
+                        <div class="col-md-4">
+                            <label for="sort" class="text-white form-label">Ordenar por</label>
+                            <select name="sort" id="sort" class="form-select">
+                                <option value="">Por defecto</option>
+                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Precio: Menor a mayor</option>
+                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Precio: Mayor a menor</option>
+                                <option value="date_desc" {{ request('sort') == 'date_desc' ? 'selected' : '' }}>Más recientes</option>
+                                <option value="rating_desc" {{ request('sort') == 'rating_desc' ? 'selected' : '' }}>Mejor calificados</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-grid">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </form>
+
+
 
                     <div class="mt-4 text-white animate__animated animate__fadeInUp">
                         <p class="mb-2">Búsquedas populares:</p>
@@ -464,7 +476,7 @@
 
                 <!-- Pagination -->
                 <div class="mt-4">
-                    {{ $cursos->links() }}
+                    {{ $cursos->appends(request()->query())->links() }}
                 </div>
             </div>
         </div>

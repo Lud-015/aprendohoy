@@ -70,16 +70,18 @@
                                 <label for="fecha_ini">Fecha Inicio</label>
                                 <input type="{{ $cursos->tipo == 'congreso' ? 'datetime-local' : 'date' }}"
                                        class="form-control" id="fecha_ini" name="fecha_ini"
-                                       value="{{ $cursos->fecha_ini }}"
+                                       value="{{ old('fecha_ini', $cursos->fecha_ini ? \Carbon\Carbon::parse($cursos->fecha_ini)->format($cursos->tipo == 'congreso' ? 'Y-m-d\TH:i' : 'Y-m-d') : '') }}"
                                        @if(auth()->user()->hasRole('Docente')) readonly @endif>
                             </div>
+
                             <div class="form-group col-md-6">
                                 <label for="fecha_fin">Fecha Fin</label>
                                 <input type="{{ $cursos->tipo == 'congreso' ? 'datetime-local' : 'date' }}"
                                        class="form-control" id="fecha_fin" name="fecha_fin"
-                                       value="{{ $cursos->fecha_fin }}"
+                                       value="{{ old('fecha_fin', $cursos->fecha_fin ? \Carbon\Carbon::parse($cursos->fecha_fin)->format($cursos->tipo == 'congreso' ? 'Y-m-d\TH:i' : 'Y-m-d') : '') }}"
                                        @if(auth()->user()->hasRole('Docente')) readonly @endif>
                             </div>
+
                         </div>
 
                         <div class="form-row">

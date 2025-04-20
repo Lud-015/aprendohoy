@@ -23,12 +23,52 @@ class AportesController extends Controller
 
         return view('FundacionPlantillaUsu.aportes')->with('aportes', $aportes);
     }
+    public function habilitarCurso($aporte)
+    {
+        // Validar que el aporte exista
+        $aporte = Aportes::findOrFail($aporte);
+
+        // Buscar la inscripción correspondiente
+        $inscrito = Inscritos::where('cursos_id', $aporte->cursos_id)
+                    ->where('estudiante_id', $aporte->estudiante_id)
+                    ->first(); // Cambiado de get() a first()
+
+
+        // Si no existe la inscripción, retornar con error
+        if (!$inscrito) {
+            return back()->with('error', 'No se encontró la inscripción correspondiente para este aporte');
+        }
+
+        // Verificar que no esté ya habilitado
+        if ($inscrito->pago_completado) {
+            return back()->with('info', 'La inscripción ya estaba habilitada');
+        }
+
+
+
+        // Actualizar el estado de pago
+        $inscrito->update([
+            'pago_completado' => true,
+        ]);
+
+        // Opcional: Registrar algún historial de pago
+        // PagoHistorial::create([
+        //     'inscripcion_id' => $inscrito->id,
+        //     'monto' => $aporte->monto,
+        //     'fecha_pago' => now(),
+        //     'metodo_pago' => 'Aporte confirmado',
+        //     'referencia' => 'Aporte ID: '.$aporte->id
+        // ]);
+
+        return back()->with('success', 'Inscripción habilitada y pago confirmado correctamente');
+    }
 
     public function indexAdmin()
     {
         $estudiantes = User::role('Estudiante')->get();
 
-        $cursos = Cursos::whereDate('fecha_fin', '>=', Carbon::today())->get();
+
+        $cursos = Cursos::with('inscritos')->whereDate('fecha_fin', '>=', Carbon::today())->get();
 
 
         return view('registraraporte')

@@ -73,59 +73,61 @@
     @endif
 
     @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Estudiante'))
-    <style>
-        .list-view .card {
-            flex-direction: row;
-            align-items: center;
-        }
+        <style>
+            .list-view .card {
+                flex-direction: row;
+                align-items: center;
+            }
 
-        .list-view .card img {
-            width: 200px;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 0;
-        }
+            .list-view .card img {
+                width: 200px;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 0;
+            }
 
-        .list-view .card-body {
-            flex: 1;
-        }
+            .list-view .card-body {
+                flex: 1;
+            }
 
-        .list-view .col-12,
-        .list-view .col-sm-6,
-        .list-view .col-lg-4 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    </style>
+            .list-view .col-12,
+            .list-view .col-sm-6,
+            .list-view .col-lg-4 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        </style>
 
-    <div class="container py-5">
-        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 gap-3">
-            <h2 class="h4 fw-semibold mb-0">Tus Cursos</h2>
+        <div class="container py-5">
+            <div
+                class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 gap-3">
+                <h2 class="h4 fw-semibold mb-0">Tus Cursos</h2>
 
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <select class="form-select form-select-sm w-auto">
-                    <option value="all">Todos</option>
-                </select>
-                <input type="text" placeholder="Buscar" class="form-control form-control-sm w-auto" style="min-width: 200px;">
-                <div class="btn-group" role="group">
-                    <button id="btnGrid" class="btn btn-outline-secondary btn-sm active">
-                        <i class="bi bi-grid-3x3-gap-fill"></i>
-                    </button>
-                    <button id="btnList" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-list-ul"></i>
-                    </button>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <select class="form-select form-select-sm w-auto">
+                        <option value="all">Todos</option>
+                    </select>
+                    <input type="text" placeholder="Buscar" class="form-control form-control-sm w-auto"
+                        style="min-width: 200px;">
+                    <div class="btn-group" role="group">
+                        <button id="btnGrid" class="btn btn-outline-secondary btn-sm active">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                        </button>
+                        <button id="btnList" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-list-ul"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row g-4">
-            @if (auth()->user()->hasRole('Estudiante'))
+            <div class="row g-4">
+                @if (auth()->user()->hasRole('Estudiante'))
                 @forelse ($inscritos as $inscrito)
                     @if (auth()->user()->id == $inscrito->estudiante_id && $inscrito->cursos && $inscrito->cursos->deleted_at === null)
                         <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card h-100 shadow-sm border-0">
                                 <img src="{{ $inscrito->cursos->imagen ? asset('storage/' . $inscrito->cursos->imagen) : asset('./assets/img/course-default.jpg') }}"
-                                     class="card-img-top" style="height: 200px; object-fit: cover;" alt="Imagen curso">
+                                    class="card-img-top" style="height: 200px; object-fit: cover;" alt="Imagen curso">
                                 <div class="card-body">
                                     <h5 class="card-title text-truncate">{{ $inscrito->cursos->nombreCurso }}</h5>
 
@@ -149,14 +151,25 @@
                                             <i class="bi bi-play-circle"></i> Ir al Curso
                                         </a>
                                     @else
-                                        <div class="text-center mt-3">
-                                            @if ($inscrito->created_at->diffInDays(now()) < 2)
+                                        <button type="button" class="btn btn-primary btn-sm w-100 mt-3"
+                                            data-bs-toggle="modal" data-bs-target="#pagoModal"
+                                            data-inscrito-id="{{ $inscrito->id }}"
+                                            data-curso-id="{{ $inscrito->cursos->id }}"
+                                            data-curso-nombre="{{ $inscrito->cursos->nombreCurso }}"
+                                            data-curso-precio="{{ $inscrito->cursos->precio }}"
+                                            data-estudiante-nombre="{{ auth()->user()->name }} {{ auth()->user()->lastname1 }} {{ auth()->user()->lastname2 }}"
+                                            data-estudiante-id="{{ auth()->user()->id }}">
+                                            <i class="bi bi-credit-card"></i> Completar Pago
+                                        </button>
+
+                                        @if ($inscrito->created_at->diffInDays(now()) < 2)
+                                            <div class="text-center mt-3">
                                                 <button class="btn btn-warning btn-sm w-100" disabled>
                                                     <i class="bi bi-hourglass-split"></i> Pago en Revisión
                                                 </button>
                                                 <small class="d-block text-muted mt-1">Estamos verificando tu información</small>
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
@@ -167,48 +180,146 @@
                 @endforelse
             @endif
 
-            @if (auth()->user()->hasRole('Docente'))
-                @forelse ($cursos2 as $cursos)
-                    @if (auth()->user()->id == $cursos->docente_id)
-                        <div class="col-12 col-sm-6 col-lg-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <img src="{{ asset('./assets/img/course-default.jpg') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Imagen curso">
-                                <div class="card-body">
-                                    <span class="badge bg-primary mb-2"><i class="bi bi-person-badge"></i> Docente</span>
-                                    <h5 class="card-title text-truncate">{{ $cursos->nombreCurso }}</h5>
-                                    <a href="{{ route('Curso', $cursos->id) }}" class="btn btn-primary btn-sm w-100 mt-3">
-                                        <i class="bi bi-arrow-right-circle"></i> Ir al Curso
-                                    </a>
+            <!-- MODAL (fuera del loop) -->
+            <div class="modal fade" id="pagoModal" tabindex="-1" aria-labelledby="pagoModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form action="{{ route('pagarCurso') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="pagoModalLabel">Completar Compra</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Ocultos -->
+                                <input type="hidden" name="inscrito_id" id="modalInscritoId">
+                                <input type="hidden" name="estudiante_id" id="modalEstudianteId">
+                                <input type="hidden" name="curso_id" id="modalCursoId">
+
+                                <!-- Usuario -->
+                                <div class="mb-3">
+                                    <label class="form-label">Usuario:</label>
+                                    <input type="text" id="modalEstudianteNombre" class="form-control" readonly>
+                                </div>
+
+                                <hr>
+
+                                <!-- Curso -->
+                                <div class="mb-3">
+                                    <label class="form-label">Curso:</label>
+                                    <input type="text" id="modalCursoNombre" class="form-control" readonly>
+                                </div>
+
+                                <!-- Monto -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Monto a Pagar:</label>
+                                        <div class="input-group">
+                                            <input type="number" name="montopagar" id="modalCursoPrecio" class="form-control" min="1" step="any" required readonly>
+                                            <span class="input-group-text">$</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Comprobante -->
+                                <div class="mb-3">
+                                    <label class="form-label">Comprobante:</label>
+                                    <input type="file" name="comprobante" class="form-control" required>
+                                </div>
+
+                                <!-- Descripción -->
+                                <div class="mb-3">
+                                    <label class="form-label">Descripción:</label>
+                                    <textarea name="descripcion" class="form-control" rows="4" required></textarea>
+                                </div>
+
+                                <div class="m-3 text-center">
+                                    <img src="{{ asset('assets/img/pago.png') }}" alt="Métodos de pago" class="img-fluid">
                                 </div>
                             </div>
-                        </div>
-                    @endif
-                @empty
-                    <div class="col-12 text-center text-muted">No tienes cursos asignados.</div>
-                @endforelse
-            @endif
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-success">Confirmar Compra</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var pagoModal = document.getElementById('pagoModal');
+                    pagoModal.addEventListener('show.bs.modal', function (event) {
+                        var button = event.relatedTarget;
+
+                        // Obtener data
+                        var inscritoId = button.getAttribute('data-inscrito-id');
+                        var cursoId = button.getAttribute('data-curso-id');
+                        var cursoNombre = button.getAttribute('data-curso-nombre');
+                        var cursoPrecio = button.getAttribute('data-curso-precio');
+                        var estudianteNombre = button.getAttribute('data-estudiante-nombre');
+                        var estudianteId = button.getAttribute('data-estudiante-id');
+
+                        // Asignar valores
+                        document.getElementById('modalInscritoId').value = inscritoId;
+                        document.getElementById('modalCursoId').value = cursoId;
+                        document.getElementById('modalCursoNombre').value = cursoNombre;
+                        document.getElementById('modalCursoPrecio').value = cursoPrecio;
+                        document.getElementById('modalEstudianteNombre').value = estudianteNombre;
+                        document.getElementById('modalEstudianteId').value = estudianteId;
+
+                        document.getElementById('pagoModalLabel').textContent = 'Pago: ' + cursoNombre;
+                    });
+                });
+            </script>
+
+
+
+                @if (auth()->user()->hasRole('Docente'))
+                    @forelse ($cursos2 as $cursos)
+                        @if (auth()->user()->id == $cursos->docente_id)
+                            <div class="col-12 col-sm-6 col-lg-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <img src="{{ asset('./assets/img/course-default.jpg') }}" class="card-img-top"
+                                        style="height: 200px; object-fit: cover;" alt="Imagen curso">
+                                    <div class="card-body">
+                                        <span class="badge bg-primary mb-2"><i class="bi bi-person-badge"></i>
+                                            Docente</span>
+                                        <h5 class="card-title text-truncate">{{ $cursos->nombreCurso }}</h5>
+                                        <a href="{{ route('Curso', $cursos->id) }}"
+                                            class="btn btn-primary btn-sm w-100 mt-3">
+                                            <i class="bi bi-arrow-right-circle"></i> Ir al Curso
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @empty
+                        <div class="col-12 text-center text-muted">No tienes cursos asignados.</div>
+                    @endforelse
+                @endif
+            </div>
         </div>
-    </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const gridBtn = document.getElementById("btnGrid");
-            const listBtn = document.getElementById("btnList");
-            const courseContainer = document.querySelector(".row.g-4");
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const gridBtn = document.getElementById("btnGrid");
+                const listBtn = document.getElementById("btnList");
+                const courseContainer = document.querySelector(".row.g-4");
 
-            gridBtn.addEventListener("click", () => {
-                courseContainer.classList.remove("list-view");
-                gridBtn.classList.add("active");
-                listBtn.classList.remove("active");
+                gridBtn.addEventListener("click", () => {
+                    courseContainer.classList.remove("list-view");
+                    gridBtn.classList.add("active");
+                    listBtn.classList.remove("active");
+                });
+
+                listBtn.addEventListener("click", () => {
+                    courseContainer.classList.add("list-view");
+                    gridBtn.classList.remove("active");
+                    listBtn.classList.add("active");
+                });
             });
-
-            listBtn.addEventListener("click", () => {
-                courseContainer.classList.add("list-view");
-                gridBtn.classList.remove("active");
-                listBtn.classList.add("active");
-            });
-        });
-    </script>
+        </script>
 
 
     @endif
@@ -229,7 +340,7 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead class="table-dark">
+                            <thead class="">
                                 <tr>
                                     <th>Descripción</th>
                                     <th>Tiempo</th>
@@ -259,7 +370,7 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead class="table-dark">
+                            <thead class="">
                                 <tr>
                                     <th>#</th>
                                     <th>Cursos Finalizados</th>
@@ -298,7 +409,7 @@
 
 @if (auth()->user()->hasRole('Docente') || auth()->user()->hasRole('Estudiante'))
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             const searchInput = document.querySelector("input[placeholder='Buscar']");
             const courseCards = document.querySelectorAll(".card.h-100");
             const sortButton = document.querySelector("button:nth-of-type(3)");
@@ -309,7 +420,7 @@
             let currentView = "grid"; // Puede ser 'grid' o 'list'
 
             // 🔍 Filtrar cursos por nombre
-            searchInput.addEventListener("input", function () {
+            searchInput.addEventListener("input", function() {
                 const query = searchInput.value.toLowerCase();
 
                 courseCards.forEach(card => {
@@ -319,14 +430,15 @@
             });
 
             // 🔄 Ordenar cursos por nombre
-            sortButton.addEventListener("click", function () {
+            sortButton.addEventListener("click", function() {
                 const container = document.querySelector(".row.g-4");
                 let cardsArray = Array.from(courseCards).map(card => card.parentElement);
 
                 cardsArray.sort((a, b) => {
                     const titleA = a.querySelector(".card-title").textContent.toLowerCase();
                     const titleB = b.querySelector(".card-title").textContent.toLowerCase();
-                    return isAscending ? titleA.localeCompare(titleB) : titleB.localeCompare(titleA);
+                    return isAscending ? titleA.localeCompare(titleB) : titleB.localeCompare(
+                        titleA);
                 });
 
                 isAscending = !isAscending;
@@ -335,7 +447,7 @@
             });
 
             // 🖼 Cambiar entre vista de Tarjeta y Lista
-            viewToggleButton.addEventListener("click", function () {
+            viewToggleButton.addEventListener("click", function() {
                 const container = document.querySelector(".row.g-4");
 
                 if (currentView === "grid") {
@@ -358,7 +470,7 @@
             });
 
             // 🎯 Filtrar según estado de curso (completado/activo)
-            selectFilter.addEventListener("change", function () {
+            selectFilter.addEventListener("change", function() {
                 const filterValue = selectFilter.value;
 
                 courseCards.forEach(card => {

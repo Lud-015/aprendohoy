@@ -169,7 +169,7 @@ class BoletinController extends Controller
     public function enviarBoletin(Request $request, $id)
     {
         $inscritos = Inscritos::findOrFail($id);
-        $boletinNotas = [];
+        $boletinNotas = []; 
         $boletin = null;
 
         if ($inscritos) {

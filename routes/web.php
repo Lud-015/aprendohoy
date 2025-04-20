@@ -149,6 +149,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['middleware' => ['role:Administrador']], function () {
 
+        Route::post('/HabilitarCurso/{id}', [AportesController::class, 'habilitarCurso'])->name('habilitar.curso');
 
         Route::post('/Curso/{id}', [CursosController::class, 'update'])->name('cursos.update');
 

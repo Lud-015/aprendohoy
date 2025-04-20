@@ -15,28 +15,31 @@ class ActividadCompletionController extends Controller
     // Marcar tarea como completada
     public function marcarTareaCompletada(Request $request, $tareaId)
     {
+        return $this->marcarActividadCompletada($request, Tareas::class, $tareaId, 'Tarea');
+    }
 
+    public function marcarCuestionarioCompletado(Request $request, $cuestionarioId)
+    {
+        return $this->marcarActividadCompletada($request, Cuestionario::class, $cuestionarioId, 'Cuestionario');
+    }
+
+    protected function marcarActividadCompletada(Request $request, string $modelClass, $actividadId, string $nombreActividad)
+    {
         $request->validate([
-            'inscritos_id' => 'required' // Validar que el inscritos_id exista en la tabla inscritos
+            'inscritos_id' => 'required|exists:inscritos,id'
         ]);
 
-        $tarea = Tareas::findOrFail($tareaId);
+        $actividad = $modelClass::findOrFail($actividadId);
+        $cursoId = $actividad->subtema->tema->curso->id;
 
-        $estudiante = User::findOrFail( $request->inscritos_id);
-        $inscripcion = $estudiante->inscritos->where('cursos_id', $tarea->subtema->tema->curso->id)->first();
-
-
-
-        if (!$inscripcion) {
-            return redirect()->back()->with('error', 'No estás inscrito en este curso.');
-        }
-
-
+        $inscripcion = Inscritos::where('id', $request->inscritos_id)
+                        ->where('cursos_id', $cursoId)
+                        ->firstOrFail();
 
         ActividadCompletion::updateOrCreate(
             [
-                'completable_type' => get_class($tarea),
-                'completable_id' => $tarea->id,
+                'completable_type' => $modelClass,
+                'completable_id' => $actividad->id,
                 'inscritos_id' => $inscripcion->id,
             ],
             [
@@ -45,33 +48,6 @@ class ActividadCompletionController extends Controller
             ]
         );
 
-
-        return redirect()->back()->with('success', 'Tarea marcada como completada.');
-    }
-
-    // Marcar cuestionario como completado
-    public function marcarCuestionarioCompletado(Request $request, $cuestionarioId)
-    {
-        $request->validate([
-            'inscritos_id' => 'required|exists:inscritos,id'
-        ]);
-
-        $cuestionario = Cuestionario::findOrFail($cuestionarioId);
-
-
-
-        ActividadCompletion::updateOrCreate(
-            [
-                'completable_type' => get_class($cuestionario),
-                'completable_id' => $cuestionario->id,
-                'inscritos_id' => $request->inscritos_id,
-            ],
-            [
-                'completed' => true,
-                'completed_at' => now(),
-            ]
-        );
-
-        return redirect()->back()->with('success', 'Cuestionario completado');
+        return redirect()->back()->with('success', $nombreActividad . ' marcado como completado.');
     }
 }
