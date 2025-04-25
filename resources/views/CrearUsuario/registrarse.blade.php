@@ -7,16 +7,17 @@
 @section('content')
 
 
+@guest
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="bg-gray-transparent shadow border-0 p-5 rounded">
-                <!-- Título del formulario -->
+                <!-- Título -->
                 <div class="text-center mb-4">
                     <h5 style="color: white">Regístrate</h5>
                 </div>
 
-                <!-- Mensajes de error -->
+                <!-- Errores -->
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -27,32 +28,30 @@
                     </div>
                 @endif
 
-                <!-- Formulario de registro -->
+                <!-- Formulario -->
                 <form action="{{ route('registrarse') }}" method="post">
                     @csrf
 
-                    <!-- Campo de correo electrónico -->
+                    <!-- Email -->
                     <div class="mb-3">
                         <label for="email" class="form-label text-white">Correo Electrónico</label>
                         <div class="input-group">
                             <span class="input-group-text rounded-start-pill"><i class="fa fa-envelope"></i></span>
                             <input type="email" class="form-control rounded-end-pill" id="email" name="email"
-                                   placeholder="Correo Electrónico" value="{{ old('email') }}" required>
+                                placeholder="Correo Electrónico" value="{{ old('email') }}" required>
                         </div>
                     </div>
 
-                    <!-- Campos de contraseña y confirmación -->
+                    <!-- Contraseñas -->
                     <div class="row">
                         <div class="col-sm-6 mb-3">
                             <label for="password" class="form-label text-white">Contraseña</label>
                             <div class="input-group">
                                 <span class="input-group-text rounded-start-pill"><i class="fa fa-lock"></i></span>
                                 <input type="password" class="form-control" id="password" name="password"
-                                       placeholder="Contraseña" required>
+                                    placeholder="Contraseña" required>
                                 <button class="btn btn-secondary rounded-end-pill toggle-password" type="button"
-                                        data-target="password">
-                                    <i class="fa fa-eye"></i>
-                                </button>
+                                    data-target="password"><i class="fa fa-eye"></i></button>
                             </div>
                         </div>
                         <div class="col-sm-6 mb-3">
@@ -60,33 +59,36 @@
                             <div class="input-group">
                                 <span class="input-group-text rounded-start-pill"><i class="fa fa-lock"></i></span>
                                 <input type="password" class="form-control" id="password_confirmation"
-                                       name="password_confirmation" placeholder="Confirmar Contraseña" required>
+                                    name="password_confirmation" placeholder="Confirmar Contraseña" required>
                                 <button class="btn btn-secondary rounded-end-pill toggle-password" type="button"
-                                        data-target="password_confirmation">
-                                    <i class="fa fa-eye"></i>
-                                </button>
+                                    data-target="password_confirmation"><i class="fa fa-eye"></i></button>
                             </div>
                         </div>
                     </div>
-                    <!-- Campo de país -->
+
+                    <!-- País -->
                     <div class="mb-3">
                         <label for="country" class="form-label text-white">País</label>
                         <div class="input-group">
                             <span class="input-group-text rounded-start-pill"><i class="fa fa-globe"></i></span>
                             <select class="form-control rounded-end-pill" id="country" name="country" required>
                                 <option value="">Selecciona tu país</option>
+                                <option value="Bolivia" {{ old('country') == 'Bolivia' ? 'selected' : '' }}>Bolivia</option>
+                                <option value="Perú">Perú</option>
+                                <option value="Argentina">Argentina</option>
+                                <!-- Agrega más países si querés -->
                             </select>
                         </div>
                     </div>
 
-                    <!-- Campos de nombre y apellidos -->
+                    <!-- Nombres -->
                     <div class="row">
                         <div class="col-sm-4 mb-3">
                             <label for="name" class="form-label text-white">Nombre</label>
                             <div class="input-group">
                                 <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
                                 <input type="text" class="form-control rounded-end-pill" id="name" name="name"
-                                       placeholder="Nombre" value="{{ old('name') }}" required>
+                                    placeholder="Nombre" value="{{ old('name') }}" required>
                             </div>
                         </div>
                         <div class="col-sm-4 mb-3">
@@ -94,7 +96,7 @@
                             <div class="input-group">
                                 <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
                                 <input type="text" class="form-control rounded-end-pill" id="lastname1" name="lastname1"
-                                       placeholder="Apellido Paterno" value="{{ old('lastname1') }}" required>
+                                    placeholder="Apellido Paterno" value="{{ old('lastname1') }}" required>
                             </div>
                         </div>
                         <div class="col-sm-4 mb-3">
@@ -102,7 +104,7 @@
                             <div class="input-group">
                                 <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
                                 <input type="text" class="form-control rounded-end-pill" id="lastname2" name="lastname2"
-                                       placeholder="Apellido Materno" value="{{ old('lastname2') }}" required>
+                                    placeholder="Apellido Materno" value="{{ old('lastname2') }}" required>
                             </div>
                         </div>
                     </div>
@@ -110,20 +112,31 @@
                     <!-- reCAPTCHA -->
                     <div class="g-recaptcha mb-3" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
 
-                    <!-- Botón de envío -->
+                    <!-- Botón -->
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Registrarse</button>
                     </div>
                 </form>
 
-                <!-- Enlace para volver al inicio de sesión -->
+                <!-- Link a login -->
                 <div class="text-center mt-3">
-                    <p class="text-white">¿Ya tienes una cuenta? <a href="{{ route('login.signin') }}" class="text-white">Inicia sesión aquí</a></p>
+                    <p class="text-white">¿Ya tienes una cuenta?
+                        <a href="{{ route('login.signin') }}" class="text-white">Inicia sesión aquí</a>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@else
+    <div class="container text-center mt-5">
+        <div class="alert alert-info shadow">
+            Ya has iniciado sesión como <strong>{{ Auth::user()->name }}</strong>.
+            <a href="{{ route('home') }}" class="btn btn-primary btn-sm ms-2">Ir al inicio</a>
+        </div>
+    </div>
+@endguest
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
