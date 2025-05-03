@@ -23,10 +23,14 @@ return new class extends Migration
             $table->double('puntos');
             $table->boolean('bloqueado')->default(true);
             $table->enum('tipo_evaluacion', ['subida_archivo', 'cuestionario']);
-            $table->enum('estado', ['pendiente', 'en_progreso', 'completada'])->default('pendiente');
+            $table->string('estado')->default('Activo');
+            $table->boolean('es_cuestionario')->default(false);
+            $table->integer('intentos_permitidos')->nullable();
+            $table->unsignedBigInteger('cuestionario_id')->nullable();
+            $table->foreign('cuestionario_id')->references('id')->on('cuestionarios')->onDelete('cascade');
             $table->unsignedBigInteger('cursos_id');
             $table->foreign('cursos_id')->references('id')->on('cursos');
-            $table->unsignedBigInteger('temas_id'); // Clave foránea para la tabla temas
+            $table->unsignedBigInteger('temas_id'); 
             $table->foreign('temas_id')->references('id')->on('temas');
             $table->timestamps();
             $table->softDeletes();

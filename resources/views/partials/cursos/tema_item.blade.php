@@ -117,5 +117,209 @@
             </div>
         </div>
     </div>
+    <div class="my-4">
+        <h5>Evaluaciones</h5>
+        @if($tema->evaluaciones->isNotEmpty())
+            <ul class="list-group">
+                @foreach($tema->evaluaciones as $evaluacion)
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <h6 class="mb-1">{{ $evaluacion->titulo_evaluacion }}</h6>
+                            <p class="mb-1 text-muted">{{ $evaluacion->descripcionEvaluacion }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                {{ $evaluacion->fecha_habilitacion }} - {{ $evaluacion->fecha_vencimiento}}
+                            </small>
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Puntos: {{ $evaluacion->puntos }}
+                            </small>
+                            @if($evaluacion->archivoEvaluacion)
+                                <br>
+                                <a href="{{ asset('storage/' . $evaluacion->archivoEvaluacion) }}" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-download me-1"></i> Descargar Archivo
+                                </a>
+                            @endif
+
+                        </div>
+
+                        <div>
+                            @if(auth()->user()->hasRole('Docente'))
+                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalEditarEvaluacion-{{ $evaluacion->id }}">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <form method="GET" action="{{ route('quitarEvaluacion', $evaluacion->id) }}" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar esta evaluación?')">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+        @else
+            <p class="text-muted">No hay evaluaciones asociadas a este tema.</p>
+        @endif
+
+        @if(auth()->user()->hasRole('Docente'))
+            <button class="btn btn-sm btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#modalAgregarEvaluacion-{{ $tema->id }}">
+                <i class="fas fa-plus"></i> Agregar Evaluación
+            </button>
+        @endif
+        <!-- Modal para Crear Evaluación -->
+<div class="modal fade" id="modalAgregarEvaluacion-{{ $tema->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Crear Evaluación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ route('CrearEvaluacionPost', $cursos->id) }}" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="tema_id" value="{{ $tema->id }}">
+                    <input type="hidden" name="cursos_id" value="{{ $cursos->id }}">
+                    <div class="mb-3">
+                        <label for="tituloEvaluacion" class="form-label">Título de la Evaluación</label>
+                        <input type="text" class="form-control" name="tituloEvaluacion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="evaluacionDescripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" name="evaluacionDescripcion" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fechaHabilitacion" class="form-label">Fecha de Habilitación</label>
+                        <input type="date" class="form-control" name="fechaHabilitacion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fechaVencimiento" class="form-label">Fecha de Vencimiento</label>
+                        <input type="date" class="form-control" name="fechaVencimiento" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="puntos" class="form-label">Puntos</label>
+                        <input type="number" class="form-control" name="puntos" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="evaluacionArchivo" class="form-label">Archivo (opcional)</label>
+                        <input type="file" class="form-control" name="evaluacionArchivo">
+                    </div>
+                </div>
+
+                <div class="m-3">
+                    <label for="esCuestionario" class="form-label">¿Es un Cuestionario?</label>
+                    <select class="form-select" name="esCuestionario" required>
+                        <option value="0" selected>No</option>
+                        <option value="1">Sí</option>
+                    </select>
+                </div>
+                <div class="m-3" id="intentosPermitidosContainer" style="display: none;">
+                    <label for="intentosPermitidos" class="form-label">Intentos Permitidos</label>
+                    <input type="number" class="form-control" name="intentosPermitidos" min="1">
+                </div>
+                <script>
+                    document.querySelector('[name="esCuestionario"]').addEventListener('change', function() {
+                        const container = document.getElementById('intentosPermitidosContainer');
+                        container.style.display = this.value == '1' ? 'block' : 'none';
+                    });
+                </script>
+
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@foreach($tema->evaluaciones as $evaluacion)
+<!-- Modal para Editar Evaluación -->
+<div class="modal fade" id="modalEditarEvaluacion-{{ $evaluacion->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Editar Evaluación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ route('editarEvaluacionPost', $evaluacion->id) }}" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <input type="hidden" name="cursos_id" value="{{ $cursos->id }}">
+                    <input type="hidden" name="tema_id" value="{{ $evaluacion->temas_id }}">
+                    <div class="mb-3">
+                        <label for="tituloEvaluacion" class="form-label">Título de la Evaluación</label>
+                        <input type="text" class="form-control" name="tituloEvaluacion" value="{{ $evaluacion->titulo_evaluacion }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="evaluacionDescripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" name="evaluacionDescripcion" rows="3" required>{{ $evaluacion->descripcionEvaluacion }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fechaHabilitacion" class="form-label">Fecha de Habilitación</label>
+                        <input type="date" class="form-control" name="fechaHabilitacion" value="{{ $evaluacion->fecha_habilitacion }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fechaVencimiento" class="form-label">Fecha de Vencimiento</label>
+                        <input type="date" class="form-control" name="fechaVencimiento" value="{{ $evaluacion->fecha_vencimiento }}" required>
+                    </div>
+                    <div class="m-3">
+                        <label for="puntos" class="form-label">Puntos</label>
+                        <input type="number" class="form-control" name="puntos" value="{{ $evaluacion->puntos }}" required>
+                    </div>
+                    <div class="m-3">
+                        <label for="evaluacionArchivo" class="form-label">Archivo (opcional)</label>
+                        @if($evaluacion->archivoEvaluacion)
+                            <a href="{{ asset('storage/' . $evaluacion->archivoEvaluacion) }}" target="_blank" class="d-block mb-2">
+                                <i class="fas fa-download me-1"></i> Descargar Archivo
+                            </a>
+                        @endif
+                        <input type="file" class="form-control" name="evaluacionArchivo">
+                    </div>
+                </div>
+
+                <div class="m-3">
+                    <label for="esCuestionario" class="form-label">¿Es un Cuestionario?</label>
+                    <select class="form-select" name="esCuestionario" required>
+                        <option value="0" {{ $evaluacion->es_cuestionario ? '' : 'selected' }}>No</option>
+                        <option value="1" {{ $evaluacion->es_cuestionario ? 'selected' : '' }}>Sí</option>
+                    </select>
+                </div>
+                <div class="m-3" id="intentosPermitidosContainer" style="{{ $evaluacion->es_cuestionario ? '' : 'display: none;' }}">
+                    <label for="intentosPermitidos" class="form-label">Intentos Permitidos</label>
+                    <input type="number" class="form-control" name="intentosPermitidos" value="{{ $evaluacion->intentos_permitidos }}" min="1">
+                </div>
+                <script>
+                    document.querySelector('[name="esCuestionario"]').addEventListener('change', function() {
+                        const container = document.getElementById('intentosPermitidosContainer');
+                        container.style.display = this.value == '1' ? 'block' : 'none';
+                    });
+                </script>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+{{-- <form method="POST" action="{{ route('quitarEvaluacion', $evaluacion->id) }}" class="d-inline">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar esta evaluación?')">
+        <i class="fas fa-trash"></i> Eliminar
+    </button>
+</form> --}}
+
+
+    </div>
+
 </div>
 

@@ -8,9 +8,13 @@
             <a href="{{ route('CrearForo', $cursos->id) }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i> Nuevo Tema
             </a>
+            <a href="{{ route('forosE', $cursos->id) }}" class="btn btn-warning btn-sm">
+                <i class="fas fa-trash"></i> Foros Eliminados
+            </a>
             {{-- <a href="{{ route('eliminad', $cursos->id) }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i> Nuevo Tema
             </a> --}}
+
             </div>
 
             @endif
@@ -64,6 +68,16 @@
                          </a>
                     </div>
                     @endif
+                    @hasrole('Estudiante')
+
+                    {{-- <form class="m-2" method="POST" action="{{ route('foros.completar', $tema->id) }}">
+                        @csrf
+                        <input type="hidden" name="inscritos_id" value="{{ $inscritos2->id }}">
+                        <button type="submit" class="btn btn-success btn-sm">Marcar como Completado</button>
+                    </form> --}}
+
+
+                    @endhasrole
                 </div>
                 @endforeach
             </div>

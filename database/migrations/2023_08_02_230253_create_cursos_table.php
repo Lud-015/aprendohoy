@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('notaAprobacion')->nullable();
             $table->string('formato');
             $table->string('estado')->default('Activo');
-            $table->enum('tipo', ['curso', 'congreso'])->default('curso');
+            $table->string('tipo')->default('curso');
             $table->unsignedBigInteger('docente_id');
             $table->foreign('docente_id')->references('id')->on('users');
             $table->string('edad_dirigida')->nullable(); // Puede contener valores como "Niños", "Adolescentes", "Adultos"

@@ -128,5 +128,20 @@ class User extends Authenticatable
         $this->notify(new CustomVerifyEmail);
     }
 
+    public function totalXp()
+{
+    return $this->inscritos()
+        ->with('xps') // Carga la relación 'xps' de cada inscrito
+        ->get()
+        ->flatMap(function ($inscrito) {
+            return $inscrito->xps; // Obtiene todos los registros de 'xps' para cada inscrito
+        })
+        ->sum('xp'); // Suma el campo 'xp' de todos los registros
+}
+
+
+
+
+
 
 }

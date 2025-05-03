@@ -15,21 +15,16 @@ return new class extends Migration
             $table->id();
             $table->timestamp('earned_at')->nullable();
             $table->timestamps();
-            $table->unsignedBigInteger('user_id'); // <-- corregido aquí
             $table->unsignedBigInteger('achievement_id');
-
-            // Foreign key constraints:
-            $table->foreign('user_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('cascade');
+            $table->unsignedBigInteger('inscrito_id');
+            $table->foreign('inscrito_id')->references('id')->on('inscritos')->onDelete('cascade');
 
             $table->foreign('achievement_id')
                   ->references('id')
                   ->on('achievements')
                   ->onDelete('cascade');
 
-            $table->unique(['user_id', 'achievement_id']);
+            $table->unique(['inscrito_id', 'achievement_id']);
         });
     }
 

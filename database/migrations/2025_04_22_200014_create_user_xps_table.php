@@ -15,14 +15,10 @@ return new class extends Migration
             $table->id();
 
             // Define the foreign key columns first
-            $table->unsignedBigInteger('users_id');
-            $table->unsignedBigInteger('curso_id');
 
-            // Then apply the foreign key constraints
-            $table->foreign('users_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('cascade');
+            $table->unsignedBigInteger('curso_id');
+            $table->unsignedBigInteger('inscrito_id');
+            $table->foreign('inscrito_id')->references('id')->on('inscritos')->onDelete('cascade');
 
             $table->foreign('curso_id')
                   ->references('id')

@@ -126,6 +126,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['role:Estudiante']], function () {
         Route::post('/Inscribirse-Curso/{id}', [InscritosController::class, 'storeCongreso'])
             ->name('inscribirse_congreso');
+    Route::post('/foros/{id}/completar', [ActividadCompletionController::class, 'marcarForoCompletado'])->name('foros.completar');
+    Route::post('/evaluaciones/{id}/completar', [ActividadCompletionController::class, 'marcarEvaluacionCompletada'])->name('evaluaciones.completar');
+    Route::post('/recursos/{id}/completar', [ActividadCompletionController::class, 'marcarRecursoCompletado'])->name('recursos.completar');
     });
 
 
@@ -220,11 +223,18 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('/horarios/{id}', [HorarioController::class, 'delete'])->name('horarios.delete');
         Route::post('/horarios/{id}/restore', [HorarioController::class, 'restore'])->name('horarios.restore');
 
+
+        //Recursos Subtema
+
+
+
+
         //Cuestionarios
 
 
         Route::get('/cuestionarios/{id}', [CuestionarioController::class, 'index'])->name('cuestionarios.index');
         Route::post('/cuestionarios/{id}', [CuestionarioController::class, 'store'])->name('cuestionarios.store');
+        Route::put('/cuestionarios/update/{id}', [CuestionarioController::class, 'update'])->name('cuestionarios.update');
 
         //Preguntas
 
@@ -285,7 +295,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('CrearEvaluacion/cursoid={id}', [EvaluacionesController::class, 'index'])->name('CrearEvaluacion');
         Route::post('CrearEvaluacion/cursoid={id}', [EvaluacionesController::class, 'store'])->name('CrearEvaluacionPost');
         Route::get('EditarEvaluacion/{id}', [EvaluacionesController::class, 'edit'])->name('editarEvaluacion');
-        Route::post('EditarEvaluacion/{id}', [EvaluacionesController::class, 'update'])->name('editarEvaluacionPost');
+        Route::put('/evaluaciones/{id}/editar', [EvaluacionesController::class, 'update'])->name('editarEvaluacionPost');
         Route::get('QuitarEvaluacion/{id}', [EvaluacionesController::class, 'delete'])->name('quitarEvaluacion');
         Route::get('ListaEvaluacionesEliminadas/{id}', [EvaluacionesController::class, 'indexEE'])->name('evaluacionesEliminadas');
         Route::get('restaurarEvaluacion/{id}', [EvaluacionesController::class, 'restaurarEvaluacion'])->name('restaurarEvaluacion');
@@ -304,7 +314,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         //RecursosSubtema
         Route::post('CrearRecursoSubtema/cursoid={id}', [RecursoSubtemaController::class, 'store'])->name('CrearRecursosSubtemaPost');
-        Route::post('ModificarRecursoSubtema/cursoid={id}', [RecursoSubtemaController::class, 'update'])->name('editarRecursosSubtemaPost');
+        Route::put('ModificarRecursoSubtema/cursoid={id}', [RecursoSubtemaController::class, 'update'])->name('editarRecursosSubtemaPost');
         Route::get('QuitarRecursoSubtema/{id}', [RecursoSubtemaController::class, 'delete'])->name('quitarRecursoSubtema');
         Route::get('RestaurarRecursoSubtema/{id}', [RecursoSubtemaController::class, 'restore'])->name('restaurarRecursoSubtema');
 

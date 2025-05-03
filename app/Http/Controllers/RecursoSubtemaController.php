@@ -113,6 +113,7 @@ class RecursoSubtemaController extends Controller
             'descripcionRecurso' => 'required|string',
             'tipoRecurso' => 'nullable|string',
             'archivo' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip|max:2048',
+            'eliminarArchivo' => 'nullable|boolean',
         ], $messages);
 
         // Buscar el recurso a editar
@@ -120,17 +121,20 @@ class RecursoSubtemaController extends Controller
 
         // Actualizar los campos del recurso
         $recurso->nombreRecurso = $validatedData['tituloRecurso'];
-
-        // Procesar la descripción para detectar y manejar enlaces de YouTube
-        $descripcion = $validatedData['descripcionRecurso'];
-        $recurso->descripcionRecursos = $this->procesarDescripcionConIframe($descripcion);
-
-        // Actualizar el tipo de recurso si se proporciona
+        $recurso->descripcionRecursos = $this->procesarDescripcionConIframe($validatedData['descripcionRecurso']);
         $recurso->tipoRecurso = $validatedData['tipoRecurso'] ?? $recurso->tipoRecurso;
+
+        // Eliminar el archivo actual si el checkbox está marcado
+        if ($request->has('eliminarArchivo') && $request->eliminarArchivo) {
+            if ($recurso->archivoRecurso && \Storage::disk('public')->exists($recurso->archivoRecurso)) {
+                \Storage::disk('public')->delete($recurso->archivoRecurso);
+            }
+            $recurso->archivoRecurso = null; // Eliminar referencia en la base de datos
+        }
 
         // Procesar archivo si se incluye uno nuevo
         if ($request->hasFile('archivo')) {
-            // Opcional: eliminar el archivo anterior si aplica
+            // Eliminar el archivo anterior si existe
             if ($recurso->archivoRecurso && \Storage::disk('public')->exists($recurso->archivoRecurso)) {
                 \Storage::disk('public')->delete($recurso->archivoRecurso);
             }
@@ -144,7 +148,7 @@ class RecursoSubtemaController extends Controller
         $recurso->save();
 
         // Redirigir con un mensaje de éxito
-        return back()->with('success', 'Recurso editado con éxito');
+        return back()->with('success', 'Recurso actualizado con éxito.');
     }
 
     public function delete($id)

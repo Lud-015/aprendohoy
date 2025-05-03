@@ -50,6 +50,7 @@ class ForoController extends Controller
 
 
     }
+
     public function index($id){
         $foro = Foro::findOrFail($id);
         $forosmensajes = ForoMensaje::where('foro_id', $foro->id)

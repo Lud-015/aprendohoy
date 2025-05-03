@@ -13,6 +13,26 @@ class Evaluaciones extends Model
 {
     use HasFactory, SoftDeletes;
     protected $softDelete = true;
+
+    protected $table = "evaluaciones";
+
+    protected $fillable = [
+        'titulo_evaluacion',
+        'descripcionEvaluacion',
+        'fecha_habilitacion',
+        'fecha_vencimiento',
+        'puntos',
+        'archivoEvaluacion',
+        'es_cuestionario',
+        'intentos_permitidos',
+        'cuestionario_id',
+    ];
+
+    public function cuestionario()
+{
+    return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
+}
+
     public function cursos() :BelongsTo
 
     {
@@ -49,5 +69,10 @@ class Evaluaciones extends Model
             $evaluacion->notaevaluacion()->restore();
         });
     }
+    public function tema(): BelongsTo
+        {
+            return $this->belongsTo(Temas::class, 'tema_id');
+        }
+
 
 }

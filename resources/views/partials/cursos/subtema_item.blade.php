@@ -128,6 +128,61 @@
                     @endif
                 </div>
             </div>
+            <div class="modal fade" id="modalEditarRecurso-{{ $recurso->id }}" tabindex="-1" aria-labelledby="modalEditarRecursoLabel-{{ $recurso->id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEditarRecursoLabel-{{ $recurso->id }}">
+                                Editar Recurso
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" action="{{ route('editarRecursosSubtemaPost', $recurso->id) }}" enctype="multipart/form-data">
+                                @csrf
+                                @method('PUT')
+
+                                <div class="mb-3">
+                                    <label for="tituloRecurso" class="form-label">Título del Recurso</label>
+                                    <input type="text" name="tituloRecurso" class="form-control" value="{{ $recurso->nombreRecurso }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="descripcionRecurso" class="form-label">Descripción</label>
+                                    <textarea name="descripcionRecurso" class="form-control" required>{{ $recurso->descripcionRecursos }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="archivoRecurso" class="form-label">Archivo Actual</label>
+                                    @if($recurso->archivoRecurso)
+                                        <a href="{{ asset('storage/' . $recurso->archivoRecurso) }}" target="_blank" class="d-block mb-2">
+                                            <i class="fas fa-download me-1"></i> Descargar Archivo
+                                        </a>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="eliminarArchivo" name="eliminarArchivo" value="1">
+                                            <label class="form-check-label" for="eliminarArchivo">Eliminar archivo actual</label>
+                                        </div>
+                                    @endif
+                                    <input type="file" name="archivo" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tipoRecurso" class="form-label">Tipo de Recurso</label>
+                                    <select class="form-select" name="tipoRecurso" required>
+                                        <option value="word" {{ $recurso->tipoRecurso == 'word' ? 'selected' : '' }}>Word</option>
+                                        <option value="excel" {{ $recurso->tipoRecurso == 'excel' ? 'selected' : '' }}>Excel</option>
+                                        <option value="powerpoint" {{ $recurso->tipoRecurso == 'powerpoint' ? 'selected' : '' }}>PowerPoint</option>
+                                        <option value="pdf" {{ $recurso->tipoRecurso == 'pdf' ? 'selected' : '' }}>PDF</option>
+                                        <option value="youtube" {{ $recurso->tipoRecurso == 'youtube' ? 'selected' : '' }}>YouTube</option>
+                                        <option value="imagen" {{ $recurso->tipoRecurso == 'imagen' ? 'selected' : '' }}>Imagen</option>
+                                        <option value="video" {{ $recurso->tipoRecurso == 'video' ? 'selected' : '' }}>Video</option>
+                                        <option value="audio" {{ $recurso->tipoRecurso == 'audio' ? 'selected' : '' }}>Audio</option>
+                                        <option value="enlace" {{ $recurso->tipoRecurso == 'enlace' ? 'selected' : '' }}>Enlace</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         @empty
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i> No hay recursos disponibles para este subtema.
@@ -232,6 +287,11 @@
                            class="btn btn-sm btn-primary me-2">
                             <i class="fas fa-play me-1"></i> Responder
                         </a>
+                        @if(auth()->user()->hasRole('Docente'))
+                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalEditarCuestionario-{{ $cuestionario->id }}">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        @endif
 
                         @if(auth()->user()->hasRole('Estudiante'))
                             @if($inscritos2->id && $cuestionario->isCompletedByInscrito($inscritos2->id))
@@ -246,6 +306,7 @@
                                     <button type="submit" class="btn btn-sm btn-outline-success">
                                         <i class="fas fa-check-circle me-1"></i> Marcar como completado
                                     </button>
+
                                 </form>
                             @endif
                         @endif
@@ -448,6 +509,52 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para editar Cuestionario -->
+<div class="modal fade" id="modalEditarCuestionario-{{ $cuestionario->id }}" tabindex="-1" aria-labelledby="modalEditarCuestionarioLabel-{{ $cuestionario->id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarCuestionarioLabel-{{ $cuestionario->id }}">
+                    Editar Cuestionario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ route('cuestionarios.update', $cuestionario->id) }}">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título del Cuestionario</label>
+                        <input type="text" name="titulo" class="form-control" value="{{ $cuestionario->titulo_cuestionario }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" required>{{ $cuestionario->descripcion }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_habilitacion" class="form-label">Fecha de Habilitación</label>
+                        <input type="date" name="fecha_habilitacion" class="form-control" value="{{ $cuestionario->fecha_habilitacion }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_vencimiento" class="form-label">Fecha de Vencimiento</label>
+                        <input type="date" name="fecha_vencimiento" class="form-control" value="{{ $cuestionario->fecha_vencimiento }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="puntos" class="form-label">Puntos</label>
+                        <input type="number" name="puntos" class="form-control" value="{{ $cuestionario->puntos }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar Recurso -->
+    
+
 
 {{-- @php
 function obtenerIconoPorTipo($tipo) {

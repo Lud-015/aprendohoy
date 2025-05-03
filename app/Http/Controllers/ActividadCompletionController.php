@@ -22,6 +22,22 @@ class ActividadCompletionController extends Controller
     {
         return $this->marcarActividadCompletada($request, Cuestionario::class, $cuestionarioId, 'Cuestionario');
     }
+    public function marcarForoCompletado(Request $request, $foroId)
+{
+    return $this->marcarActividadCompletada($request, Foro::class, $foroId, 'Foro');
+}
+
+public function marcarEvaluacionCompletada(Request $request, $evaluacionId)
+{
+    return $this->marcarActividadCompletada($request, Evaluacion::class, $evaluacionId, 'Evaluación');
+}
+
+// Marcar recurso como completado
+public function marcarRecursoCompletado(Request $request, $recursoId)
+{
+    return $this->marcarActividadCompletada($request, RecursoSubtema::class, $recursoId, 'Recurso');
+}
+
 
     protected function marcarActividadCompletada(Request $request, string $modelClass, $actividadId, string $nombreActividad)
     {
@@ -34,7 +50,7 @@ class ActividadCompletionController extends Controller
 
         $inscripcion = Inscritos::where('id', $request->inscritos_id)
                         ->where('cursos_id', $cursoId)
-                        ->firstOrFail();
+                          ->firstOrFail();
 
         ActividadCompletion::updateOrCreate(
             [

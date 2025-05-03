@@ -90,4 +90,11 @@ class Tema extends Model
             ->orderBy('orden', 'desc')
             ->first();
     }
+
+    public function evaluaciones()
+    {
+        return $this->hasMany(Evaluaciones::class, 'temas_id', 'id');
+    }
+
+
 }

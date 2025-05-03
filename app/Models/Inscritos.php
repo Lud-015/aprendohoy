@@ -121,5 +121,29 @@ class Inscritos extends Model
         $inscrito->actualizarProgreso();
     }
 
+    public function allAchievements()
+{
+    return $this->hasManyThrough(
+        UserAchievement::class,
+        Inscritos::class,
+        'estudiante_id', // Foreign key on Inscritos table
+        'inscrito_id',   // Foreign key on UserAchievement table
+        'id',            // Local key on User table
+        'id'             // Local key on Inscritos table
+    );
+}
+
+public function allXps()
+{
+    return $this->hasManyThrough(
+        UserXp::class,
+        Inscritos::class,
+        'estudiante_id', // Foreign key on Inscritos table
+        'inscrito_id',   // Foreign key on UserXp table
+        'id',            // Local key on User table
+        'id'             // Local key on Inscritos table
+    );
+}
+
 
 }

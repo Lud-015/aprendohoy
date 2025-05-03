@@ -18,6 +18,11 @@ class Cuestionario extends Model
         'subtema_id'
     ];
 
+
+    public function cuestionario()
+{
+    return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
+}
     /**
      * Relación con el subtema.
      */

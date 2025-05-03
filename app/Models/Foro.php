@@ -64,6 +64,11 @@ class Foro extends Model
         });
     }
 
+    public function completions()
+{
+    return $this->morphMany(ActividadCompletion::class, 'completable');
+}
+
 
 
 
