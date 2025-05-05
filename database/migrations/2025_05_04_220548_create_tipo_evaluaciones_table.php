@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('aportes', function (Blueprint $table) {
-            $table->unsignedBigInteger('cursos_id');
-            $table->foreign('cursos_id')->references('id')->on('cursos');
+        Schema::create('tipo_evaluaciones', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');     // Ej: "Cuestionario", "Entrega de archivo"
+            $table->string('slug')->unique(); // Ej: "cuestionario", "entrega_archivo"
+            $table->timestamps();
         });
     }
 
@@ -22,9 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('aportes', function (Blueprint $table) {
-            $table->dropForeign(['cursos_id']);
-            $table->dropColumn('cursos_id');
-        });
+        Schema::dropIfExists('tipo_evaluaciones');
     }
 };

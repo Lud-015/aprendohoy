@@ -25,6 +25,8 @@ class EvaluacionesController extends Controller
     // Crear una nueva evaluación
     public function store(Request $request)
     {
+
+
         $this->validateEvaluacion($request);
 
         $evaluaciones = new Evaluaciones();
@@ -151,9 +153,11 @@ class EvaluacionesController extends Controller
                 Storage::disk('public')->delete($evaluaciones->archivoEvaluacion);
             }
 
-            // Guardar nuevo archivo
             $evaluaciones->archivoEvaluacion = $request->file('evaluacionArchivo')->store('evaluacionArchivo', 'public');
+        } else {
+            $evaluaciones->archivoEvaluacion = '';
         }
+
 
         $evaluaciones->save();
     }

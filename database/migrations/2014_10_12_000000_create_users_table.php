@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('lastname2');
             $table->string('CI')->unique();
             $table->text('descripcion')->nullable();
-            $table->integer('Celular');
+            $table->string('Celular');
             $table->date('fechadenac');
             $table->string('PaisReside')->nullable();
             $table->string('CiudadReside')->nullable();

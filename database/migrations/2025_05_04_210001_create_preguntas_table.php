@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('preguntas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('cuestionario_id');
-            $table->foreign('cuestionario_id')->references('id')->on('cuestionarios');
-            $table->text('pregunta'); // Texto de la pregunta
-            $table->enum('tipo', ['multiple', 'abierta', 'verdadero_falso'])->default('multiple'); // Tipo de pregunta
-            $table->double('puntos'); // Puntos por responder esta pregunta
+            $table->text('enunciado');
+            $table->enum('tipo', ['opcion_multiple', 'abierta', 'boolean'])->default('opcion_multiple');
+            $table->integer('puntaje')->default(1);
             $table->timestamps();
             $table->softDeletes();
+            $table->foreign('cuestionario_id')->references('id')->on('cuestionarios')->onDelete('cascade');
         });
     }
 

@@ -29,16 +29,15 @@ class Evaluaciones extends Model
     ];
 
     public function cuestionario()
-{
-    return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
-}
+    {
+        return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
+    }
 
-    public function cursos() :BelongsTo
+    public function cursos(): BelongsTo
 
     {
 
         return $this->belongsTo(Cursos::class, 'cursos_id');
-
     }
 
     public function notaevaluacion(): HasMany
@@ -70,9 +69,12 @@ class Evaluaciones extends Model
         });
     }
     public function tema(): BelongsTo
-        {
-            return $this->belongsTo(Temas::class, 'tema_id');
-        }
+    {
+        return $this->belongsTo(Tema::class, 'tema_id');
+    }
 
-
+    public function cuestionarios()
+    {
+        return $this->belongsToMany(Cuestionario::class, 'cuestionario_evaluacion', 'evaluacion_id', 'cuestionario_id');
+    }
 }

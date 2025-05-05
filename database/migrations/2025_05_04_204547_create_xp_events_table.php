@@ -13,22 +13,19 @@ return new class extends Migration
     {
         Schema::create('xp_events', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('users_id'); // <--- corregido aquí
+
+            $table->unsignedBigInteger('users_id');
             $table->unsignedBigInteger('curso_id');
+            $table->unsignedBigInteger('xp_event_type_id');
 
-            $table->foreign('users_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
+            $table->morphs('origen'); 
 
-            $table->foreign('curso_id')
-                ->references('id')
-                ->on('cursos')
-                ->onDelete('cascade');
-
-            $table->string('type');
             $table->integer('xp');
             $table->timestamps();
+
+            $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('curso_id')->references('id')->on('cursos')->onDelete('cascade');
+            $table->foreign('xp_event_type_id')->references('id')->on('xp_event_types')->onDelete('restrict');
         });
     }
 

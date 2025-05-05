@@ -23,6 +23,13 @@
       0 => 'Barryvdh\\Snappy\\ServiceProvider',
     ),
   ),
+  'beyondcode/laravel-er-diagram-generator' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'BeyondCode\\ErdGenerator\\ErdGeneratorServiceProvider',
+    ),
+  ),
   'botman/botman' => 
   array (
     'aliases' => 

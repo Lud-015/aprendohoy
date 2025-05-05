@@ -154,33 +154,32 @@
 
                                     <!-- Certificate Options -->
                                     @if ($cursos->tipo === 'congreso')
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-
-                                    @if ($cursos->estado === 'Certificado Disponible')
                                         <li>
-                                            <button type="button" class="dropdown-item py-2" data-bs-toggle="modal"
-                                                data-bs-target="#certificadoModal">
-                                                <i class="fas fa-certificate text-warning me-2"></i> Obtener Certificado
-                                            </button>
+                                            <hr class="dropdown-divider">
                                         </li>
-                                    @endif
 
-                                    @if ($cursos->estado === 'Activo')
-
-                                        <li>
-                                            <form action="{{ route('cursos.activarCertificados', ['id' => $cursos->id]) }}"
-                                                method="POST">
-                                                @csrf
-                                                <button type="submit" class="dropdown-item py-2">
-                                                    <i class="fas fa-certificate text-success me-2"></i> Activar
-                                                    Certificados
+                                        @if ($cursos->estado === 'Certificado Disponible')
+                                            <li>
+                                                <button type="button" class="dropdown-item py-2" data-bs-toggle="modal"
+                                                    data-bs-target="#certificadoModal">
+                                                    <i class="fas fa-certificate text-warning me-2"></i> Obtener Certificado
                                                 </button>
-                                            </form>
-                                        </li>
+                                            </li>
+                                        @endif
 
-                                    @endif
+                                        @if ($cursos->estado === 'Activo')
+                                            <li>
+                                                <form
+                                                    action="{{ route('cursos.activarCertificados', ['id' => $cursos->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item py-2">
+                                                        <i class="fas fa-certificate text-success me-2"></i> Activar
+                                                        Certificados
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
                                     @endif
 
                                     <!-- Admin-only Certificate Template Options -->
@@ -572,85 +571,113 @@
     </script>
 @endsection
 
+<style>
+    .dropdown-submenu .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -1px;
+        display: none;
+        position: absolute;
+    }
 
+    ;
+
+    .dropdown-submenu:hover .dropdown-menu {
+        display: block;
+    }
+</style>
 
 
 @section('content')
-    @if((auth()->user()->hasRole('Docente') && $cursos->docente_id == auth()->user()->id) ||
-        (auth()->user()->hasRole('Estudiante') && $inscritos))
+    @if (
+        (auth()->user()->hasRole('Docente') && $cursos->docente_id == auth()->user()->id) ||
+            (auth()->user()->hasRole('Estudiante') && $inscritos))
 
         @section('nav')
-            <!-- Nav común para ambos roles -->
-            @forelse ($temas as $index => $tema)
-                @php
-                    $estaDesbloqueado = auth()->user()->hasRole('Docente') ||
-                                      (auth()->user()->hasRole('Estudiante') && $tema->estaDesbloqueado($inscritos2->id));
-                @endphp
-
-                <li class="nav-link">
-                    @if($estaDesbloqueado)
-                        <!-- Tema desbloqueado -->
-                        <a class="nav-link dropdown-toggle" href="#" id="tema-{{ $tema->id }}-dropdown"
-                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ $tema->titulo_tema }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="tema-{{ $tema->id }}-dropdown">
-                            @foreach($tema->subtemas as $subtema)
-                                @php
-                                    $desbloqueado = auth()->user()->hasRole('Docente') ||
-                                                   (auth()->user()->hasRole('Estudiante') && $subtema->estaDesbloqueado($inscritos2->id));
-                                @endphp
-
-                                @if($desbloqueado)
-                                    <li>
-                                        <a class="dropdown-item" href="#subtema-{{ $subtema->id }}"
-                                           data-bs-toggle="tab" data-bs-auto-close="false">
-                                            {{ $subtema->titulo_subtema }}
-                                        </a>
-                                    </li>
-                                @else
-                                    <li>
-                                        <a class="dropdown-item disabled" href="#" aria-disabled="true">
-                                            {{ $subtema->titulo_subtema }} <i class="fas fa-lock"></i>
-                                        </a>
-                                    </li>
-                                @endif
-                            @endforeach
-                        </ul>
-                    @else
-                        <!-- Tema bloqueado -->
-                        <a class="nav-link disabled" href="#" aria-disabled="true">
-                            {{ $tema->titulo_tema }} <i class="fas fa-lock"></i>
-                        </a>
-                    @endif
+            <ul class="navbar-nav ">
+                <li class="nav-item ml-2">
+                    <a class="nav-link active" href="#temario" data-bs-toggle="tab">
+                        <i class="fas fa-list me-2"></i>Temario
+                    </a>
                 </li>
-            @empty
-            @endforelse
+                @forelse ($temas as $index => $tema)
+                    @php
+                        $estaDesbloqueado =
+                            auth()->user()->hasRole('Docente') ||
+                            (auth()->user()->hasRole('Estudiante') && $tema->estaDesbloqueado($inscritos2->id));
+                    @endphp
+
+                    <li class="nav-item">
+                        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+                            href="#subtemas-{{ $tema->id }}" role="button" aria-expanded="false"
+                            aria-controls="subtemas-{{ $tema->id }}">
+                            {{ $tema->titulo_tema }}
+                            <i class="fas fa-chevron-down ms-2"></i>
+                        </a>
+
+                        <div class="collapse ms-3" id="subtemas-{{ $tema->id }}">
+                            <ul class="list-unstyled">
+                                @forelse($tema->subtemas as $subtema)
+                                    @php
+                                        $desbloqueado =
+                                            auth()->user()->hasRole('Docente') ||
+                                            (auth()->user()->hasRole('Estudiante') &&
+                                                $subtema->estaDesbloqueado($inscritos2->id));
+                                    @endphp
+
+                                    <li>
+                                        @if ($desbloqueado)
+                                            <a href="#subtema-{{ $subtema->id }}" class="nav-link small text-white-50">
+                                                {{ $subtema->titulo_subtema }}
+                                            </a>
+                                        @else
+                                            <span class="nav-link small text-muted">
+                                                {{ $subtema->titulo_subtema }} <i class="fas fa-lock"></i>
+                                            </span>
+                                        @endif
+                                    </li>
+                                @empty
+                                    <li>
+                                        <span class="nav-link small text-muted">No hay subtemas disponibles</span>
+                                    </li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    </li>
+
+
+
+                @empty
+                @endforelse
+            </ul>
         @endsection
+
+
 
         <div class="container-fluid py-4">
             <!-- Barra de progreso solo para estudiantes -->
-            @if(auth()->user()->hasRole('Estudiante'))
-            @if ($cursos->tipo == 'curso')
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
-                            <div class="card-body p-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h5 class="fw-bold m-0">PROGRESO DEL CURSO</h5>
-                                    <span class="badge bg-primary rounded-pill fs-6">{{ $cursos->calcularProgreso($inscritos2->id) }}%</span>
-                                </div>
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-primary" role="progressbar"
-                                         style="width: {{ $cursos->calcularProgreso($inscritos2->id) }}%;"
-                                         aria-valuenow="{{ $cursos->calcularProgreso($inscritos2->id) }}"
-                                         aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
+            @if (auth()->user()->hasRole('Estudiante'))
+                @if ($cursos->tipo == 'curso')
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="fw-bold m-0">PROGRESO DEL CURSO</h5>
+                                        <span
+                                            class="badge bg-primary rounded-pill fs-6">{{ $cursos->calcularProgreso($inscritos2->id) }}%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-primary" role="progressbar"
+                                            style="width: {{ $cursos->calcularProgreso($inscritos2->id) }}%;"
+                                            aria-valuenow="{{ $cursos->calcularProgreso($inscritos2->id) }}"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
 
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 @endif
             @endif
 
@@ -661,31 +688,31 @@
                     <ul class="nav nav-tabs nav-fill" id="course-tabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active px-4 py-3" id="temario-tab" data-bs-toggle="tab"
-                                    data-bs-target="#tab-actividades" type="button" role="tab"
-                                    aria-controls="tab-actividades" aria-selected="true">
+                                data-bs-target="#tab-actividades" type="button" role="tab"
+                                aria-controls="tab-actividades" aria-selected="true">
                                 <i class="fas fa-list me-2"></i>Temario
                             </button>
                         </li>
-                        @if($cursos->tipo == 'curso')
-                            <li class="nav-item" role="presentation">
+                        @if ($cursos->tipo == 'curso')
+                            {{-- <li class="nav-item" role="presentation">
                                 <button class="nav-link px-4 py-3" id="evaluaciones-tab" data-bs-toggle="tab"
                                         data-bs-target="#tab-evaluaciones" type="button" role="tab"
                                         aria-controls="tab-evaluaciones" aria-selected="false">
                                     <i class="fas fa-tasks me-2"></i>Evaluaciones
                                 </button>
-                            </li>
+                            </li> --}}
                         @endif
                         <li class="nav-item" role="presentation">
                             <button class="nav-link px-4 py-3" id="foros-tab" data-bs-toggle="tab"
-                                    data-bs-target="#tab-foros" type="button" role="tab" aria-controls="tab-foros"
-                                    aria-selected="false">
+                                data-bs-target="#tab-foros" type="button" role="tab" aria-controls="tab-foros"
+                                aria-selected="false">
                                 <i class="fas fa-comments me-2"></i>Foros
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link px-4 py-3" id="recursos-tab" data-bs-toggle="tab"
-                                    data-bs-target="#tab-recursos" type="button" role="tab"
-                                    aria-controls="tab-recursos" aria-selected="false">
+                                data-bs-target="#tab-recursos" type="button" role="tab"
+                                aria-controls="tab-recursos" aria-selected="false">
                                 <i class="fas fa-book me-2"></i>Recursos Globales
                             </button>
                         </li>
@@ -707,8 +734,7 @@
         <!-- Modales (extraer a archivos parciales si son muchos) -->
         @include('partials.cursos.modals.agregar_tema')
         @include('partials.cursos.modals.agregar_subtema')
-         <!-- ... otros modales ... -->
-
+        <!-- ... otros modales ... -->
     @else
         <!-- Acceso denegado -->
         <div class="card shadow">
@@ -719,7 +745,7 @@
         </div>
     @endif
 
-    @if($errors->any())
+    @if ($errors->any())
         <script>
             Swal.fire({
                 icon: 'error',

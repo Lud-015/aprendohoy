@@ -13,15 +13,10 @@ return new class extends Migration
     {
         Schema::create('cuestionarios', function (Blueprint $table) {
             $table->id();
-            $table->string('titulo_cuestionario');
-            $table->text('descripcion')->nullable();
-            $table->date('fecha_habilitacion');
-            $table->date('fecha_vencimiento');
-            $table->double('puntos');
-            $table->unsignedBigInteger('subtema_id');
-            $table->foreign('subtema_id')->references('id')->on('subtemas');
+            $table->unsignedBigInteger('actividad_id')->unique(); // 1:1 con actividad
+            $table->boolean('mostrar_resultados')->default(true);
             $table->timestamps();
-            $table->softDeletes();
+            $table->foreign('actividad_id')->references('id')->on('actividades')->onDelete('cascade');
         });
     }
 

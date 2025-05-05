@@ -20,9 +20,9 @@ class Cuestionario extends Model
 
 
     public function cuestionario()
-{
-    return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
-}
+    {
+        return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
+    }
     /**
      * Relación con el subtema.
      */
@@ -31,12 +31,16 @@ class Cuestionario extends Model
         return $this->belongsTo(Subtema::class);
     }
 
-    /**
-     * Relación con las preguntas del cuestionario.
-     */
-    public function preguntas()
-    {
+    public function actividad() {
+        return $this->belongsTo(Actividad::class);
+    }
+
+    public function preguntas() {
         return $this->hasMany(Pregunta::class);
+    }
+
+    public function intentos() {
+        return $this->hasMany(IntentoCuestionario::class);
     }
 
 
@@ -59,5 +63,10 @@ class Cuestionario extends Model
             ->where('inscritos_id', $inscritosId)
             ->where('completed', true)
             ->exists();
+    }
+
+    public function evaluaciones()
+    {
+        return $this->belongsToMany(Evaluaciones::class, 'cuestionario_evaluacion', 'cuestionario_id', 'evaluacion_id');
     }
 }

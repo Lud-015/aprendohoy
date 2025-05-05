@@ -19,9 +19,9 @@ class Subtema extends Model
         return $this->belongsTo(Tema::class);
     }
 
-    public function cuestionarios()
+    public function actividades()
     {
-        return $this->hasMany(Cuestionario::class, 'subtema_id');
+        return $this->hasMany(Actividad::class, 'subtema_id');
     }
 
     public function tareas()

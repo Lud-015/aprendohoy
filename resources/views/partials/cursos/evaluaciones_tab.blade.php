@@ -1,4 +1,4 @@
-<div class="tab-pane fade" id="tab-evaluaciones">
+{{-- <div class="tab-pane fade" id="tab-evaluaciones">
     <h3>Evaluaciones</h3>
     @if (auth()->user()->hasRole('Docente'))
         <div class="mb-3">
@@ -29,4 +29,4 @@
     @empty
         <p>No hay evaluaciones asignadas.</p>
     @endforelse
-</div>
+</div> --}}

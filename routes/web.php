@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActividadCompletionController;
+use App\Http\Controllers\ActividadController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdministradorController;
@@ -278,6 +279,14 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/tema/{temaId}/subtemas/update', [SubtemaController::class, 'update'])->name('subtemas.update');
         Route::post('/tema/{temaId}/subtemas/delete', [SubtemaController::class, 'destroy'])->name('subtemas.destroy');
         Route::post('/tema/{temaId}/subtemas/restore', [SubtemaController::class, 'restore'])->name('subtemas.restore');
+
+        //Actividades
+
+        Route::post('/actividades/{subtema}', [ActividadController::class, 'store'])->name('actividades.store');
+        Route::get('/actividades/{id}', [ActividadController::class, 'show'])->name('actividades.show');
+        Route::post('/actividades/{id}/completar', [ActividadController::class, 'completar'])->name('actividad.completar');
+        Route::get('/actividades/{id}/edit', [ActividadController::class, 'edit'])->name('actividades.edit');
+        Route::delete('/actividades/{id}', [ActividadController::class, 'destroy'])->name('actividades.destroy');
 
 
         //Tareas

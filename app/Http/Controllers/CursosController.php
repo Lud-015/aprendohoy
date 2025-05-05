@@ -30,6 +30,7 @@ use App\Events\CursoEvent;
 use App\Helpers\TextHelper;
 use App\Models\CertificateTemplate;
 use App\Models\Tema;
+use App\Models\TipoActividad;
 use App\Services\QrTokenService;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
@@ -82,15 +83,11 @@ class CursosController extends Controller
             return view('LoadingPage.Loading');
         }
 
-        // Si es docente o si el estudiante ya pagó, continua el proceso
-        // (Aquí no es necesario agregar más condiciones porque ya están cubiertas)
-
 
 
         // Obtener recursos, temas, evaluaciones, foros y horarios
         $recursos = Recursos::where('cursos_id', $id)->get();
         $temas = Tema::where('curso_id', $id)->get();
-        $evaluaciones = Evaluaciones::where('cursos_id', $id)->get();
         $foros = Foro::where('cursos_id', $id)->get();
 
         $horarios = Auth::user()->hasRole(['Administrador', 'Docente'])
@@ -115,15 +112,17 @@ class CursosController extends Controller
             $recurso->descripcionRecursos = TextHelper::createClickableLinksAndPreviews($recurso->descripcionRecursos);
         }
 
+        $tiposActividades = TipoActividad::all();
+
 
         return view('Cursos', [
             'foros' => $foros,
             'recursos' => $recursos,
             'temas' => $temas,
             'cursos' => $cursos,
+            'tiposActividades' => $tiposActividades,
             'inscritos' => $inscritos,
             'inscritos2' => $inscritos2,
-            'evaluaciones' => $evaluaciones,
             'boletin' => $boletin,
             'horarios' => $horarios,
             'qrCode' => $qrCode,

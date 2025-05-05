@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('titulo_subtema'); // Nombre del subtema
             $table->text('descripcion')->nullable();
-            $table->string('imagen')->nullable(); // Descripción opcional del subtema
+            $table->string('imagen')->nullable();
+            $table->unsignedInteger('orden')->default(0);
             $table->unsignedBigInteger('tema_id'); // Relación con el tema
             $table->foreign('tema_id')->references('id')->on('temas');
             $table->timestamps();

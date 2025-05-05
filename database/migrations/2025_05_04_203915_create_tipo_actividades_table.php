@@ -11,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('temas', function (Blueprint $table) {
+        Schema::create('tipo_actividades', function (Blueprint $table) {
             $table->id();
-            $table->string('titulo_tema'); // Nombre del tema
+            $table->string('nombre'); // Ej: Tarea, Cuestionario, Foro, Evaluación
+            $table->string('slug')->unique(); // Ej: tarea, cuestionario
             $table->text('descripcion')->nullable();
-            $table->string('imagen')->nullable(); 
-            $table->unsignedBigInteger('curso_id');
-            $table->unsignedInteger('orden')->default(0);
-            $table->foreign('curso_id')->references('id')->on('cursos');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('temas');
+        Schema::dropIfExists('tipo_actividades');
     }
 };

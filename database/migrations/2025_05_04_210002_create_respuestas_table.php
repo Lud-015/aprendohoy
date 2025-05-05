@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('opciones', function (Blueprint $table) {
+        Schema::create('respuestas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('pregunta_id');
-            $table->foreign('pregunta_id')->references('id')->on('preguntas');
-            $table->string('texto'); // Texto de la opción
-            $table->boolean('es_correcta')->default(false); // Indica si es la respuesta correcta
+            $table->text('contenido');
+            $table->boolean('es_correcta')->default(false);
             $table->timestamps();
             $table->softDeletes();
+            $table->foreign('pregunta_id')->references('id')->on('preguntas')->onDelete('cascade');
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('opciones');
+        Schema::dropIfExists('respuestas');
     }
 };

@@ -27,6 +27,9 @@ return new class extends Migration
             $table->string('comprobante');
             $table->string('tipopago');
             $table->foreignId('estudiante_id')->constrained('users')->onDelete('cascade');
+            $table->unsignedBigInteger('cursos_id');
+            $table->foreign('cursos_id')->references('id')->on('cursos');
+        
             $table->timestamps();
             $table->softDeletes();
         });
