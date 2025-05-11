@@ -12,55 +12,110 @@
                 &#9668; Volver
             </a>
 
-            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#crearPreguntaModal">
-                Crear Pregunta
-            </button>
+
 
         </div>
 
 
-        <!-- Modal para Crear Pregunta -->
-        <div class="modal fade" id="crearPreguntaModal" tabindex="-1" aria-labelledby="crearPreguntaLabel" aria-hidden="true">
-            <div class="modal-dialog">
+        <div class="modal fade" id="crearMultiplesPreguntasModal" tabindex="-1"
+            aria-labelledby="crearMultiplesPreguntasLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <form method="POST" action="{{ route('pregunta.store', $cuestionario->id) }}">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="crearPreguntaLabel">Crear Pregunta</h5>
+                            <h5 class="modal-title" id="crearMultiplesPreguntasLabel">Crear Múltiples Preguntas</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3"> <!-- Cambiado de form-group a mb-3 -->
-                                <label for="preguntaTexto" class="form-label">Texto de la Pregunta</label>
-                                <input type="text" class="form-control" id="preguntaTexto" name="pregunta" required>
+                            <div id="preguntas-container">
+                                <div class="pregunta-item mb-3">
+                                    <div class="mb-3">
+                                        <label for="preguntaTexto" class="form-label">Texto de la Pregunta</label>
+                                        <input type="text" class="form-control" name="preguntas[0][enunciado]"
+                                            placeholder="Escribe la pregunta aquí" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="preguntaTipo" class="form-label">Tipo de Pregunta</label>
+                                        <select class="form-select" name="preguntas[0][tipo]" required>
+                                            <option value="opcion_multiple">Opción Múltiple</option>
+                                            <option value="abierta">Respuesta Abierta</option>
+                                            <option value="boolean">Verdadero/Falso</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="puntosPregunta" class="form-label">Puntos</label>
+                                        <input type="number" class="form-control" name="preguntas[0][puntaje]"
+                                            min="1" placeholder="Ejemplo: 5" required>
+                                    </div>
+                                    <hr>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="preguntaTipo" class="form-label">Tipo de Pregunta</label>
-                                <select class="form-select" id="preguntaTipo" name="tipo_preg" required>
-                                    <option value="multiple">Opción Múltiple</option>
-                                    <option value="abierta">Respuesta Abierta</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="puntosPregunta" class="form-label">Puntos</label>
-                                <input type="number" class="form-control" id="puntosPregunta" name="puntos" required>
-                            </div>
+                            <button type="button" class="btn btn-sm btn-secondary" id="addPreguntaButton">
+                                <i class="fas fa-plus"></i> Agregar Otra Pregunta
+                            </button>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="submit" class="btn btn-primary">Crear</button>
+                            <button type="submit" class="btn btn-primary">Guardar Preguntas</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- Modal para Crear Respuesta -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const preguntasContainer = document.getElementById('preguntas-container');
+                const addPreguntaButton = document.getElementById('addPreguntaButton');
+
+                let preguntaIndex = 1; // Índice para las preguntas dinámicas
+
+                addPreguntaButton.addEventListener('click', function() {
+                    const nuevaPregunta = `
+            <div class="pregunta-item mb-3">
+                <div class="mb-3">
+                    <label for="preguntaTexto" class="form-label">Texto de la Pregunta</label>
+                    <input type="text" class="form-control" name="preguntas[${preguntaIndex}][enunciado]" placeholder="Escribe la pregunta aquí" required>
+                </div>
+                <div class="mb-3">
+                    <label for="preguntaTipo" class="form-label">Tipo de Pregunta</label>
+                    <select class="form-select" name="preguntas[${preguntaIndex}][tipo]" required>
+                        <option value="opcion_multiple">Opción Múltiple</option>
+                        <option value="abierta">Respuesta Abierta</option>
+                        <option value="boolean">Verdadero/Falso</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="puntosPregunta" class="form-label">Puntos</label>
+                    <input type="number" class="form-control" name="preguntas[${preguntaIndex}][puntaje]" min="1" placeholder="Ejemplo: 5" required>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger removePreguntaButton">Eliminar</button>
+                <hr>
+            </div>
+        `;
+
+                    preguntasContainer.insertAdjacentHTML('beforeend', nuevaPregunta);
+                    preguntaIndex++;
+
+                    // Agregar funcionalidad para eliminar preguntas dinámicas
+                    const removeButtons = document.querySelectorAll('.removePreguntaButton');
+                    removeButtons.forEach(button => {
+                        button.addEventListener('click', function() {
+                            this.parentElement.remove();
+                        });
+                    });
+                });
+            });
+        </script>
+
+
+
         <div class="modal fade" id="crearRespuestaModal" tabindex="-1" aria-labelledby="crearRespuestaLabel"
             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form method="POST" action="{{ route('opcion.store', $cuestionario->id) }}">
+                    <form method="POST" action="">
                         @csrf
                         <div class="modal-header bg-primary text-white">
                             <h5 class="modal-title" id="crearRespuestaLabel">Crear Respuesta</h5>
@@ -103,267 +158,65 @@
                 </div>
             </div>
         </div>
-        <!-- Buscador -->
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-search"></i></span>
+
+
+        <div class="mb-4">
+            <h4 class="border-bottom pb-2">
+                <i class="fas fa-question-circle me-2"></i> Preguntas y Respuestas
+            </h4>
+
+            <!-- Navegación de las pestañas -->
+            <ul class="nav nav-tabs" id="preguntasRespuestasTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="preguntas-tab" data-bs-toggle="tab" data-bs-target="#preguntas"
+                        type="button" role="tab" aria-controls="preguntas" aria-selected="true">
+                        <i class="fas fa-question me-1"></i> Preguntas
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="respuestas-tab" data-bs-toggle="tab" data-bs-target="#respuestas"
+                        type="button" role="tab" aria-controls="respuestas" aria-selected="false">
+                        <i class="fas fa-reply me-1"></i> Respuestas
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Contenido de las pestañas -->
+            <div class="tab-content mt-3" id="preguntasRespuestasContent">
+                <!-- Pestaña de Preguntas -->
+                <div class="tab-pane fade show active" id="preguntas" role="tabpanel" aria-labelledby="preguntas-tab">
+                    @include('partials.preguntas', ['preguntas' => $cuestionario->preguntas])
+                </div>
+
+                <!-- Pestaña de Respuestas -->
+                <div class="tab-pane fade" id="respuestas" role="tabpanel" aria-labelledby="respuestas-tab">
+                    @include('partials.respuestas', ['preguntas' => $cuestionario->preguntas])
+                </div>
             </div>
-            <input type="text" class="form-control" placeholder="Buscar preguntas o respuestas">
         </div>
 
-        <!-- Tabla de Preguntas -->
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Pregunta</th>
-                    <th>Tipo</th>
-                    <th>Puntos</th>
-                    <th>Acciones</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($cuestionario->preguntas as $pregunta)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td> <!-- Número de la pregunta -->
-                        <td>{{ $pregunta->pregunta }}</td>
-                        <td>{{ $pregunta->tipo }}</td>
-                        <td>{{ $pregunta->puntos }}</td>
-                        <td>
-                            @if ($pregunta->tipo === 'multiple' || $pregunta->tipo === 'verdadero_falso')
-                                <button class="btn btn-sm btn-success" data-bs-toggle="modal"
-                                    data-bs-target="#crearRespuestaModal{{ $pregunta->id }}"
-                                    onclick="setPreguntaId({{ $pregunta->id }})">
-                                    <i class="fas fa-plus-circle me-1"></i> Añadir Respuesta
-                                </button>
-                            @else
-                                <span class="text-muted">No aplica</span>
-                            @endif
-                        </td>
-                        <td colspan="2">
-                            <!-- Botón para abrir el modal de edición -->
-                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
-                                data-bs-target="#editarPreguntaModal{{ $pregunta->id }}" title="Editar pregunta">
-                                <i class="fas fa-edit me-1"></i> Editar
-                            </button>
 
-                            @if ($pregunta->trashed())
-                                <!-- Si la pregunta está eliminada, mostrar el botón de Restaurar -->
-                                <form action="{{ route('pregunta.restore', $pregunta->id) }}" method="POST"
-                                    class="form-restaurar" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-success">Restaurar</button>
-                                </form>
-                            @else
-                                <!-- Si la pregunta no está eliminada, mostrar el botón de Eliminar -->
-                                <form action="{{ route('pregunta.delete', $pregunta->id) }}" method="POST"
-                                    class="form-eliminar" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                                </form>
-                            @endif
-                        </td>
-                    </tr>
-
-                    <div class="modal fade" id="editarPreguntaModal{{ $pregunta->id }}" tabindex="-1"
-                        aria-labelledby="editarPreguntaLabel{{ $pregunta->id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="POST" action="{{ route('pregunta.update', $pregunta->id) }}">
-                                    @csrf
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editarRespuestaLabel{{ $pregunta->id }}">Editar
-                                            Pregunta</h5>
-                                        <button type="button" class="btn-close" data-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <input type="hidden" name="pregunta_id" value="{{ $pregunta->id }}">
-                                        <div class="form-group">
-                                            <label for="respuestaTexto{{ $pregunta->id }}">Texto de la Pregunta</label>
-                                            <input type="text" class="form-control"
-                                                id="respuestaTexto{{ $pregunta->id }}" name="pregunta"
-                                                value="{{ $pregunta->pregunta }}" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="preguntaTipo">Tipo de Pregunta</label>
-                                            <select class="form-control" id="preguntaTipo" name="tipo_preg" required>
-                                                <option value="multiple"
-                                                    {{ $pregunta->tipo === 'multiple' ? 'selected' : '' }}>Opción Múltiple
-                                                </option>
-                                                <option value="verdadero_falso"
-                                                    {{ $pregunta->tipo === 'multiple' ? 'selected' : '' }}>Verdadero Falso
-                                                </option>
-                                                <option value="abierta"
-                                                    {{ $pregunta->tipo === 'abierta' ? 'selected' : '' }}>Respuesta Abierta
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <label for="preguntaTipo">Puntos</label>
-
-                                        <div class="form-group">
-                                            <input type="number" name="puntos"
-                                                id="respuestaTexto{{ $pregunta->id }} value="{{ $pregunta->puntos }}">
-                                        </div>
-
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-dismiss="modal">Cerrar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Mostrar las opciones de la pregunta -->
-                    @if ($pregunta->tipo === 'multiple' || $pregunta->tipo === 'verdadero_falso')
-                        @foreach ($pregunta->opciones as $opcion)
-                            <tr>
-                                <td colspan="2">{{ $opcion->texto }}</td>
-                                <td>{{ $opcion->es_correcta ? 'Correcta' : 'Incorrecta' }}</td>
-                                <td colspan="2">
-                                    <button class="btn btn-sm btn-warning"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editarRespuestaModal{{ $opcion->id }}"
-                                    title="Editar esta respuesta">
-                                <i class="fas fa-edit me-1"></i> Editar
-                            </button>
-                                    @if ($opcion->trashed())
-                                        <!-- Si la pregunta está eliminada, mostrar el botón de Restaurar -->
-                                        <form action="{{ route('opcion.restore', $opcion->id) }}" method="POST"
-                                            class="form-restaurar" style="display:inline;">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-success">Restaurar</button>
-                                        </form>
-                                    @else
-                                        <!-- Si la pregunta no está eliminada, mostrar el botón de Eliminar -->
-                                        <form action="{{ route('pregunta.delete', $opcion->id) }}" method="POST"
-                                            class="form-eliminar" style="display:inline;">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                                        </form>
-                                    @endif
-                                </td>
-                                </td>
-                            </tr>
-                            <div class="modal fade" id="editarRespuestaModal{{ $opcion->id }}" tabindex="-1"
-                                aria-labelledby="editarRespuestaLabel{{ $opcion->id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <form method="POST" action="{{ route('opcion.update', $opcion->id) }}">
-                                            @csrf
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="editarRespuestaLabel{{ $opcion->id }}">
-                                                    Editar Respuesta</h5>
-                                                <button type="button" class="btn-close" data-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <input type="hidden" name="pregunta_id" value="{{ $pregunta->id }}">
-                                                <div class="form-group">
-                                                    <label for="respuestaTexto{{ $opcion->id }}">Texto de la
-                                                        Respuesta</label>
-                                                    <input type="text" class="form-control"
-                                                        id="respuestaTexto{{ $opcion->id }}" name="respuesta"
-                                                        value="{{ $opcion->texto }}" required>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>¿Es correcta?</label>
-                                                    <div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio"
-                                                                name="es_correcta" id="verdadero{{ $opcion->id }}"
-                                                                value="1" {{ $opcion->es_correcta ? 'checked' : '' }}
-                                                                required>
-                                                            <label class="form-check-label"
-                                                                for="verdadero{{ $opcion->id }}">Verdadero</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio"
-                                                                name="es_correcta" id="falso{{ $opcion->id }}"
-                                                                value="0"
-                                                                {{ !$opcion->es_correcta ? 'checked' : '' }} required>
-                                                            <label class="form-check-label"
-                                                                for="falso{{ $opcion->id }}">Falso</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-dismiss="modal">Cerrar</button>
-                                                <button type="submit" class="btn btn-primary">Guardar cambios</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    @endif
-
-                    <!-- Modal para añadir respuestas -->
-                    @if ($pregunta->tipo === 'multiple' || $pregunta->tipo === 'verdadero_falso')
-                        <div class="modal fade" id="crearRespuestaModal{{ $pregunta->id }}" tabindex="-1"
-                            aria-labelledby="crearRespuestaLabel{{ $pregunta->id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form method="POST" action="{{ route('opcion.store', $pregunta->id) }}">
-                                        @csrf
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="crearRespuestaLabel{{ $pregunta->id }}">Crear
-                                                Respuesta</h5>
-                                            <button type="button" class="close" data-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <input type="hidden" name="pregunta_id" value="{{ $pregunta->id }}">
-                                            <div class="form-group">
-                                                <label for="respuestaTexto{{ $pregunta->id }}">Texto de la
-                                                    Respuesta</label>
-                                                <input type="text" class="form-control"
-                                                    id="respuestaTexto{{ $pregunta->id }}" name="respuesta" required>
-                                            </div>
-                                            @if ($pregunta->tipo === 'multiple')
-                                                <div class="form-group">
-                                                    <label>¿Es correcta?</label>
-                                                    <div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio"
-                                                                name="es_correcta" id="verdadero{{ $pregunta->id }}"
-                                                                value="1" required>
-                                                            <label class="form-check-label"
-                                                                for="verdadero{{ $pregunta->id }}">Verdadero</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio"
-                                                                name="es_correcta" id="falso{{ $pregunta->id }}"
-                                                                value="0" required>
-                                                            <label class="form-check-label"
-                                                                for="falso{{ $pregunta->id }}">Falso</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-dismiss="modal">Cerrar</button>
-                                            <button type="submit" class="btn btn-primary">Añadir</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                @endforeach
-            </tbody>
-        </table>
     </div>
 @endsection
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const buscador = document.getElementById('buscador');
+    const tablaPreguntas = document.getElementById('tabla-preguntas');
+
+    buscador.addEventListener('input', function () {
+        const filtro = buscador.value.toLowerCase();
+        const filas = tablaPreguntas.getElementsByTagName('tr');
+
+        Array.from(filas).forEach(fila => {
+            const columnas = fila.getElementsByTagName('td');
+            const textoFila = Array.from(columnas).map(columna => columna.textContent.toLowerCase()).join(' ');
+            fila.style.display = textoFila.includes(filtro) ? '' : 'none';
+        });
+    });
+});
+</script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

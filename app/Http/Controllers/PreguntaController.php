@@ -2,33 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cuestionario;
 use App\Models\Pregunta;
 use Illuminate\Http\Request;
 
 class PreguntaController extends Controller
 {
-    public function store(Request $request, $id){
+    public function store(Request $request, $cuestionarioId){
+
 
         $request->validate([
-            'pregunta' => 'required|string|max:255',
-            'tipo' => 'nullable|string',
-            'puntos' => 'nullable|int',
+            'preguntas' => 'required|array',
+            'preguntas.*.enunciado' => 'required|string|max:255',
+            'preguntas.*.tipo' => 'required|in:opcion_multiple,abierta,boolean',
+            'preguntas.*.puntaje' => 'required|integer|min:1',
         ], [
-            'pregunta.required' => 'La pregunta es obligatoria.',
-            'pregunta.string' => 'La pregunta debe ser una cadena de texto.',
-            'pregunta.max' => 'La pregunta no debe superar los 255 caracteres.',
-            'tipo.string' => 'El tipo debe ser una cadena de texto.',
-            'puntos.number' => 'Los puntos deben ser una cadena de texto.',
+            'preguntas.required' => 'Las preguntas son obligatorias.',
+            'preguntas.*.enunciado.required' => 'El enunciado es obligatorio.',
+            'preguntas.*.tipo.required' => 'El tipo de pregunta es obligatorio.',
+            'preguntas.*.puntaje.required' => 'El puntaje es obligatorio.',
         ]);
 
 
-        Pregunta::create([
-            'cuestionario_id' => $id,
-            'pregunta' => $request->pregunta,
-            'tipo' => $request->tipo_preg,
-            'puntos' => $request->puntos,
-        ]);
 
+        $cuestionario = Cuestionario::findOrFail($cuestionarioId);
+
+        foreach ($request->preguntas as $preguntaData) {
+            $cuestionario->preguntas()->create($preguntaData);
+        }
 
         return back()->with('success', 'Pregunta creada correctamente.');
 
@@ -36,30 +37,27 @@ class PreguntaController extends Controller
     }
 
 
-    public function edit(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $request->validate([
-            'pregunta' => 'required|string|max:255',
-            'tipo' => 'nullable|string',
-            'puntos' => 'nullable|int',
+            'enunciado' => 'required|string|max:255',
+            'tipo' => 'required|in:opcion_multiple,abierta,boolean',
+            'puntaje' => 'required|integer|min:1',
         ], [
-            'pregunta.required' => 'La pregunta es obligatoria.',
-            'pregunta.string' => 'La pregunta debe ser una cadena de texto.',
-            'pregunta.max' => 'La pregunta no debe superar los 255 caracteres.',
-            'tipo.string' => 'El tipo debe ser una cadena de texto.',
-            'puntos.number' => 'Los puntos deben ser una cadena de texto.',
+            'enunciado.required' => 'El enunciado es obligatorio.',
+            'tipo.required' => 'El tipo de pregunta es obligatorio.',
+            'puntaje.required' => 'El puntaje es obligatorio.',
         ]);
 
         $pregunta = Pregunta::findOrFail($id);
 
-
         $pregunta->update([
-            'pregunta' => $request->pregunta,
-            'tipo' => $request->tipo_preg,
-            'puntos' => $request->puntos,
+            'enunciado' => $request->enunciado,
+            'tipo' => $request->tipo,
+            'puntaje' => $request->puntaje,
         ]);
 
-        return back()->with('success', 'Pregunta editada correctamente.');
-
+        return back()->with('success', 'Pregunta actualizada correctamente.');
     }
 
     public function delete($id){

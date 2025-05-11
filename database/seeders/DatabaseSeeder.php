@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             Roles::class,
             Administrador::class,
             CursoSeeeder::class,
+            TipoEvaluacionesSeeder::class,
             TipoActividadesSeeder::class,
             XpEventTypesSeeder::class,
         ]);

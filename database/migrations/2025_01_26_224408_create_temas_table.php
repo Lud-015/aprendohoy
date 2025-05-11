@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('titulo_tema'); // Nombre del tema
             $table->text('descripcion')->nullable();
-            $table->string('imagen')->nullable(); 
+            $table->string('imagen')->nullable();
             $table->unsignedBigInteger('curso_id');
             $table->unsignedInteger('orden')->default(0);
-            $table->foreign('curso_id')->references('id')->on('cursos');
+            $table->foreign('curso_id')->references('id')->on('cursos')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

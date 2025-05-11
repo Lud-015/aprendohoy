@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('level_number')->unique();
             $table->integer('required_xp');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('Especializacion');
             $table->string('ExperienciaL');
             $table->unsignedBigInteger('docente_id');
-            $table->foreign('docente_id')->references('id')->on('users');
+            $table->foreign('docente_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

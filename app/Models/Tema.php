@@ -52,7 +52,7 @@ class Tema extends Model
         foreach ($temaAnterior->subtemas as $subtema) {
             // Verificar si todas las actividades del subtema están completadas
             $actividadesCompletadas = $subtema->actividadesCompletadas($inscrito_id);
-            $totalActividades = $subtema->tareas()->count() + $subtema->cuestionarios()->count();
+            $totalActividades = $subtema->actividades()->count();
 
             if ($actividadesCompletadas->count() !== $totalActividades) {
                 return false;
@@ -61,7 +61,6 @@ class Tema extends Model
 
         return true;
     }
-
 
     public function actividadesCompletadas($inscritoId)
     {
@@ -91,10 +90,7 @@ class Tema extends Model
             ->first();
     }
 
-    public function evaluaciones()
-    {
-        return $this->hasMany(Evaluaciones::class, 'temas_id', 'id');
-    }
+
 
 
 }

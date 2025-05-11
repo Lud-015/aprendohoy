@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('descripcion')->nullable();       // Breve explicación
             $table->integer('xp_base')->default(0);        // Valor base en XP para este tipo
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

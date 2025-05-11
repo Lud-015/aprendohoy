@@ -31,6 +31,7 @@ use App\Helpers\TextHelper;
 use App\Models\CertificateTemplate;
 use App\Models\Tema;
 use App\Models\TipoActividad;
+use App\Models\TipoEvaluacion;
 use App\Services\QrTokenService;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
@@ -113,6 +114,7 @@ class CursosController extends Controller
         }
 
         $tiposActividades = TipoActividad::all();
+        $tiposEvaluaciones = TipoEvaluacion::all();
 
 
         return view('Cursos', [
@@ -120,6 +122,7 @@ class CursosController extends Controller
             'recursos' => $recursos,
             'temas' => $temas,
             'cursos' => $cursos,
+            'tiposEvaluaciones' => $tiposEvaluaciones,
             'tiposActividades' => $tiposActividades,
             'inscritos' => $inscritos,
             'inscritos2' => $inscritos2,

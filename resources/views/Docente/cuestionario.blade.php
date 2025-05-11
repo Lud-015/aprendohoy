@@ -67,7 +67,8 @@
                     <td>{{ $pregunta->puntos }}</td>
                     <td>
 
-                        <a class="btn-sm btn-danger"  onclick="mostrarAdvertencia(event)" href="{{ route('deletePreguntaT', $pregunta->id) }}"><i class="fa fa-trash-alt"></i></a>
+                        <a class="btn-sm btn-danger" onclick="mostrarAdvertencia(event)"
+                            href="{{ route('deletePreguntaT', $pregunta->id) }}"><i class="fa fa-trash-alt"></i></a>
 
                         <a class="btn-sm btn-info" href="{{ route('editarPreguntaT', $pregunta->id) }}"><i
                                 class="fa fa-edit"></i></a>
@@ -127,32 +128,28 @@
                 document.getElementById('fecha').value = getCurrentDate();
             </script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-<script>
-    function mostrarAdvertencia(event) {
-        event.preventDefault();
+            <script>
+                function mostrarAdvertencia(event) {
+                    event.preventDefault();
 
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: 'Esta acción borrara esta pregunta. ¿Estás seguro de que deseas continuar?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, continuar',
-            cancelButtonText: 'Cancelar',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Redirige al usuario al enlace original
-                window.location.href = event.target.getAttribute('href');
-            }
-        });
-    }
-</script>
-
-
-
-
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: 'Esta acción borrara esta pregunta. ¿Estás seguro de que deseas continuar?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, continuar',
+                        cancelButtonText: 'Cancelar',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Redirige al usuario al enlace original
+                            window.location.href = event.target.getAttribute('href');
+                        }
+                    });
+                }
+            </script>
         @endsection
 
         @include('layout')

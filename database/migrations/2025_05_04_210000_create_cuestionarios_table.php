@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('actividad_id')->unique(); // 1:1 con actividad
             $table->boolean('mostrar_resultados')->default(true);
+            $table->integer('max_intentos')->default(3);
+            $table->integer('tiempo_limite')->nullable(); // En minutos
             $table->timestamps();
             $table->foreign('actividad_id')->references('id')->on('actividades')->onDelete('cascade');
         });
@@ -27,4 +29,8 @@ return new class extends Migration
     {
         Schema::dropIfExists('cuestionarios');
     }
+
+
 };
+
+

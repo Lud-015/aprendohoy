@@ -18,10 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('curso_id');
             $table->unsignedBigInteger('xp_event_type_id');
 
-            $table->morphs('origen'); 
+            $table->morphs('origen');
 
             $table->integer('xp');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('curso_id')->references('id')->on('cursos')->onDelete('cascade');

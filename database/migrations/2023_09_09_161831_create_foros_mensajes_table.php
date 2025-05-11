@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('tituloMensaje');
             $table->string('mensaje');
             $table->unsignedBigInteger('estudiante_id');
-            $table->foreign('estudiante_id')->references('id')->on('users');
+            $table->foreign('estudiante_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('foro_id');
-            $table->foreign('foro_id')->references('id')->on('foros');
+            $table->foreign('foro_id')->references('id')->on('foros')->onDelete('cascade');
             $table->unsignedBigInteger('respuesta_a')->nullable(); // Relación para mensajes respondidos
             $table->foreign('respuesta_a')->references('id')->on('foros_mensajes')->onDelete('cascade');
             $table->timestamps();

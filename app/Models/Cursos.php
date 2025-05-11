@@ -77,24 +77,30 @@ class Cursos extends Model
         // Obtener todos los subtemas de los temas del curso
         $subtemas = $this->temas->flatMap(fn($tema) => $tema->subtemas);
 
-        // Obtener todas las actividades (tareas + cuestionarios) de los subtemas
-        $actividades = $subtemas->flatMap(
-            fn($subtema) =>
-            $subtema->tareas->pluck('id')->merge($subtema->cuestionarios->pluck('id'))
-        );
+        // Obtener todas las actividades y recursos de los subtemas
+        $actividades = $subtemas->flatMap(fn($subtema) => $subtema->actividades->pluck('id'));
+        $recursos = $subtemas->flatMap(fn($subtema) => $subtema->recursos->pluck('id'));
 
-        $totalActividades = $actividades->count();
+        // Total de elementos (actividades + recursos)
+        $totalElementos = $actividades->count() + $recursos->count();
 
-        if ($totalActividades === 0) {
+        if ($totalElementos === 0) {
             $progreso = 0; // Evita división por cero
         } else {
             // Contar actividades completadas por el estudiante
-            $completadas = ActividadCompletion::where('inscritos_id', $inscrito_id)
+            $actividadesCompletadas = ActividadCompletion::where('inscritos_id', $inscrito_id)
                 ->whereIn('completable_id', $actividades)
+                ->where('completable_type', Actividad::class)
+                ->count();
+
+            // Contar recursos completados por el estudiante
+            $recursosCompletados = ActividadCompletion::where('inscritos_id', $inscrito_id)
+                ->whereIn('completable_id', $recursos)
+                ->where('completable_type', Recursos::class)
                 ->count();
 
             // Calcular el progreso
-            $progreso = round(($completadas / $totalActividades) * 100, 2);
+            $progreso = round((($actividadesCompletadas + $recursosCompletados) / $totalElementos) * 100, 2);
         }
 
         // Actualizar la columna `progreso` en la tabla `inscritos`

@@ -26,7 +26,7 @@ return new class extends Migration
 
 
             // Definir una clave foránea para relacionar el docente con sus trabajos
-            $table->foreign('docente_id')->references('id')->on('users');
+            $table->foreign('docente_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('imagen')->nullable();
             $table->unsignedInteger('orden')->default(0);
             $table->unsignedBigInteger('tema_id'); // Relación con el tema
-            $table->foreign('tema_id')->references('id')->on('temas');
+            $table->foreign('tema_id')->references('id')->on('temas')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -88,42 +88,48 @@
         </h4>
 
         @forelse($subtema->recursos as $recurso)
-            <div class="card mb-3 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        {{ $recurso->nombreRecurso }}
-                    </h5>
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {{ $recurso->nombreRecurso }}
+                </h5>
 
-                    @if (Str::contains($recurso->descripcionRecursos, ['<iframe', '<video', '<img']))
-                        <div class="ratio ratio-16x9 mb-3">
-                            {!! $recurso->descripcionRecursos !!}
-                        </div>
-                    @else
-                        <p class="card-text">{!! nl2br(e($recurso->descripcionRecursos)) !!}</p>
-                    @endif
+                @if (Str::contains($recurso->descripcionRecursos, ['<iframe', '<video', '<img']))
+                    <div class="ratio ratio-16x9 mb-3">
+                        {!! $recurso->descripcionRecursos !!}
+                    </div>
+                @else
+                    <p class="card-text">{!! nl2br(e($recurso->descripcionRecursos)) !!}</p>
+                @endif
 
-                    @if ($recurso->archivoRecurso)
-                        <a href="{{ asset('storage/' . $recurso->archivoRecurso) }}" class="btn btn-sm btn-primary"
-                            target="_blank">
-                            <i class="fas fa-download me-1"></i> Descargar Recurso
-                        </a>
-                    @endif
+                @if ($recurso->archivoRecurso)
+                    <a href="{{ asset('storage/' . $recurso->archivoRecurso) }}" class="btn btn-sm btn-primary"
+                        target="_blank">
+                        <i class="fas fa-download me-1"></i> Descargar Recurso
+                    </a>
+                @endif
 
-                    @if (auth()->user()->hasRole('Docente'))
-                        <div class="mt-2">
-                            <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
-                                data-bs-target="#modalEditarRecurso-{{ $recurso->id }}">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <a href="{{ route('quitarRecursoSubtema', $recurso->id) }}"
-                                class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('¿Estás seguro de eliminar este recurso?')">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </a>
-                        </div>
-                    @endif
-                </div>
+                @if (auth()->user()->hasRole('Estudiante'))
+                    <div class="mt-2">
+                        @if ($recurso->isViewedByInscrito($inscritos2->id))
+                            <span class="badge bg-success">
+                                <i class="fas fa-check me-1"></i> Visto
+                            </span>
+                        @else
+                            <form method="POST" action="{{ route('recurso.marcarVisto', $recurso->id) }}" class="d-inline">
+                                @csrf
+                                <input type="hidden" name="inscritos_id" value="{{ $inscritos2->id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-check-circle me-1"></i> Marcar como visto
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                @endif
             </div>
+        </div>
+
+
             <div class="modal fade" id="modalEditarRecurso-{{ $recurso->id }}" tabindex="-1"
                 aria-labelledby="modalEditarRecursoLabel-{{ $recurso->id }}" aria-hidden="true">
                 <div class="modal-dialog">
@@ -224,7 +230,7 @@
                             <p class="text-muted small">
                                 <i class="far fa-clock me-1"></i>
                                 Vence:
-                                {{-- {{ $actividad->fecha_limite ? $actividad->fecha_limite->format('d/m/Y') : 'Sin fecha límite' }} --}}
+                                {{ $actividad->fecha_limite ? $actividad->fecha_limite->format('d/m/Y') : 'Sin fecha límite' }}
                             </p>
                             <p class="text-muted small">
                                 <i class="fas fa-tag me-1"></i>
@@ -236,13 +242,173 @@
 
                     <div class="mt-3">
                         <!-- Botón para ver la actividad -->
-                         <a href="{{ route('actividades.show', $actividad->id) }}"
-                            class="btn btn-sm btn-primary me-2">
-                            <i class="fas fa-eye me-1"></i> Ver Actividad
-                        </a>
-                        <!-- Opciones para estudiantes -->
-                        @if (auth()->user()->hasRole('Estudiante'))
-                            @if ($inscritos2->id && $actividad->isCompletedByInscrito($inscritos2->id))
+
+                        @if ($actividad->tipoActividad->nombre == 'Cuestionario')
+                            @role('Docente')
+                                <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal"
+                                    data-bs-target="#modalCuestionario-{{ $actividad->id }}">
+                                    @if ($actividad->cuestionario)
+                                        <i class="fas fa-edit me-1"></i> Editar Cuestionario
+                                    @else
+                                        <i class="fas fa-plus me-1"></i> Crear Cuestionario
+                                    @endif
+                                </button>
+                                @if ($actividad->cuestionario)
+                                <a href="{{ route('cuestionarios.index', $actividad->cuestionario->id) }}"
+                                    class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="fas fa-cog me-1"></i> Administrar
+                                </a>
+
+                                <a href="{{ route('rankingQuizz', $actividad->cuestionario->id) }}"
+                                    class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="fas fa-chart-bar me-1"></i> Ver Resultados
+                                </a>
+                                @endif
+
+
+
+                                <!-- Modal para Crear/Editar Cuestionario -->
+                                <div class="modal fade" id="modalCuestionario-{{ $actividad->id }}" tabindex="-1"
+                                    aria-labelledby="modalCuestionarioLabel-{{ $actividad->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="modalCuestionarioLabel-{{ $actividad->id }}">
+                                                    @if ($actividad->cuestionario)
+                                                        Editar Cuestionario
+                                                    @else
+                                                        Crear Cuestionario
+                                                    @endif
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="POST"
+                                                    action="{{ $actividad->cuestionario ? route('cuestionarios.update', $actividad->cuestionario->id) : route('cuestionarios.store', $actividad->id) }}">
+                                                    @csrf
+                                                    @if ($actividad->cuestionario)
+                                                        @method('PUT')
+                                                    @endif
+
+                                                    <!-- Mostrar Resultados -->
+                                                    <div class="mb-3">
+                                                        <label for="mostrar_resultados" class="form-label">Mostrar
+                                                            Resultados</label>
+                                                        <select name="mostrar_resultados" class="form-select" required>
+                                                            <option value="1"
+                                                                {{ $actividad->cuestionario && $actividad->cuestionario->mostrar_resultados ? 'selected' : '' }}>
+                                                                Sí</option>
+                                                            <option value="0"
+                                                                {{ $actividad->cuestionario && !$actividad->cuestionario->mostrar_resultados ? 'selected' : '' }}>
+                                                                No</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Número Máximo de Intentos -->
+                                                    <div class="mb-3">
+                                                        <label for="max_intentos" class="form-label">Número Máximo de
+                                                            Intentos</label>
+                                                        <input type="number" name="max_intentos" class="form-control"
+                                                            value="{{ $actividad->cuestionario ? $actividad->cuestionario->max_intentos : 3 }}"
+                                                            min="1" required>
+                                                    </div>
+
+                                                    <!-- Tiempo Límite -->
+                                                    <div class="mb-3">
+                                                        <label for="tiempo_limite" class="form-label">Tiempo Límite (en
+                                                            minutos)</label>
+                                                        <input type="number" name="tiempo_limite" class="form-control"
+                                                            value="{{ $actividad->cuestionario ? $actividad->cuestionario->tiempo_limite : '' }}"
+                                                            min="1" placeholder="Opcional">
+                                                    </div>
+
+                                                    <button type="submit" class="btn btn-success">
+                                                        @if ($actividad->cuestionario)
+                                                            Guardar Cambios
+                                                        @else
+                                                            Crear Cuestionario
+                                                        @endif
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if ($actividad->es_publica)
+                                    <form method="POST" action="{{ route('actividades.ocultar', $actividad->id) }}"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-eye-slash"></i> Ocultar
+                                        </button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('actividades.mostrar', $actividad->id) }}"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-eye"></i> Mostrar
+                                        </button>
+                                    </form>
+                                @endif
+
+
+                            @endrole
+                            @role('Estudiante')
+                                @if ($actividad->cuestionario)
+
+                                <a href="{{ route('cuestionario.mostrar', $actividad->id) }}"
+                                    class="btn btn-sm btn-primary me-2">
+                                    <i class="fas fa-play me-1"></i> Responder
+                                </a>
+
+                                <a href="{{ route('rankingQuizz', $actividad->cuestionario->id) }}"
+                                    class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="fas fa-chart-bar me-1"></i> Ver Resultados
+                                </a>
+                                @endif
+                            @endrole
+                        @else
+                            @hasrole('Docente')
+                                <a href="{{ route('calificarT', $actividad->id) }}"
+                                    class="btn btn-sm btn-outline-info me-2">
+                                    <i class="fas fa-calculator"></i> Calificar Tarea
+                                </a>
+                                @if ($actividad->es_publica)
+                                    <form method="POST" action="{{ route('actividades.ocultar', $actividad->id) }}"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-eye-slash"></i> Ocultar
+                                        </button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('actividades.mostrar', $actividad->id) }}"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-eye"></i> Mostrar
+                                        </button>
+                                    </form>
+                                @endif
+                            @endhasrole
+
+                            @role('Estudiante')
+                                <a href="{{ route('actividades.show', $actividad->id) }}"
+                                    class="btn btn-sm btn-primary me-2">
+                                    <i class="fas fa-eye me-1"></i> Ver Actividad
+                                </a>
+                            @endrole
+                        @endif
+                        @role('Estudiante')
+                            <!-- Opciones para estudiantes -->
+                            @if ($actividad->isCompletedByInscrito($inscritos2->id))
                                 <span class="badge bg-success">
                                     <i class="fas fa-check me-1"></i> Completada
                                 </span>
@@ -256,16 +422,155 @@
                                     </button>
                                 </form>
                             @endif
-                        @endif
-
+                        @endrole
                         <!-- Opciones para docentes -->
                         @if (auth()->user()->hasRole('Docente'))
-                            <a href=""
-                                class="btn btn-sm btn-outline-info me-2">
+                            <a href="#" class="btn btn-sm btn-outline-info me-2" data-bs-toggle="modal"
+                                data-bs-target="#modalEditarActividad-{{ $actividad->id }}">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
-                            <a href=""
-                                class="btn btn-sm btn-outline-danger"
+
+                            <div class="modal fade" id="modalEditarActividad-{{ $actividad->id }}" tabindex="-1"
+                                aria-labelledby="modalEditarActividadLabel-{{ $actividad->id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"
+                                                id="modalEditarActividadLabel-{{ $actividad->id }}">
+                                                Editar Actividad: {{ $actividad->titulo }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="POST"
+                                                action="{{ route('actividades.update', $actividad->id) }}"
+                                                enctype="multipart/form-data">
+                                                @csrf
+                                                @method('PUT')
+
+                                                <!-- Título de la Actividad -->
+                                                <div class="mb-3">
+                                                    <label for="titulo" class="form-label">Título de la
+                                                        Actividad</label>
+                                                    <input type="text" name="titulo" class="form-control"
+                                                        value="{{ $actividad->titulo }}" required>
+                                                </div>
+
+                                                <!-- Descripción -->
+                                                <div class="mb-3">
+                                                    <label for="descripcion" class="form-label">Descripción</label>
+                                                    <textarea name="descripcion" class="form-control" required>{{ $actividad->descripcion }}</textarea>
+                                                </div>
+
+                                                <!-- Fecha de Habilitación -->
+                                                <div class="mb-3">
+                                                    <label for="fecha_inicio" class="form-label">Fecha de
+                                                        Habilitación</label>
+                                                    <input type="date" name="fecha_inicio" class="form-control"
+                                                        value="{{ $actividad->fecha_inicio ? $actividad->fecha_inicio->format('Y-m-d') : '' }}"
+                                                        required>
+                                                </div>
+
+                                                <!-- Fecha de Vencimiento -->
+                                                <div class="mb-3">
+                                                    <label for="fecha_limite" class="form-label">Fecha de
+                                                        Vencimiento</label>
+                                                    <input type="date" name="fecha_limite" class="form-control"
+                                                        value="{{ $actividad->fecha_limite ? $actividad->fecha_limite->format('Y-m-d') : '' }}"
+                                                        required>
+                                                </div>
+
+                                                <!-- Tipo de Actividad -->
+                                                <div class="mb-3">
+                                                    <label for="tipo_actividad_id" class="form-label">Tipo de
+                                                        Actividad</label>
+                                                    <select name="tipo_actividad_id" class="form-select" required>
+                                                        @foreach ($tiposActividades as $tipo)
+                                                            <option value="{{ $tipo->id }}"
+                                                                {{ $actividad->tipo_actividad_id == $tipo->id ? 'selected' : '' }}>
+                                                                {{ $tipo->nombre }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <!-- Tipos de Evaluación -->
+                                                <div class="mb-3">
+                                                    <label for="tipos_evaluacion" class="form-label">Tipos de
+                                                        Evaluación</label>
+                                                    <div id="tipos-evaluacion-container-{{ $actividad->id }}">
+
+
+                                                        @foreach (optional($actividad->tiposEvaluacion) as $index => $tipoEvaluacion)
+                                                            <div class="tipo-evaluacion mb-3">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <select
+                                                                            name="tipos_evaluacion[{{ $index }}][tipo_evaluacion_id]"
+                                                                            class="form-select" required>
+                                                                            @foreach ($tiposEvaluaciones as $tipo)
+                                                                                <option value="{{ $tipo->id }}"
+                                                                                    {{ $tipoEvaluacion->pivot->tipo_evaluacion_id == $tipo->id ? 'selected' : '' }}>
+                                                                                    {{ $tipo->nombre }}
+                                                                                </option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <input type="number"
+                                                                            name="tipos_evaluacion[{{ $index }}][puntaje_maximo]"
+                                                                            class="form-control"
+                                                                            placeholder="Puntaje Máximo"
+                                                                            value="{{ $tipoEvaluacion->pivot->puntaje_maximo }}"
+                                                                            required>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <select
+                                                                            name="tipos_evaluacion[{{ $index }}][es_obligatorio]"
+                                                                            class="form-select" required>
+                                                                            <option value="1"
+                                                                                {{ $tipoEvaluacion->pivot->es_obligatorio ? 'selected' : '' }}>
+                                                                                Obligatorio</option>
+                                                                            <option value="0"
+                                                                                {{ !$tipoEvaluacion->pivot->es_obligatorio ? 'selected' : '' }}>
+                                                                                Opcional</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-primary add-tipo-evaluacion"
+                                                        data-actividad-id="{{ $actividad->id }}">
+                                                        <i class="fas fa-plus me-1"></i> Agregar Tipo de Evaluación
+                                                    </button>
+                                                </div>
+
+                                                <!-- Archivo (opcional) -->
+                                                <div class="mb-3">
+                                                    <label for="archivo" class="form-label">Archivo
+                                                        (opcional)
+                                                    </label>
+                                                    @if ($actividad->archivo)
+                                                        <a href="{{ asset('storage/' . $actividad->archivo) }}"
+                                                            target="_blank" class="d-block mb-2">
+                                                            <i class="fas fa-download me-1"></i> Descargar Archivo
+                                                            Actual
+                                                        </a>
+                                                    @endif
+                                                    <input type="file" name="archivo" class="form-control">
+                                                </div>
+
+                                                <button type="submit" class="btn btn-success">Guardar
+                                                    Cambios</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="" class="btn btn-sm btn-outline-danger"
                                 onclick="return confirm('¿Estás seguro de eliminar esta actividad?')">
                                 <i class="fas fa-trash"></i> Eliminar
                             </a>
@@ -278,6 +583,46 @@
                 <i class="fas fa-info-circle me-2"></i> No hay actividades disponibles para este subtema.
             </div>
         @endforelse
+
+
+
+
+        <script>
+            document.querySelectorAll('.add-tipo-evaluacion').forEach(button => {
+                button.addEventListener('click', function() {
+                    const actividadId = this.dataset.actividadId;
+                    const container = document.getElementById(`tipos-evaluacion-container-${actividadId}`);
+                    const index = container.children.length;
+
+                    const template = `
+                        <div class="tipo-evaluacion mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <select name="tipos_evaluacion[${index}][tipo_evaluacion_id]" class="form-select" required>
+                                        <option value="" disabled selected>Selecciona un tipo de evaluación</option>
+                                        @foreach ($tiposEvaluaciones as $tipo)
+                                            <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" name="tipos_evaluacion[${index}][puntaje_maximo]" class="form-control"
+                                        placeholder="Puntaje Máximo" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <select name="tipos_evaluacion[${index}][es_obligatorio]" class="form-select" required>
+                                        <option value="1">Obligatorio</option>
+                                        <option value="0">Opcional</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    container.insertAdjacentHTML('beforeend', template);
+                });
+            });
+        </script>
 
         <!-- Tareas -->
         {{-- @forelse($subtema->tareas as $tarea)
@@ -483,26 +828,31 @@
                     @csrf
                     <input type="hidden" name="subtema_id" value="{{ $subtema->id }}">
 
+                    <!-- Título de la Actividad -->
                     <div class="mb-3">
                         <label for="titulo" class="form-label">Título de la Actividad</label>
                         <input type="text" name="titulo" class="form-control" required>
                     </div>
 
+                    <!-- Descripción -->
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
                         <textarea name="descripcion" class="form-control" required></textarea>
                     </div>
 
+                    <!-- Fecha de Habilitación -->
                     <div class="mb-3">
                         <label for="fecha_inicio" class="form-label">Fecha de Habilitación</label>
                         <input type="date" name="fecha_inicio" class="form-control" required>
                     </div>
 
+                    <!-- Fecha de Vencimiento -->
                     <div class="mb-3">
                         <label for="fecha_limite" class="form-label">Fecha de Vencimiento</label>
                         <input type="date" name="fecha_limite" class="form-control" required>
                     </div>
 
+                    <!-- Tipo de Actividad -->
                     <div class="mb-3">
                         <label for="tipo_actividad_id" class="form-label">Tipo de Actividad</label>
                         <select name="tipo_actividad_id" class="form-select" required>
@@ -513,14 +863,46 @@
                         </select>
                     </div>
 
+                    <!-- Tipos de Evaluación -->
+                    <div class="mb-3">
+                        <label for="tipos_evaluacion" class="form-label">Tipos de Evaluación</label>
+                        <div id="tipos-evaluacion-container">
+                            <div class="tipo-evaluacion mb-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <select name="tipos_evaluacion[0][tipo_evaluacion_id]" class="form-select"
+                                            required>
+                                            <option value="" disabled selected>Selecciona un tipo de evaluación
+                                            </option>
+                                            @foreach ($tiposEvaluaciones as $tipoEvaluacion)
+                                                <option value="{{ $tipoEvaluacion->id }}">
+                                                    {{ $tipoEvaluacion->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" name="tipos_evaluacion[0][puntaje_maximo]"
+                                            class="form-control" placeholder="Puntaje Máximo" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select name="tipos_evaluacion[0][es_obligatorio]" class="form-select"
+                                            required>
+                                            <option value="1">Obligatorio</option>
+                                            <option value="0">Opcional</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="add-tipo-evaluacion">
+                            <i class="fas fa-plus me-1"></i> Agregar Tipo de Evaluación
+                        </button>
+                    </div>
+
+                    <!-- Archivo (opcional) -->
                     <div class="mb-3">
                         <label for="archivo" class="form-label">Archivo (opcional)</label>
                         <input type="file" name="archivo" class="form-control">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="puntos" class="form-label">Puntos</label>
-                        <input type="number" name="puntos" class="form-control" required>
                     </div>
 
                     <button type="submit" class="btn btn-success">Agregar Actividad</button>
@@ -592,70 +974,3 @@
         </div>
     </div>
 </div>
-<!-- Modal para agregar Cuestionario -->
-<div class="modal fade" id="modalCuestionario-{{ $subtema->id }}" tabindex="-1"
-    aria-labelledby="modalCuestionarioLabel-{{ $subtema->id }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalCuestionarioLabel-{{ $subtema->id }}">
-                    Agregar Cuestionario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{{ route('cuestionarios.store', $subtema->id) }}">
-                    @csrf
-
-                    <div class="mb-3">
-                        <label for="titulo" class="form-label">Título del
-                            Cuestionario</label>
-                        <input type="text" name="titulo" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea name="descripcion" class="form-control" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="fecha_habilitacion" class="form-label">Fecha de
-                            Habilitación</label>
-                        <input type="date" name="fecha_habilitacion" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="fecha_vencimiento" class="form-label">Fecha de
-                            Vencimiento</label>
-                        <input type="date" name="fecha_vencimiento" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="puntos" class="form-label">Puntos</label>
-                        <input type="number" name="puntos" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-success">Agregar
-                        Cuestionario</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- Modal para editar Recurso -->
-
-
-
-{{-- @php
-function obtenerIconoPorTipo($tipo) {
-    $iconos = [
-        'word' => 'word',
-        'excel' => 'excel',
-        'powerpoint' => 'powerpoint',
-        'pdf' => 'pdf',
-        'youtube' => 'video',
-        'video' => 'video',
-        'imagen' => 'image',
-        'audio' => 'audio',
-        'enlace' => 'link'
-    ];
-    return $iconos[strtolower($tipo)] ?? 'file';
-}
-@endphp --}}

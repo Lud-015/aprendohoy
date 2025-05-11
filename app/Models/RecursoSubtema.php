@@ -33,11 +33,16 @@ class RecursoSubtema extends Model
         'clics',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
+    public function isViewedByInscrito($inscritoId)
+    {
+        return ActividadCompletion::where('completable_type', RecursoSubtema::class)
+            ->where('completable_id', $this->id)
+            ->where('inscritos_id', $inscritoId)
+            ->where('completed', true)
+            ->exists();
+    }
+
+
     protected $casts = [
         'progreso' => 'boolean',
         'clics' => 'integer',
@@ -49,18 +54,18 @@ class RecursoSubtema extends Model
         return $this->belongsTo(Subtema::class, 'subtema_id');
     }
 
-        // Relación polimórfica con completions
-        public function completions()
-        {
-            return $this->morphMany(ActividadCompletion::class, 'completable');
-        }
+    // Relación polimórfica con completions
+    public function completions()
+    {
+        return $this->morphMany(ActividadCompletion::class, 'completable');
+    }
 
-        // Verificar si está completada por un usuario
-        public function isCompletedByUser($inscritosId)
-        {
-            return $this->completions()
-                ->where('inscritos_id', $inscritosId)
-                ->where('completed', true)
-                ->exists();
-        }
+    // Verificar si está completada por un usuario
+    public function isCompletedByUser($inscritosId)
+    {
+        return $this->completions()
+            ->where('inscritos_id', $inscritosId)
+            ->where('completed', true)
+            ->exists();
+    }
 }

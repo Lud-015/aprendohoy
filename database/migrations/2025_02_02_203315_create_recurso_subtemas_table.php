@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('tipoRecurso');
             $table->string('archivoRecurso')->nullable();
             $table->unsignedBigInteger('subtema_id'); // Relación con el tema
-            $table->foreign('subtema_id')->references('id')->on('subtemas');
+            $table->foreign('subtema_id')->references('id')->on('subtemas')->onDelete('cascade');
             $table->boolean('progreso')->default(false);
             $table->unsignedInteger('clics')->default(0); // Columna para el contador de clics
             $table->timestamps();

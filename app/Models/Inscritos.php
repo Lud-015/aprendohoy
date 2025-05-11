@@ -29,6 +29,11 @@ class Inscritos extends Model
         return $this->belongsTo(User::class, 'estudiante_id');
     }
 
+    public function intentosCuestionarios(): HasMany
+    {
+        return $this->hasMany(IntentoCuestionario::class, 'inscrito_id');
+    }
+
     public function cursos(): BelongsTo
     {
         return $this->belongsTo(Cursos::class, 'cursos_id');
@@ -122,28 +127,30 @@ class Inscritos extends Model
     }
 
     public function allAchievements()
-{
-    return $this->hasManyThrough(
-        UserAchievement::class,
-        Inscritos::class,
-        'estudiante_id', // Foreign key on Inscritos table
-        'inscrito_id',   // Foreign key on UserAchievement table
-        'id',            // Local key on User table
-        'id'             // Local key on Inscritos table
-    );
-}
+    {
+        return $this->hasManyThrough(
+            UserAchievement::class,
+            Inscritos::class,
+            'estudiante_id', // Foreign key on Inscritos table
+            'inscrito_id',   // Foreign key on UserAchievement table
+            'id',            // Local key on User table
+            'id'             // Local key on Inscritos table
+        );
+    }
 
-public function allXps()
-{
-    return $this->hasManyThrough(
-        UserXp::class,
-        Inscritos::class,
-        'estudiante_id', // Foreign key on Inscritos table
-        'inscrito_id',   // Foreign key on UserXp table
-        'id',            // Local key on User table
-        'id'             // Local key on Inscritos table
-    );
-}
+    public function allXps()
+    {
+        return $this->hasManyThrough(
+            UserXp::class,
+            Inscritos::class,
+            'estudiante_id', // Foreign key on Inscritos table
+            'inscrito_id',   // Foreign key on UserXp table
+            'id',            // Local key on User table
+            'id'             // Local key on Inscritos table
+        );
+    }
+
+
 
 
 }

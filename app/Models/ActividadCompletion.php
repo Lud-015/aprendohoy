@@ -49,8 +49,7 @@ class ActividadCompletion extends Model
     public static function verificarProgresoSubtema($inscritoId, $subtemaId)
     {
         // Obtener el total de actividades del subtema
-        $totalActividades = Tareas::where('subtema_id', $subtemaId)->count() +
-            Cuestionario::where('subtema_id', $subtemaId)->count() +
+        $totalActividades = Actividad::where('subtema_id', $subtemaId)->count() +
             RecursoSubtema::where('subtema_id', $subtemaId)->count();
 
         // Contar actividades completadas
@@ -59,6 +58,17 @@ class ActividadCompletion extends Model
                 $query->where('subtema_id', $subtemaId);
             })
             ->count();
+
+        // Calcular el porcentaje de progreso
+        $porcentajeProgreso = ($totalActividades > 0)
+            ? ($actividadesCompletadas / $totalActividades) * 100
+            : 0;
+
+        // Actualizar el progreso en la tabla `subtemas_inscritos`
+        DB::table('subtemas_inscritos')
+            ->where('inscrito_id', $inscritoId)
+            ->where('subtema_id', $subtemaId)
+            ->update(['progreso' => $porcentajeProgreso]);
 
         // Si todas las actividades están completas, marcar el subtema como completado
         if ($actividadesCompletadas >= $totalActividades) {
@@ -72,5 +82,5 @@ class ActividadCompletion extends Model
         }
     }
 
-    
+
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique(); // Ej: tarea, cuestionario
             $table->text('descripcion')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

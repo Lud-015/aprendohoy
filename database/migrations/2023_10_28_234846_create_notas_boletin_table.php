@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('nota_nombre');
             $table->integer('nota');
             $table->unsignedBigInteger('boletin_id');
-            $table->foreign('boletin_id')->references('id')->on('boletin');
+            $table->foreign('boletin_id')->references('id')->on('boletin')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

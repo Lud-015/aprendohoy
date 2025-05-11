@@ -9,26 +9,26 @@ class Pregunta extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'preguntas';
+
     protected $fillable = [
         'cuestionario_id',
-        'pregunta',
+        'enunciado',
         'tipo',
-        'puntos'
+        'puntaje',
     ];
 
-    /**
-     * Relación con el cuestionario.
-     */
+
     public function cuestionario()
     {
         return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
     }
 
-    /**
-     * Relación con las opciones de respuesta (si aplica).
-     */
-    public function opciones()
+
+    public function respuestas()
     {
-        return $this->hasMany(Opcion::class);
+        return $this->hasMany(Respuesta::class, 'pregunta_id');
     }
+
+
 }

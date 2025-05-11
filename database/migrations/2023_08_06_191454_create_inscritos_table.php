@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('inscritos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('cursos_id');
-            $table->foreign('cursos_id')->references('id')->on('cursos');
+            $table->foreign('cursos_id')->references('id')->on('cursos')->onDelete('cascade');
             $table->unsignedBigInteger('estudiante_id');
             $table->enum('estado', ['pendiente', 'activo', 'cancelado', 'finalizado'])->default('activo');
             $table->double('progreso')->default(0);

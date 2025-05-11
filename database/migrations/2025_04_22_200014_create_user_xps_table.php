@@ -29,6 +29,7 @@ return new class extends Migration
             $table->integer('level')->default(1);
             $table->timestamp('last_earned_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
     }

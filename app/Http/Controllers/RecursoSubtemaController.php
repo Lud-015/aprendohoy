@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActividadCompletion;
 use App\Models\RecursoSubtema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -9,6 +10,29 @@ use Illuminate\Support\Facades\Http;
 
 class RecursoSubtemaController extends Controller
 {
+
+
+    public function marcarRecursoComoVisto(Request $request, $recursoId)
+    {
+        $request->validate([
+            'inscritos_id' => 'required|exists:inscritos,id',
+        ]);
+
+        ActividadCompletion::updateOrCreate(
+            [
+                'completable_type' => RecursoSubtema::class,
+                'completable_id' => $recursoId,
+                'inscritos_id' => $request->inscritos_id,
+            ],
+            [
+                'completed' => true,
+                'completed_at' => now(),
+            ]
+        );
+
+        return back()->with('success', 'Recurso marcado como visto.');
+    }
+
     public function store(Request $request, $id)
     {
 
@@ -95,7 +119,7 @@ class RecursoSubtemaController extends Controller
 
     public function descargar($nombreArchivo)
     {
-        $rutaArchivo = storage_path('/app/public/'.$nombreArchivo);
+        $rutaArchivo = storage_path('/app/public/' . $nombreArchivo);
 
         return response()->download($rutaArchivo);
     }
@@ -167,7 +191,4 @@ class RecursoSubtemaController extends Controller
 
         return back()->with('success', 'Restaurado con éxito');
     }
-
-
-
 }

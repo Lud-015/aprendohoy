@@ -11,14 +11,14 @@ class Respuesta extends Model
 
     protected $fillable = [
         'pregunta_id',
-        'estudiante_id',
-        'respuesta',
-        'opcion_id',
+        'contenido',
+        'es_correcta',
     ];
-
 
     public function pregunta()
     {
-        return $this->belongsTo(Pregunta::class, 'pregunta_id');
+        return $this->belongsTo(Pregunta::class);
     }
+
+
 }

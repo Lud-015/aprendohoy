@@ -7,7 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class IntentoCuestionario extends Model
 {
-    public function respuestas() {
+    use HasFactory;
+    protected $table = 'intentos_cuestionarios';
+    protected $fillable = [
+        'inscrito_id',
+        'cuestionario_id',
+        'intento_numero',
+        'iniciado_en',
+        'finalizado_en',
+        'nota',
+        'aprobado',
+    ];
+
+    protected $casts = [
+        'iniciado_en' => 'datetime',
+        'finalizado_en' => 'datetime',
+        'aprobado' => 'boolean',
+    ];
+    public function respuestasEst() {
         return $this->hasMany(RespuestaEstudiante::class, 'intento_id');
     }
 
@@ -15,7 +32,7 @@ class IntentoCuestionario extends Model
         return $this->belongsTo(Cuestionario::class);
     }
 
-    public function estudiante() {
-        return $this->belongsTo(Inscritos::class, 'inscritos_id');
+    public function inscrito() {
+        return $this->belongsTo(Inscritos::class, 'inscrito_id');
     }
 }

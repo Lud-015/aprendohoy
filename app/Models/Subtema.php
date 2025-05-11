@@ -24,11 +24,6 @@ class Subtema extends Model
         return $this->hasMany(Actividad::class, 'subtema_id');
     }
 
-    public function tareas()
-    {
-        return $this->hasMany(Tareas::class, 'subtema_id');
-    }
-
     public function recursos()
     {
         return $this->hasMany(RecursoSubtema::class, 'subtema_id');
@@ -56,7 +51,8 @@ class Subtema extends Model
 
         // Verificar si todas las actividades del subtema anterior están completadas
         $actividadesCompletadas = $subtemaAnterior->actividadesCompletadas($inscritoId);
-        $totalActividades = $subtemaAnterior->tareas()->count() + $subtemaAnterior->cuestionarios()->count();
+        $totalActividades = $subtemaAnterior->actividades()->count();
+
         return $actividadesCompletadas->count() === $totalActividades;
     }
 
@@ -88,12 +84,8 @@ class Subtema extends Model
         $inscrito_id = is_object($inscritoId) ? $inscritoId->id : $inscritoId;
 
         return ActividadCompletion::where('inscritos_id', $inscrito_id)
-            ->where(function ($query) {
-                $query->whereIn('completable_id', $this->tareas()->pluck('id'))
-                    ->where('completable_type', Tareas::class)
-                    ->orWhereIn('completable_id', $this->cuestionarios()->pluck('id'))
-                    ->where('completable_type', Cuestionario::class);
-            })
+            ->whereIn('completable_id', $this->actividades()->pluck('id'))
+            ->where('completable_type', Actividad::class)
             ->where('completed', true)
             ->get();
     }

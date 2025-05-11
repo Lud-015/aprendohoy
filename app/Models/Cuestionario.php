@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cuestionario extends Model
 {
-    use SoftDeletes;
+    use HasFactory;
+
+    protected $table = 'cuestionarios';
 
     protected $fillable = [
-        'titulo_cuestionario',
-        'descripcion',
-        'fecha_habilitacion',
-        'fecha_vencimiento',
-        'puntos',
-        'subtema_id'
+        'actividad_id',
+        'mostrar_resultados',
+        'max_intentos',
+        'tiempo_limite',
     ];
 
 

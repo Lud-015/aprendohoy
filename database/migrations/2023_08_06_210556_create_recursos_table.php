@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('tipoRecurso');
             $table->string('archivoRecurso')->nullable();
             $table->unsignedBigInteger('cursos_id');
-            $table->foreign('cursos_id')->references('id')->on('cursos');
+            $table->foreign('cursos_id')->references('id')->on('cursos')->onDelete('cascade');
             $table->boolean('progreso')->default(false);
             $table->timestamps();
             $table->softDeletes();

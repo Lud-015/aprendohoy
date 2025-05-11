@@ -21,7 +21,6 @@ use App\Http\Controllers\EvaluacionesController;
 use App\Http\Controllers\EvaluacionEntregaController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\NotaEntregaController;
-use App\Http\Controllers\OpcionesController;
 use App\Http\Controllers\PreguntaController;
 use App\Http\Controllers\TemaController;
 use App\Http\Controllers\SubtemaController;
@@ -30,8 +29,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\RecursoSubtemaController;
 use App\Http\Controllers\BotManController;
-
-
+use App\Http\Controllers\RespuestaController;
 
 Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 
@@ -76,7 +74,7 @@ Route::post('/resgistrarse', [UserController::class, 'storeUsuario'])->name('reg
 
 Route::post('/resgistrarse/Congreso/{id}', [CertificadoController::class, 'register'])->name('registrarseCongreso');
 Route::post('/congreso/inscribir', [CertificadoController::class, 'inscribir'])
-     ->name('congreso.inscribir');
+    ->name('congreso.inscribir');
 
 Route::get('/item/detalle/{id}', [MenuController::class, 'detalle'])->name('congreso.detalle');
 Route::get('/Lista', [MenuController::class, 'lista'])->name('lista.cursos.congresos');
@@ -127,9 +125,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['role:Estudiante']], function () {
         Route::post('/Inscribirse-Curso/{id}', [InscritosController::class, 'storeCongreso'])
             ->name('inscribirse_congreso');
-    Route::post('/foros/{id}/completar', [ActividadCompletionController::class, 'marcarForoCompletado'])->name('foros.completar');
-    Route::post('/evaluaciones/{id}/completar', [ActividadCompletionController::class, 'marcarEvaluacionCompletada'])->name('evaluaciones.completar');
-    Route::post('/recursos/{id}/completar', [ActividadCompletionController::class, 'marcarRecursoCompletado'])->name('recursos.completar');
+        Route::post('/recurso/{recurso}/marcar-visto', [RecursoSubtemaController::class, 'marcarRecursoComoVisto'])->name('recurso.marcarVisto');
+        Route::post('/foros/{id}/completar', [ActividadCompletionController::class, 'marcarForoCompletado'])->name('foros.completar');
+        Route::post('/evaluaciones/{id}/completar', [ActividadCompletionController::class, 'marcarEvaluacionCompletada'])->name('evaluaciones.completar');
+        Route::post('/recursos/{id}/completar', [ActividadCompletionController::class, 'marcarRecursoCompletado'])->name('recursos.completar');
     });
 
 
@@ -157,10 +156,10 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::post('/Curso/{id}', [CursosController::class, 'update'])->name('cursos.update');
 
-        Route::get('certificadosCongreso/generarAdm/{id}/', [CertificadoController::class, 'generarCertificadoAdmin'])->name( 'certificadosCongreso.generar.admin');
+        Route::get('certificadosCongreso/generarAdm/{id}/', [CertificadoController::class, 'generarCertificadoAdmin'])->name('certificadosCongreso.generar.admin');
 
         Route::post('/cursos/{id}/activar-certificados', [CursosController::class, 'activarCertificados'])
-        ->name('cursos.activarCertificados');
+            ->name('cursos.activarCertificados');
         // Route::get('/certificates', [cer::class, 'index'])->name('certificates.index');
         Route::post('/certificates/{id}', [CertificadoController::class, 'store'])->name('certificates.store');
         Route::post('/certificates/update/{id}', [CertificadoController::class, 'update'])->name('certificates.update');
@@ -232,27 +231,34 @@ Route::group(['middleware' => ['auth']], function () {
 
         //Cuestionarios
 
-
+        Route::delete('/intentos/{intentoId}/eliminar', [CuestionarioController::class, 'eliminarIntento'])->name('intentos.eliminar');
+        Route::delete('/cuestionarios/{id}/eliminar', [CuestionarioController::class, 'eliminarCuestionario'])->name('cuestionarios.eliminar');
+        Route::get('/cuestionarios/{cuestionarioId}/intentos/{intentoId}/revisar', [CuestionarioController::class, 'revisarIntento'])->name('cuestionarios.revisarIntento');
+        Route::post('/cuestionarios/{cuestionarioId}/intentos/{intentoId}/actualizar', [CuestionarioController::class, 'actualizarNota'])->name('cuestionarios.actualizarNota');
         Route::get('/cuestionarios/{id}', [CuestionarioController::class, 'index'])->name('cuestionarios.index');
-        Route::post('/cuestionarios/{id}', [CuestionarioController::class, 'store'])->name('cuestionarios.store');
+        Route::post('/cuestionarios/{actividadId}/store', [CuestionarioController::class, 'store'])->name('cuestionarios.store');
         Route::put('/cuestionarios/update/{id}', [CuestionarioController::class, 'update'])->name('cuestionarios.update');
 
         //Preguntas
 
-        Route::post('/Pregunta/{id}', [PreguntaController::class, 'store'])->name('pregunta.store');
+        Route::post('/cuestionarios/{cuestionarioId}/preguntas/multiple', [PreguntaController::class, 'store'])->name('pregunta.store');
         Route::post('/Pregunta/{id}/edit', [PreguntaController::class, 'edit'])->name('pregunta.update');
         Route::post('/Pregunta/{id}/delete', [PreguntaController::class, 'delete'])->name('pregunta.delete');
         Route::post('/Pregunta/{id}/restore', [PreguntaController::class, 'restore'])->name('pregunta.restore');
 
         //Opciones
-        Route::post('/Pregunta/{id}/Respuesta/store', [OpcionesController::class, 'store'])->name('opcion.store');
-        Route::post('/Pregunta/{id}/Respuesta/edit', [OpcionesController::class, 'edit'])->name('opcion.update');
-        Route::post('/Pregunta/{id}/Respuesta/delete', [OpcionesController::class, 'delete'])->name('opcion.delete');
-        Route::post('/Pregunta/{id}/Respuesta/restore', [OpcionesController::class, 'restore'])->name('opcion.restore');
+        Route::post('/preguntas/{preguntaId}/respuestas/multiple', [RespuestaController::class, 'storeMultiple'])->name('respuestas.storeMultiple');
+        Route::post('/preguntas/{preguntaId}/respuestas/storeVerdaderoFalso', [RespuestaController::class, 'storeVerdaderoFalso'])->name('respuestas.storeVerdaderoFalso');
+        Route::post('/preguntas/{preguntaId}/respuestas', [RespuestaController::class, 'store'])->name('respuestas.store');
+        Route::put('/respuestas/{id}', [RespuestaController::class, 'update'])->name('respuestas.update');
+        Route::delete('/respuestas/{id}', [RespuestaController::class, 'delete'])->name('respuestas.delete');
+        Route::post('/respuestas/{id}/restore', [RespuestaController::class, 'restore'])->name('respuestas.restore');
 
         //Respuestas
 
         Route::post('/cuestionarios/{id}/respuestas', [CuestionarioController::class, 'storeRespuestas'])->name('cuestionarios.storeRespuestas');
+        Route::post('/preguntas/{id}/respuestas-clave', [RespuestaController::class, 'storeRespuestasClave'])->name('respuestas.storeRespuestasClave');
+
 
         //EditarCursos
         Route::get('/EditarCurso/{id}', [CursosController::class, 'EditCIndex'])->name('editarCurso');
@@ -285,30 +291,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/actividades/{subtema}', [ActividadController::class, 'store'])->name('actividades.store');
         Route::get('/actividades/{id}', [ActividadController::class, 'show'])->name('actividades.show');
         Route::post('/actividades/{id}/completar', [ActividadController::class, 'completar'])->name('actividad.completar');
-        Route::get('/actividades/{id}/edit', [ActividadController::class, 'edit'])->name('actividades.edit');
+        Route::put('/actividades/update/{id}', [ActividadController::class, 'update'])->name('actividades.update');
         Route::delete('/actividades/{id}', [ActividadController::class, 'destroy'])->name('actividades.destroy');
-
-
-        //Tareas
-        Route::get('CrearTarea/cursoid={id}', [TareasController::class, 'index'])->name('CrearTareas');
-        Route::post('CrearTarea/cursoid={id}', [TareasController::class, 'store'])->name('CrearTareasPost');
-        Route::get('EditarTarea/{id}', [TareasController::class, 'edit'])->name('editarTarea');
-        Route::post('EditarTarea/{id}', [TareasController::class, 'update'])->name('editarTareaPost');
-        Route::get('QuitarTarea/{id}', [TareasController::class, 'delete'])->name('quitarTarea');
-        Route::get('TareasEliminadas/{id}', [TareasController::class, 'indexTE'])->name('tareasEliminadas');
-        Route::get('restaurarTarea/{id}', [TareasController::class, 'restaurarTarea'])->name('restaurarTarea');
-
-        //Evaluaciones
-
-
-        Route::get('CrearEvaluacion/cursoid={id}', [EvaluacionesController::class, 'index'])->name('CrearEvaluacion');
-        Route::post('CrearEvaluacion/cursoid={id}', [EvaluacionesController::class, 'store'])->name('CrearEvaluacionPost');
-        Route::get('EditarEvaluacion/{id}', [EvaluacionesController::class, 'edit'])->name('editarEvaluacion');
-        Route::put('/evaluaciones/{id}/editar', [EvaluacionesController::class, 'update'])->name('editarEvaluacionPost');
-        Route::get('QuitarEvaluacion/{id}', [EvaluacionesController::class, 'delete'])->name('quitarEvaluacion');
-        Route::get('ListaEvaluacionesEliminadas/{id}', [EvaluacionesController::class, 'indexEE'])->name('evaluacionesEliminadas');
-        Route::get('restaurarEvaluacion/{id}', [EvaluacionesController::class, 'restaurarEvaluacion'])->name('restaurarEvaluacion');
-
+        Route::patch('/actividades/{id}/ocultar', [ActividadController::class, 'ocultar'])->name('actividades.ocultar');
+        Route::patch('/actividades/{id}/mostrar', [ActividadController::class, 'mostrar'])->name('actividades.mostrar');
 
 
         //RecursosGlobal
@@ -378,7 +364,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['role:Estudiante|Docente|Administrador']], function () {
 
         Route::get('/recursos/descargar/{archivo}', [RecursosController::class, 'descargar'])
-        ->name('recursos.descargar');
+            ->name('recursos.descargar');
+
+
+        Route::get('/ranking-quizz/{id}', [CuestionarioController::class, 'rankingQuizz'])->name('rankingQuizz');
+
         //Calendario
         Route::get('listaParticipantes/cursoid={id}', [CursosController::class, 'listaCurso'])->name('listacurso');
         // Ruta para obtener el certificado
@@ -426,7 +416,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/cuestionario/{cuestionario}/completar', [ActividadCompletionController::class, 'marcarCuestionarioCompletado'])->name('cuestionario.completar');
         //ENDESTUDIANTE
         Route::post('/guardar-resultados', [NotaEntregaController::class, 'CuestionarioResultado'])->name('guardar.resultados');
-
+        Route::post('/actividad/{actividad}/completar', [ActividadController::class, 'completarActividad'])->name('actividad.completar');
         //CAMBIARcONTRASEÑA
         Route::get('CambiarContrasena/{id}', [UserController::class, 'EditPasswordIndex'])->name('CambiarContrasena');
         Route::post('CambiarContrasena/{id}', [UserController::class, 'CambiarContrasena'])->name('cambiarContrasenaPost');
@@ -434,7 +424,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('HistorialAsistencia/cursoid={id}', [AsistenciaController::class, 'show'])->name('historialAsistencias');
         //CUESTIONARIO
         Route::get('/cuestionario/{id}/responder', [CuestionarioController::class, 'mostrarCuestionario'])->name('cuestionario.mostrar');
-        Route::post('/cuestionario/{id}/responder', [CuestionarioController::class, 'procesarRespuestas'])->name('cuestionario.responder');
+        Route::post('/cuestionarios/{id}/responder', [CuestionarioController::class, 'procesarRespuestas'])->name('responderCuestionario');
+        Route::post('/cuestionarios/{id}/abandonar', [CuestionarioController::class, 'registrarAbandono'])->name('cuestionario.abandonar');
+
         Route::get('/descargar-comprobante/{ruta}', function ($ruta) {
             $rutaCompleta = "comprobantes/" . $ruta;
             return Storage::disk('public')->download($rutaCompleta);
@@ -445,4 +437,3 @@ Route::group(['middleware' => ['auth']], function () {
     // Ruta para inscribirse utilizando el QR
     Route::get('/inscribirse/{id}/{token}', [InscritosController::class, 'inscribirse'])->name('inscribirse.qr');
 });
-

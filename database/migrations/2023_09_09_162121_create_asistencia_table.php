@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('tipoAsitencia')->default('Falta');
             $table->date('fechaasistencia');
             $table->unsignedBigInteger('curso_id');
-            $table->foreign('curso_id')->references('id')->on('cursos');
+            $table->foreign('curso_id')->references('id')->on('cursos')->onDelete('cascade');
             $table->unsignedBigInteger('inscripcion_id');
-            $table->foreign('inscripcion_id')->references('id')->on('inscritos');
+            $table->foreign('inscripcion_id')->references('id')->on('inscritos')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
 

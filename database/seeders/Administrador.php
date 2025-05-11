@@ -32,9 +32,9 @@ class Administrador extends Seeder
         ]);
         $atributosDocentes = new atributosDocente();
 
-        $atributosDocentes->formacion = "";
-        $atributosDocentes->Especializacion = "";
-        $atributosDocentes->ExperienciaL = "";
+        $atributosDocentes->formacion = 'a';
+        $atributosDocentes->Especializacion = 'a';
+        $atributosDocentes->ExperienciaL = 'a';
         $atributosDocentes->docente_id = User::latest('id')->first()->id;
         $atributosDocentes->save();
 
@@ -58,9 +58,9 @@ class Administrador extends Seeder
         ]);
         $atributosDocentes2 = new atributosDocente();
 
-        $atributosDocentes2->formacion = "";
-        $atributosDocentes2->Especializacion = "";
-        $atributosDocentes2->ExperienciaL = "";
+        $atributosDocentes2->formacion = 'a';
+        $atributosDocentes2->Especializacion = 'a';
+        $atributosDocentes2->ExperienciaL = 'a';
         $atributosDocentes2->docente_id = User::latest('id')->first()->id;
         $atributosDocentes2->save();
 
