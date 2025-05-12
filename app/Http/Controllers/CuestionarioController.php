@@ -118,12 +118,8 @@ class CuestionarioController extends Controller
 
     public function procesarRespuestas(Request $request, $id)
     {
-        // Validar que el cuestionario exista
-
-
-
+        // Obtener el cuestionario con sus preguntas y respuestas
         $cuestionario = Cuestionario::with('preguntas.respuestas')->findOrFail($id);
-
 
         // Obtener el ID del inscrito basado en el estudiante autenticado y el curso
         $inscrito = Inscritos::where('estudiante_id', Auth::id())
@@ -132,7 +128,7 @@ class CuestionarioController extends Controller
 
         $inscritoId = $inscrito->id;
 
-        // Verificar si ya existe un intento en progreso
+        // Verificar si ya existe un intento en progreso (no finalizado)
         $intento = IntentoCuestionario::where('cuestionario_id', $id)
             ->where('inscrito_id', $inscritoId)
             ->whereNull('finalizado_en')
@@ -174,14 +170,17 @@ class CuestionarioController extends Controller
 
                 RespuestaEstudiante::create([
                     'inscrito_id' => $inscritoId,
-                    'intento_id' => $intentoId, // Relacionar con el intento actual
+                    'intento_id' => $intentoId,
                     'pregunta_id' => $preguntaId,
                     'respuesta' => $respuesta,
                     'es_correcta' => $esCorrecta,
                 ]);
-            } else if ($pregunta->tipo === 'boolean') {
+            } elseif ($pregunta->tipo === 'boolean') {
                 $respuestaSeleccionada = $respuesta == 1 ? 'Verdadero' : 'Falso';
-                $esCorrecta = $pregunta->respuestas->where('contenido', $respuestaSeleccionada)->where('es_correcta', true)->isNotEmpty();
+                $esCorrecta = $pregunta->respuestas
+                    ->where('contenido', $respuestaSeleccionada)
+                    ->where('es_correcta', true)
+                    ->isNotEmpty();
 
                 if ($esCorrecta) {
                     $puntajeObtenido += $pregunta->puntaje;
@@ -189,7 +188,7 @@ class CuestionarioController extends Controller
 
                 RespuestaEstudiante::create([
                     'inscrito_id' => $inscritoId,
-                    'intento_id' => $intentoId, // Relacionar con el intento actual
+                    'intento_id' => $intentoId,
                     'pregunta_id' => $preguntaId,
                     'respuesta' => $respuestaSeleccionada,
                     'es_correcta' => $esCorrecta,
@@ -204,7 +203,7 @@ class CuestionarioController extends Controller
 
                 RespuestaEstudiante::create([
                     'inscrito_id' => $inscritoId,
-                    'intento_id' => $intentoId, // Relacionar con el intento actual
+                    'intento_id' => $intentoId,
                     'pregunta_id' => $preguntaId,
                     'respuesta' => $respuestaSeleccionada ? $respuestaSeleccionada->contenido : null,
                     'es_correcta' => $esCorrecta,
@@ -212,21 +211,18 @@ class CuestionarioController extends Controller
             }
         }
 
-        // Guardar el resultado del intento
-        IntentoCuestionario::create([
-            'inscrito_id' => $inscritoId,
-            'cuestionario_id' => $id,
-            'intento_numero' => 1, // Asignar el número de intento
+        // Actualizar el intento con los resultados finales
+        $intento->update([
             'nota' => $puntajeObtenido,
-            'aprobado' => $puntajeObtenido >= ($puntajeTotal * 0.6), // Ejemplo: 60% para aprobar
-            'iniciado_en' => session("inicio_cuestionario_{$id}"),
+            'aprobado' => $puntajeObtenido >= ($puntajeTotal * 0.6), // 60% para aprobar
             'finalizado_en' => now(),
         ]);
 
-        // Redirigir con un mensaje de éxito
+        // Redirigir con mensaje de éxito
         return redirect()->route('rankingQuizz', $id)
             ->with('success', "Cuestionario completado. Puntaje obtenido: {$puntajeObtenido}/{$puntajeTotal}.");
     }
+
 
 
     public function store(Request $request, $actividadId)
