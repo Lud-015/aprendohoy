@@ -26,6 +26,13 @@
             </div>
         </div>
 
+        <div class="mb-3 text-end">
+            <a href="{{ route('password.request') }}" class="text-decoration-none text-muted small">
+                <i class="fa fa-lock me-1"></i>¿Olvidaste tu contraseña?
+            </a>
+        </div>
+
+
         <button type="submit" class="btn btn-primary w-100 btn-login">Ingresar</button>
     </form>
 @else
@@ -57,6 +64,68 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Check for validation errors
+    @if ($errors->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de validación',
+            html: `{!! implode('<br>', $errors->all()) !!}`,
+            confirmButtonColor: '#3085d6',
+        });
+    @endif
+
+    // Check for success message
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#3085d6',
+        });
+    @endif
+
+    // Check for error message
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#3085d6',
+        });
+    @endif
+
+    // Form submission handling
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Iniciando sesión',
+            text: 'Por favor espere...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        this.submit();
+    });
+
+    // Password visibility toggle function
+    function togglePasswordVisibility(button) {
+        const input = document.getElementById('password');
+        const type = input.type === 'password' ? 'text' : 'password';
+        input.type = type;
+
+        const icon = button.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    }
+</script>
+
 
 
 

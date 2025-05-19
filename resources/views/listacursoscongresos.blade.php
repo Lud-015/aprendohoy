@@ -3,25 +3,7 @@
 @endphp
 
 
-<!-- Add this CSS to your stylesheet -->
-<style>
-    .card {
-        transition: transform 0.2s;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-    }
-
-    .card-img-top {
-        height: 200px;
-        object-fit: cover;
-    }
-
-    .badge {
-        font-weight: 500;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('assets2/css/lista-cursos.css') }}">
 
 
 @section('main')
@@ -482,77 +464,6 @@
         </div>
     </div>
 
-    <!-- JavaScript for interactions -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // View switching
-            const gridViewBtn = document.querySelector('[data-view="grid"]');
-            const listViewBtn = document.querySelector('[data-view="list"]');
-            const gridView = document.getElementById('gridView');
-            const listView = document.getElementById('listView');
-
-            gridViewBtn.addEventListener('click', function() {
-                gridView.classList.remove('d-none');
-                listView.classList.add('d-none');
-                gridViewBtn.classList.add('active');
-                listViewBtn.classList.remove('active');
-            });
-
-            listViewBtn.addEventListener('click', function() {
-                gridView.classList.add('d-none');
-                listView.classList.remove('d-none');
-                gridViewBtn.classList.remove('active');
-                listViewBtn.classList.add('active');
-            });
-
-            // Price range slider
-            const priceRange = document.getElementById('priceRange');
-            const priceMin = document.getElementById('priceMin');
-            const priceMax = document.getElementById('priceMax');
-
-            priceRange.addEventListener('input', function() {
-                priceMax.textContent = '$' + this.value;
-            });
-
-            // Clear filters
-            const clearFiltersBtn = document.getElementById('clearFilters');
-
-            clearFiltersBtn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-check').forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                priceRange.value = 1000;
-                priceMax.textContent = '$1000';
-            });
-
-            // Sort options
-            const sortOptions = document.getElementById('sortOptions');
-
-            sortOptions.addEventListener('change', function() {
-                // Here you would typically trigger a form submission or AJAX request
-                // For example:
-                // window.location.href = '{{ route('Inicio') }}?sort=' + this.value;
-            });
-
-            // Add to favorites
-            const favoriteButtons = document.querySelectorAll('.btn-heart');
-
-            favoriteButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const icon = this.querySelector('i');
-                    if (icon.classList.contains('bi-heart')) {
-                        icon.classList.remove('bi-heart');
-                        icon.classList.add('bi-heart-fill');
-                        icon.classList.add('text-danger');
-                    } else {
-                        icon.classList.add('bi-heart');
-                        icon.classList.remove('bi-heart-fill');
-                        icon.classList.remove('text-danger');
-                    }
-                });
-            });
-        });
-    </script>
     </section>
 
 
@@ -568,5 +479,6 @@
 </main>
 @endsection
 
+<script src="{{ asset('assets2/js/lista-cursos.js') }}"></script>
 
 @include('layoutlanding')

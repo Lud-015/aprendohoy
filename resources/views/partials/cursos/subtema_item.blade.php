@@ -88,46 +88,47 @@
         </h4>
 
         @forelse($subtema->recursos as $recurso)
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">
-                    {{ $recurso->nombreRecurso }}
-                </h5>
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ $recurso->nombreRecurso }}
+                    </h5>
 
-                @if (Str::contains($recurso->descripcionRecursos, ['<iframe', '<video', '<img']))
-                    <div class="ratio ratio-16x9 mb-3">
-                        {!! $recurso->descripcionRecursos !!}
-                    </div>
-                @else
-                    <p class="card-text">{!! nl2br(e($recurso->descripcionRecursos)) !!}</p>
-                @endif
+                    @if (Str::contains($recurso->descripcionRecursos, ['<iframe', '<video', '<img']))
+                        <div class="ratio ratio-16x9 mb-3">
+                            {!! $recurso->descripcionRecursos !!}
+                        </div>
+                    @else
+                        <p class="card-text">{!! nl2br(e($recurso->descripcionRecursos)) !!}</p>
+                    @endif
 
-                @if ($recurso->archivoRecurso)
-                    <a href="{{ asset('storage/' . $recurso->archivoRecurso) }}" class="btn btn-sm btn-primary"
-                        target="_blank">
-                        <i class="fas fa-download me-1"></i> Descargar Recurso
-                    </a>
-                @endif
+                    @if ($recurso->archivoRecurso)
+                        <a href="{{ asset('storage/' . $recurso->archivoRecurso) }}" class="btn btn-sm btn-primary"
+                            target="_blank">
+                            <i class="fas fa-download me-1"></i> Descargar Recurso
+                        </a>
+                    @endif
 
-                @if (auth()->user()->hasRole('Estudiante'))
-                    <div class="mt-2">
-                        @if ($recurso->isViewedByInscrito($inscritos2->id))
-                            <span class="badge bg-success">
-                                <i class="fas fa-check me-1"></i> Visto
-                            </span>
-                        @else
-                            <form method="POST" action="{{ route('recurso.marcarVisto', $recurso->id) }}" class="d-inline">
-                                @csrf
-                                <input type="hidden" name="inscritos_id" value="{{ $inscritos2->id }}">
-                                <button type="submit" class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-check-circle me-1"></i> Marcar como visto
-                                </button>
-                            </form>
-                        @endif
-                    </div>
-                @endif
+                    @if (auth()->user()->hasRole('Estudiante'))
+                        <div class="mt-2">
+                            @if ($recurso->isViewedByInscrito($inscritos2->id))
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i> Visto
+                                </span>
+                            @else
+                                <form method="POST" action="{{ route('recurso.marcarVisto', $recurso->id) }}"
+                                    class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="inscritos_id" value="{{ $inscritos2->id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-check-circle me-1"></i> Marcar como visto
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    @endif
+                </div>
             </div>
-        </div>
 
 
             <div class="modal fade" id="modalEditarRecurso-{{ $recurso->id }}" tabindex="-1"
@@ -243,7 +244,7 @@
                     <div class="mt-3">
                         <!-- Botón para ver la actividad -->
 
-                        @if ($actividad->tipoActividad->nombre == 'Cuestionario')
+                        @if ($actividad->tiposEvaluacion->contains('nombre', 'Cuestionario'))
                             @role('Docente')
                                 <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal"
                                     data-bs-target="#modalCuestionario-{{ $actividad->id }}">
@@ -254,15 +255,15 @@
                                     @endif
                                 </button>
                                 @if ($actividad->cuestionario)
-                                <a href="{{ route('cuestionarios.index', $actividad->cuestionario->id) }}"
-                                    class="btn btn-sm btn-outline-secondary me-2">
-                                    <i class="fas fa-cog me-1"></i> Administrar
-                                </a>
+                                    <a href="{{ route('cuestionarios.index', $actividad->cuestionario->id) }}"
+                                        class="btn btn-sm btn-outline-secondary me-2">
+                                        <i class="fas fa-cog me-1"></i> Administrar
+                                    </a>
 
-                                <a href="{{ route('rankingQuizz', $actividad->cuestionario->id) }}"
-                                    class="btn btn-sm btn-outline-secondary me-2">
-                                    <i class="fas fa-chart-bar me-1"></i> Ver Resultados
-                                </a>
+                                    <a href="{{ route('rankingQuizz', $actividad->cuestionario->id) }}"
+                                        class="btn btn-sm btn-outline-secondary me-2">
+                                        <i class="fas fa-chart-bar me-1"></i> Ver Resultados
+                                    </a>
                                 @endif
 
 
@@ -355,21 +356,18 @@
                                         </button>
                                     </form>
                                 @endif
-
-
                             @endrole
                             @role('Estudiante')
                                 @if ($actividad->cuestionario)
+                                    <a href="{{ route('cuestionario.mostrar', $actividad->cuestionario->id) }}"
+                                        class="btn btn-sm btn-primary me-2">
+                                        <i class="fas fa-play me-1"></i> Responder
+                                    </a>
 
-                                <a href="{{ route('cuestionario.mostrar', $actividad->id) }}"
-                                    class="btn btn-sm btn-primary me-2">
-                                    <i class="fas fa-play me-1"></i> Responder
-                                </a>
-
-                                <a href="{{ route('rankingQuizz', $actividad->cuestionario->id) }}"
-                                    class="btn btn-sm btn-outline-secondary me-2">
-                                    <i class="fas fa-chart-bar me-1"></i> Ver Resultados
-                                </a>
+                                    <a href="{{ route('rankingQuizz', $actividad->cuestionario->id) }}"
+                                        class="btn btn-sm btn-outline-secondary me-2">
+                                        <i class="fas fa-chart-bar me-1"></i> Ver Resultados
+                                    </a>
                                 @endif
                             @endrole
                         @else
@@ -400,7 +398,7 @@
                             @endhasrole
 
                             @role('Estudiante')
-                                <a href="{{ route('actividades.show', $actividad->id) }}"
+                                <a href="{{ route('actividad.show', $actividad->id) }}"
                                     class="btn btn-sm btn-primary me-2">
                                     <i class="fas fa-eye me-1"></i> Ver Actividad
                                 </a>

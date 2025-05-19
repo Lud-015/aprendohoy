@@ -20,10 +20,7 @@ class Cuestionario extends Model
     ];
 
 
-    public function cuestionario()
-    {
-        return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
-    }
+
     /**
      * Relación con el subtema.
      */
@@ -33,7 +30,7 @@ class Cuestionario extends Model
     }
 
     public function actividad() {
-        return $this->belongsTo(Actividad::class);
+        return $this->belongsTo(Actividad::class, 'actividad_id');
     }
 
     public function preguntas() {
@@ -41,7 +38,7 @@ class Cuestionario extends Model
     }
 
     public function intentos() {
-        return $this->hasMany(IntentoCuestionario::class);
+        return $this->hasMany(IntentoCuestionario::class, 'cuestionario_id');
     }
 
 

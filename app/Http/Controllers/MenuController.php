@@ -73,9 +73,17 @@ class MenuController extends Controller
 
     public function home()
     {
+        $currentDate = Carbon::now(); // Fecha actual
 
-        $congresos = Cursos::where('tipo', 'congreso')->get();
-        $cursos = Cursos::where('tipo', 'curso')->get();
+        // Filtrar congresos cuya fecha_fin no ha pasado
+        $congresos = Cursos::where('tipo', 'congreso')
+            ->where('fecha_fin', '>=', $currentDate)
+            ->get();
+
+        // Filtrar cursos cuya fecha_fin no ha pasado
+        $cursos = Cursos::where('tipo', 'curso')
+            ->where('fecha_fin', '>=', $currentDate)
+            ->get();
 
         return view('landing')->with('congresos', $congresos)->with('cursos', $cursos);
     }

@@ -17,52 +17,7 @@
         </div>
 
 
-        <div class="modal fade" id="crearMultiplesPreguntasModal" tabindex="-1"
-            aria-labelledby="crearMultiplesPreguntasLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <form method="POST" action="{{ route('pregunta.store', $cuestionario->id) }}">
-                        @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="crearMultiplesPreguntasLabel">Crear Múltiples Preguntas</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div id="preguntas-container">
-                                <div class="pregunta-item mb-3">
-                                    <div class="mb-3">
-                                        <label for="preguntaTexto" class="form-label">Texto de la Pregunta</label>
-                                        <input type="text" class="form-control" name="preguntas[0][enunciado]"
-                                            placeholder="Escribe la pregunta aquí" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="preguntaTipo" class="form-label">Tipo de Pregunta</label>
-                                        <select class="form-select" name="preguntas[0][tipo]" required>
-                                            <option value="opcion_multiple">Opción Múltiple</option>
-                                            <option value="abierta">Respuesta Abierta</option>
-                                            <option value="boolean">Verdadero/Falso</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="puntosPregunta" class="form-label">Puntos</label>
-                                        <input type="number" class="form-control" name="preguntas[0][puntaje]"
-                                            min="1" placeholder="Ejemplo: 5" required>
-                                    </div>
-                                    <hr>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-secondary" id="addPreguntaButton">
-                                <i class="fas fa-plus"></i> Agregar Otra Pregunta
-                            </button>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="submit" class="btn btn-primary">Guardar Preguntas</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -198,6 +153,8 @@
 
     </div>
 @endsection
+
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

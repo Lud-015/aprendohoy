@@ -16,7 +16,7 @@ class Tema extends Model
 
     public function subtemas()
     {
-        return $this->hasMany(Subtema::class, 'tema_id', 'id');
+        return $this->hasMany(Subtema::class , 'tema_id');
     }
 
     public function curso()

@@ -34,6 +34,11 @@ class Inscritos extends Model
         return $this->hasMany(IntentoCuestionario::class, 'inscrito_id');
     }
 
+    public function notaEntrega(): HasMany
+    {
+        return $this->hasMany(NotaEntrega::class,  'inscripcion_id');
+    }
+
     public function cursos(): BelongsTo
     {
         return $this->belongsTo(Cursos::class, 'cursos_id');
@@ -44,18 +49,12 @@ class Inscritos extends Model
         return $this->hasMany(Asistencia::class,  'inscripcion_id');
     }
 
-    public function notatarea(): HasMany
-    {
-        return $this->hasMany(NotaEntrega::class, 'inscripcion_id');
-    }
 
-    public function notaevaluacion(): HasMany
+
+
+    public function boletin()
     {
-        return $this->hasMany(NotaEvaluacion::class, 'inscripcion_id');
-    }
-    public function boletines(): HasMany
-    {
-        return $this->hasMany(Boletin::class,  'inscripcion_id');
+        return $this->hasOne(Boletin::class, 'inscripcion_id');
     }
 
     public function certificado()

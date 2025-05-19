@@ -1,178 +1,199 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
-
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>@yield('titulo', 'Iniciar sesión')</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/img/Acceder.png') }}">
 
-    <!-- Bootstrap 5.3.2 + Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- Custom Fonts & Styles -->
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="{{ asset('assets/css/font-awesome.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets2/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets2/css/style.css') }}" rel="stylesheet">
-
-    <!-- AOS + Swiper + Glightbox -->
-    <link href="{{ asset('assets2/vendor/aos/aos.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets2/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets2/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
 
     <style>
+        :root {
+            --primary-color: #075092;
+            --primary-light: rgba(20, 93, 160, 0.3);
+        }
+
         body {
-            background: linear-gradient(rgba(20, 93, 160, 0.3), rgba(20, 93, 160, 0.3)),
-                        url('{{ asset('assets/img/bg2.png') }}');
-            background-size: cover;
-            background-repeat: no-repeat;
-            filter: brightness(0.9) contrast(1.1);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(var(--primary-light), var(--primary-light)),
+                        url('{{ asset('assets/img/bg2.png') }}') no-repeat center center;
+            background-size: cover;
         }
 
         .login-card {
             max-width: 400px;
-            margin: 6rem auto;
+            margin: auto;
             padding: 2rem;
             background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
 
-        .form-control {
-            border-radius: 50px;
+        .diagonal-header {
+            position: relative;
+            background: white;
+            overflow: hidden;
         }
 
-        .btn-login {
-            border-radius: 50px;
+        .diagonal-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            background: var(--primary-color);
+            transform: skewX(-15deg) translateX(10%);
+            z-index: 0;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-control, .btn {
+            border-radius: 2rem;
+        }
+
+        main {
+            flex: 1;
+            padding: 3rem 0;
         }
 
         footer {
-            background: #f8f9fa;
-            margin-top: 5rem;
+            background-color: #f8f9fa;
             padding: 2rem 0;
+            margin-top: auto;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
         }
     </style>
 </head>
 
 <body>
-
     <!-- Header -->
-    <header class="bg-white shadow-sm position-relative">
-        <!-- Blue diagonal cut -->
-        <div class="diagonal-cut"></div>
+    <header class="diagonal-header shadow-sm">
+        <div class="container header-content py-3">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <a href="{{ route('home') }}" class="d-inline-block">
+                        <img src="{{ asset('assets/img/Acceder.png') }}" alt="Logo" height="35">
+                    </a>
+                </div>
+                <div class="col text-end">
+                    <a href="{{ route('home') }}" class="btn btn-outline-primary rounded-pill px-4 me-2">Ir al Inicio</a>
 
-        <div class="container d-flex align-items-center justify-content-between py-3">
-            <!-- Logo principal -->
-            <a href="{{ route('home') }}" class="d-flex align-items-center text-decoration-none">
-                <img src="{{ asset('assets/img/Acceder.png') }}" alt="Logo" style="height: 35px;">
-            </a>
-
-            <!-- Botones -->
-            <div class="d-flex align-items-center gap-2">
-                <a href="{{ route('home') }}" class="btn btn-outline-primary rounded-pill px-4">Ir al Inicio</a>
-                <a href="{{ route('signin') }}" class="btn btn-primary rounded-pill px-4">Crear cuenta</a>
+                    @guest
+                    <a href="{{ route('signin') }}" class="btn btn-primary rounded-pill px-4">Crear cuenta</a>
+                    <a href="{{ route('login') }}" class="btn btn-primary rounded-pill px-4">Iniciar Sesion</a>
+                    @endguest
+                </div>
+                <div class="col-auto">
+                    <img src="{{ asset('assets/img/logof.png') }}" alt="Logo Fundación" height="55">
+                </div>
             </div>
-
-            <!-- Logo adicional -->
-            <img src="{{ asset('assets/img/logof.png') }}" alt="Logo Fundación" style="height: 55px;">
         </div>
     </header>
 
-    <!-- Add this CSS to your stylesheet -->
-    <style>
-        .diagonal-cut {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, transparent 60%, #075092 60%);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-        }
-    </style>
-
-
-
-    <!-- Login Card -->
-    <main class="d-flex align-items-center justify-content-center">
+    <!-- Main Content -->
+    <main class="container">
         @yield('content')
     </main>
 
     <!-- Footer -->
-    <footer>
+    <footer class="bg-light">
         <div class="container">
-            <div class="row text-center text-md-start">
-                <div class="col-md-4 mb-3">
-                    <h5>Aprendo Hoy</h5>
-                    <p>Bolivia<br>+591 72087186<br>contacto@educarparalavida.org.bo</p>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Aprendo Hoy</h5>
+                    <address class="mb-0">
+                        <p class="mb-1">Bolivia</p>
+                        <p class="mb-1">+591 72087186</p>
+                        <p class="mb-0">contacto@educarparalavida.org.bo</p>
+                    </address>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <h5>Enlaces</h5>
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Enlaces</h5>
                     <ul class="list-unstyled">
-                        <li><a href="https://educarparalavida.org.bo/web/Inicio.html" class="text-decoration-none">Inicio</a></li>
-                        <li><a href="https://educarparalavida.org.bo/web/Quienes-somos.html" class="text-decoration-none">Quiénes somos</a></li>
-                        <li><a href="https://educarparalavida.org.bo/web/Proyectos-y-servicios.html" class="text-decoration-none">Servicios</a></li>
+                        <li class="mb-2"><a href="https://educarparalavida.org.bo/web/Inicio.html" class="text-decoration-none text-dark">Inicio</a></li>
+                        <li class="mb-2"><a href="https://educarparalavida.org.bo/web/Quienes-somos.html" class="text-decoration-none text-dark">Quiénes somos</a></li>
+                        <li><a href="https://educarparalavida.org.bo/web/Proyectos-y-servicios.html" class="text-decoration-none text-dark">Servicios</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <h5>Síguenos</h5>
-                    <a href="https://x.com/FUNDVIDA2" class="me-2 text-dark"><i class="bi bi-twitter"></i></a>
-                    <a href="https://www.facebook.com/profile.php?id=100063510101095" class="me-2 text-dark"><i class="bi bi-facebook"></i></a>
-                    <a href="https://www.instagram.com/fundeducarparalavida/" class="me-2 text-dark"><i class="bi bi-instagram"></i></a>
-                    <a href="https://api.whatsapp.com/send?phone=%3C+59172087186%3E" class="text-dark"><i class="bi bi-whatsapp"></i></a>
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Síguenos</h5>
+                    <div class="social-links">
+                        <a href="https://x.com/FUNDVIDA2" class="me-2"><i class="bi bi-twitter"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=100063510101095" class="me-2"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/fundeducarparalavida/" class="me-2"><i class="bi bi-instagram"></i></a>
+                        <a href="https://api.whatsapp.com/send?phone=59172087186"><i class="bi bi-whatsapp"></i></a>
+                    </div>
                 </div>
             </div>
-
-            <div class="text-center pt-3 border-top mt-3">
+            <hr class="my-4">
+            <p class="text-center mb-0">
                 &copy; <script>document.write(new Date().getFullYear())</script> Fundación Educar para la Vida
-            </div>
+            </p>
         </div>
     </footer>
 
-    <!-- JS Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // Password Toggle Function
         function togglePasswordVisibility(button) {
             const input = button.previousElementSibling;
             const icon = button.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
         }
 
+        // SweetAlert Notifications
         @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: '¡Éxito!',
-            text: '{{ session('success') }}',
-            confirmButtonColor: '#3085d6'
-        });
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '{{ session('success') }}',
+                confirmButtonColor: '#075092'
+            });
         @endif
 
         @if(session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: '{{ session('error') }}',
-            confirmButtonColor: '#d33'
-        });
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#dc3545'
+            });
         @endif
     </script>
 </body>

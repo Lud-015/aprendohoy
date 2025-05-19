@@ -15,14 +15,13 @@ return new class extends Migration
     {
         Schema::create('calificaciones_entregas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('entrega_archivo_id');
-            $table->unsignedBigInteger('calificador_id')->nullable();
+            $table->unsignedBigInteger('inscripcion_id');
+            $table->unsignedBigInteger('actividad_id');
             $table->integer('nota')->nullable();
             $table->text('retroalimentacion')->nullable();
+            $table->foreign('inscripcion_id')->references('id')->on('inscritos');
+            $table->foreign('actividad_id')->references('id')->on('actividades');
             $table->timestamps();
-
-            $table->foreign('entrega_archivo_id')->references('id')->on('entregas_archivos')->onDelete('cascade');
-            $table->foreign('calificador_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

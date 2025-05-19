@@ -27,7 +27,10 @@ class CuestionarioController extends Controller
 
     public function mostrarCuestionario($id)
     {
+
+
         $cuestionario = Cuestionario::with(['preguntas.respuestas'])->findOrFail($id);
+
 
         if ($cuestionario->preguntas->isEmpty()) {
             return redirect()->route('Curso', $cuestionario->actividad->subtema->tema->curso->id)

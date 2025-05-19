@@ -9,18 +9,33 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EntregaArchivo extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    protected $table = "entregas_tareas";
+    protected $table = "entregas_archivos";
+
+
+    protected $fillable = [
+        'user_id',
+        'actividad_id',
+        'archivo',
+        'comentario',
+        'comentario',
+        'fecha_entrega',
+    ];
 
     protected $softDelete = true;
-    public function estudiantes(): BelongsTo
+    public function estudiante(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'estudiante_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function tarea(): BelongsTo
+    public function notas()
+{
+    return $this->hasMany(NotaEntrega::class, 'entrega_id');
+}
+
+    public function actividad(): BelongsTo
     {
-        return $this->belongsTo(Tareas::class, 'tarea_id');
+        return $this->belongsTo(Actividad::class, 'actividad_id');
     }
 }

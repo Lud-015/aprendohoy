@@ -29,6 +29,19 @@ class Subtema extends Model
         return $this->hasMany(RecursoSubtema::class, 'subtema_id');
     }
 
+    public function notas()
+{
+    return $this->hasManyThrough(
+        NotaEntrega::class,
+        IntentoCuestionario::class,
+        Actividad::class,
+        'subtema_id', // Foreign key en Actividad
+        'actividad_id', // Foreign key en NotaEntrega
+        'id', // Local key en Subtema
+        'id' // Local key en Actividad
+    );
+}
+
     public function estaDesbloqueado($inscritoId)
     {
         // Si es el primer subtema, está desbloqueado por defecto

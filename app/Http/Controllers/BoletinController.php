@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Mail\Message;
 use App\Mail\BoletinCorreo;
+use App\Models\Actividad;
 use Spatie\Browsershot\Browsershot;
 
 
@@ -26,6 +27,96 @@ class BoletinController extends Controller
 {
 
 
+    public function boletin($id)
+{
+    // Obtener el inscrito con todas las relaciones necesarias
+    $inscritos = Inscritos::with([
+        'cursos.temas.subtemas.actividades.tiposEvaluacion',
+        'cursos.temas.subtemas.actividades.cuestionarios.intentos',
+        'cursos.temas.subtemas.actividades.calificacionesEntregas'
+    ])->findOrFail($id);
+
+    // Organizar las notas por temas y subtemas
+    $notasPorTema = $inscritos->cursos->temas->map(function ($tema) use ($inscritos) {
+        return [
+            'tema' => $tema->titulo,
+            'subtemas' => $tema->subtemas->map(function ($subtema) use ($inscritos) {
+                return [
+                    'subtema' => $subtema->titulo_subtema,
+                    'actividades' => $subtema->actividades->map(function ($actividad) use ($inscritos) {
+                        // Obtener los tipos de evaluación de la actividad
+                        $tiposEvaluacion = $actividad->tiposEvaluacion;
+
+                        $notas = collect();
+
+                        foreach ($tiposEvaluacion as $tipoEvaluacion) {
+                            if ($tipoEvaluacion->slug === 'cuestionario') {
+                                // Procesar notas de cuestionarios
+                                $notasCuestionario = collect(optional($actividad->cuestionarios))->flatMap(function ($cuestionario) use ($inscritos) {
+                                    return collect(optional($cuestionario->intentos))
+                                        ->filter(function ($intento) use ($inscritos) {
+
+                                            dd($intento->inscrito_id    );
+                                            return $intento->inscrito_id == $inscritos->id;  // Changed from inscripcion_id to inscrito_id
+                                        })
+                                        ->map(function ($intento) use ($cuestionario, $tipoEvaluacion) {
+                                            return [
+                                                'tipo' => 'Cuestionario',
+                                                'tipo_evaluacion' => $tipoEvaluacion->nombre,
+                                                'actividad' => $cuestionario->titulo ?? 'Sin título',
+                                                'nota' => $intento->calificacion ?? 0,
+                                                'puntaje_maximo' => $tipoEvaluacion->pivot->puntaje_maximo ?? 100,
+                                                'es_obligatorio' => $tipoEvaluacion->pivot->es_obligatorio,
+                                                'comentario' => $intento->comentario ?? 'Sin comentario',
+                                                'fecha' => $intento->created_at ?? now(),
+                                            ];
+                                        });
+                                });
+                                $notas = $notas->merge($notasCuestionario);
+                            } else {
+                                // Procesar notas de entregas
+                                $notasEntrega = $actividad->calificacionesEntregas
+                                    ->filter(function ($nota) use ($inscritos) {
+                                        return $nota->inscripcion_id == $inscritos->id;
+                                    })
+                                    ->map(function ($nota) use ($tipoEvaluacion) {
+                                        return [
+                                            'tipo' => 'Entrega',
+                                            'tipo_evaluacion' => $tipoEvaluacion->nombre,
+                                            'actividad' => $nota->actividad->titulo ?? 'Sin título',
+                                            'nota' => $nota->nota ?? 0,
+                                            'puntaje_maximo' => $tipoEvaluacion->pivot->puntaje_maximo ?? 100,
+                                            'es_obligatorio' => $tipoEvaluacion->pivot->es_obligatorio,
+                                            'comentario' => $nota->retroalimentacion ?? 'Sin comentario',
+                                            'fecha' => $nota->created_at ?? now(),
+                                        ];
+                                    });
+                                $notas = $notas->merge($notasEntrega);
+                            }
+                        }
+
+                        return [
+                            'actividad' => $actividad->titulo,
+                            'descripcion' => $actividad->descripcion,
+                            'fecha_inicio' => $actividad->fecha_inicio,
+                            'fecha_fin' => $actividad->fecha_fin,
+                            'notas' => $notas,
+                        ];
+                    }),
+                ];
+            }),
+        ];
+    });
+
+    // Calcular estadísticas generales
+    $estadisticas = [
+        'total_actividades' => $notasPorTema->pluck('subtemas.*.actividades')->flatten(2)->count(),
+        'actividades_calificadas' => $notasPorTema->pluck('subtemas.*.actividades.*.notas')->flatten(3)->count(),
+        'promedio_general' => $notasPorTema->pluck('subtemas.*.actividades.*.notas.*.nota')->flatten()->average() ?? 0,
+    ];
+
+    return view('Estudiante.boletin', compact('inscritos', 'notasPorTema', 'estadisticas'));
+}
 
 
     public function boletinEstudiantes($id)
@@ -75,18 +166,43 @@ class BoletinController extends Controller
 
 
 
-    public function boletin($id)
+
+
+
+
+
+    public function listarNotasActividad($actividadId)
     {
-        $inscritos = Inscritos::findOrFail($id);
+        // Obtener la actividad con sus relaciones
+        $actividad = Actividad::with(['entregasNotas', 'intentosEstudiante'])->findOrFail($actividadId);
 
-        $notasEvaluacion = NotaEvaluacion::where('inscripcion_id', $id)->get();
-        $notasTareas = NotaEntrega::where('inscripcion_id', $id)->get();
+        // Notas de las entregas
+        $notasEntregas = $actividad->entregasNotas->map(function ($nota) {
+            return [
+                'tipo' => 'Entrega',
+                'nota' => $nota->nota,
+                'comentario' => $nota->retroalimentacion,
+                'fecha' => $nota->created_at,
+            ];
+        });
 
+        // Notas de los intentos de cuestionarios
+        $notasCuestionarios = $actividad->intentosEstudiante->map(function ($intento) {
+            return [
+                'tipo' => 'Cuestionario',
+                'nota' => $intento->calificacion,
+                'comentario' => $intento->comentario ?? 'Sin comentario',
+                'fecha' => $intento->created_at,
+            ];
+        });
 
-        $promedioNotasEvaluacion = $notasEvaluacion->avg('nota');
-        $promedioNotasTareas = $notasTareas->avg('nota');
+        // Combinar ambas ramas
+        $notasCombinadas = $notasEntregas->merge($notasCuestionarios);
 
-        return view('Docente.boletin')->with('inscritos', $inscritos)->with('promedioNotasEvaluacion', $promedioNotasEvaluacion)->with('promedioNotasTareas', $promedioNotasTareas);
+        return view('Estudiante.NotasActividad', [
+            'actividad' => $actividad,
+            'notas' => $notasCombinadas,
+        ]);
     }
 
 
@@ -169,7 +285,7 @@ class BoletinController extends Controller
     public function enviarBoletin(Request $request, $id)
     {
         $inscritos = Inscritos::findOrFail($id);
-        $boletinNotas = []; 
+        $boletinNotas = [];
         $boletin = null;
 
         if ($inscritos) {

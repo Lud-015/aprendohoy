@@ -90,7 +90,7 @@
                             <i class="fa fa-calendar me-2"></i> Horarios
                         </button>
 
-                        <a href="{{ route('historialAsistencias', [$cursos->id]) }}" class="btn btn-primary">
+                        <a href="{{ route('historialAsistencias', $cursos->id) }}" class="btn btn-primary">
                             <i class="fas fa-clipboard-list me-2"></i> Asistencias
                         </a>
 
@@ -594,62 +594,61 @@
             (auth()->user()->hasRole('Estudiante') && $inscritos))
 
         @section('nav')
-            <ul class="navbar-nav ">
-                <li class="nav-item ml-2">
-                    <a class="nav-link active" href="#temario" data-bs-toggle="tab">
-                        <i class="fas fa-list me-2"></i>Temario
-                    </a>
-                </li>
-                @forelse ($temas as $index => $tema)
-                    @php
-                        $estaDesbloqueado =
-                            auth()->user()->hasRole('Docente') ||
-                            (auth()->user()->hasRole('Estudiante') && $tema->estaDesbloqueado($inscritos2->id));
-                    @endphp
+            <!-- Temas y Subtemas -->
+            <a href="#temario" class="nav-link" data-bs-toggle="tab">
+                <i class="bi bi-list-ul"></i> <span>Temario</span>
+            </a>
 
-                    <li class="nav-item">
-                        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-                            href="#subtemas-{{ $tema->id }}" role="button" aria-expanded="false"
-                            aria-controls="subtemas-{{ $tema->id }}">
-                            {{ $tema->titulo_tema }}
-                            <i class="fas fa-chevron-down ms-2"></i>
+            @forelse ($temas as $index => $tema)
+                @php
+                    $estaDesbloqueado =
+                        auth()->user()->hasRole('Docente') ||
+                        (auth()->user()->hasRole('Estudiante') && $tema->estaDesbloqueado($inscritos2->id));
+                @endphp
+
+                <!-- Tema -->
+                <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+                    href="#subtemas-{{ $tema->id }}" role="button" aria-expanded="false"
+                    aria-controls="subtemas-{{ $tema->id }}">
+                    <div>
+                        <i class="bi bi-book"></i>
+                        <span>{{ $tema->titulo_tema }}</span>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </a>
+
+                <!-- Subtemas -->
+                <div class="collapse" id="subtemas-{{ $tema->id }}">
+                    @forelse($tema->subtemas as $subtema)
+                        @php
+                            $desbloqueado =
+                                auth()->user()->hasRole('Docente') ||
+                                (auth()->user()->hasRole('Estudiante') && $subtema->estaDesbloqueado($inscritos2->id));
+                        @endphp
+
+                        @if ($desbloqueado)
+                            <a href="#subtema-{{ $subtema->id }}" class="nav-link ms-4">
+                                <i class="bi bi-dash"></i>
+                                <span>{{ $subtema->titulo_subtema }}</span>
+                            </a>
+                        @else
+                            <a href="#" class="nav-link ms-4 disabled">
+                                <i class="bi bi-lock"></i>
+                                <span class="text-muted">{{ $subtema->titulo_subtema }}</span>
+                            </a>
+                        @endif
+                    @empty
+                        <a href="#" class="nav-link ms-4 disabled">
+                            <span class="text-muted">No hay subtemas disponibles</span>
                         </a>
-
-                        <div class="collapse ms-3" id="subtemas-{{ $tema->id }}">
-                            <ul class="list-unstyled">
-                                @forelse($tema->subtemas as $subtema)
-                                    @php
-                                        $desbloqueado =
-                                            auth()->user()->hasRole('Docente') ||
-                                            (auth()->user()->hasRole('Estudiante') &&
-                                                $subtema->estaDesbloqueado($inscritos2->id));
-                                    @endphp
-
-                                    <li>
-                                        @if ($desbloqueado)
-                                            <a href="#subtema-{{ $subtema->id }}" class="nav-link small text-white-50">
-                                                {{ $subtema->titulo_subtema }}
-                                            </a>
-                                        @else
-                                            <span class="nav-link small text-muted">
-                                                {{ $subtema->titulo_subtema }} <i class="fas fa-lock"></i>
-                                            </span>
-                                        @endif
-                                    </li>
-                                @empty
-                                    <li>
-                                        <span class="nav-link small text-muted">No hay subtemas disponibles</span>
-                                    </li>
-                                @endforelse
-                            </ul>
-                        </div>
-                    </li>
-
-
-
-                @empty
-                @endforelse
-            </ul>
+                    @endforelse
+                </div>
+            @empty
+                <a href="#" class="nav-link disabled">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>No hay temas disponibles</span>
+                </a>
+            @endforelse
         @endsection
 
 

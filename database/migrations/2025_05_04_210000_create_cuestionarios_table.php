@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('cuestionarios', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('actividad_id')->unique(); // 1:1 con actividad
+            $table->unsignedBigInteger('actividad_id')->unique(); 
             $table->boolean('mostrar_resultados')->default(true);
             $table->integer('max_intentos')->default(3);
             $table->integer('tiempo_limite')->nullable(); // En minutos

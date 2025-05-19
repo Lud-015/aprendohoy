@@ -7,11 +7,53 @@ use App\Models\ActividadCompletion;
 use App\Models\EntregaArchivo;
 use App\Models\IntentoCuestionario;
 use App\Models\Cuestionario;
+use App\Models\Inscritos;
+use App\Models\NotaEntrega;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ActividadController extends Controller
 {
+
+    public function index($id)
+    {
+        $actividades = Actividad::with(['entregas'])->findOrFail($id);
+        $notas = NotaEntrega::where('actividad_id', $id)->get();
+        $inscritos = Inscritos::all();
+
+
+
+        return view('Estudiante.Actividad',)->with('actividades', $actividades)
+            ->with('inscritos', $inscritos)
+            ->with('notas', $notas);
+    }
+
+
+    public function subirArchivo(Request $request, $id)
+    {
+        $request->validate([
+            'actividad_id' => 'required|integer',
+            'user_id' => 'required|integer',
+            'archivo' => 'required|file|max:2048', // Ajusta los tipos de archivo y el tamaño máximo
+            'comentario' => 'nullable|string|max:1000',
+        ]);
+
+        $archivo = $request->file('archivo')->store('entregas', 'public');
+
+        EntregaArchivo::create([
+            'actividad_id' => $request->actividad_id,
+            'user_id' => $request->user_id,
+            'archivo' => $archivo,
+            'comentario' => $request->comentario,
+            'fecha_entrega' => now(),
+        ]);
+
+        return back()->with('success', 'Tarea enviada correctamente.');
+    }
+
+
+
 
 
     public function completarActividad(Request $request, $actividadId)
@@ -50,6 +92,54 @@ class ActividadController extends Controller
 
         return redirect()->back()->with('success', 'La actividad ahora es visible.');
     }
+
+
+
+    public function listadeEntregas($id)
+    {
+
+        $actividad = Actividad::findOrFail($id);
+        $entregas = EntregaArchivo::where('actividad_id', $id)->get();
+        $inscritos = Inscritos::all();
+        $nota = NotaEntrega::where('actividad_id', $id)->get();
+
+
+        return view('Docente.ListadeEntregas')->with('inscritos', $inscritos)
+            ->with('nota', $nota)
+            ->with('actividad', $actividad)
+            ->with('entregas', $entregas);
+    }
+
+    public function listadeEntregasCalificar(Request $request, $id)
+    {
+        $request->validate([
+            'entregas.*.notaTarea' => 'required|numeric|min:0|max:100', // Ajusta el rango según tus necesidades
+            'entregas.*.retroalimentacion' => 'nullable|string|max:1000',
+            'entregas.*.id_inscripcion' => 'required|integer',
+        ]);
+
+        $calificar = $request->input('entregas');
+
+
+        foreach ($calificar as $calificarItem) {
+            if (!empty($calificarItem['id'])) {
+                $nota = NotaEntrega::findOrFail($calificarItem['id']);
+                $nota->nota = $calificarItem['notaTarea'];
+                $nota->retroalimentacion = $calificarItem['retroalimentacion'] ?? null; // Valor predeterminado
+                $nota->save();
+            } else {
+                NotaEntrega::create([
+                    'nota' => $calificarItem['notaTarea'],
+                    'retroalimentacion' => $calificarItem['retroalimentacion'] ?? null, // Valor predeterminado
+                    'actividad_id' => $id,
+                    'inscripcion_id' => $calificarItem['id_inscripcion'],
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Calificaciones y retroalimentaciones guardadas correctamente.');
+    }
+
 
     public function store(Request $request, $cursoId)
     {
@@ -137,6 +227,9 @@ class ActividadController extends Controller
 
         return back()->with('success', 'Actividad eliminada correctamente.');
     }
+
+
+
 
     public function restaurar($id)
     {

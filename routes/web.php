@@ -29,6 +29,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\RecursoSubtemaController;
 use App\Http\Controllers\BotManController;
+use App\Http\Controllers\OpenAIController;
 use App\Http\Controllers\RespuestaController;
 
 Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
@@ -59,7 +60,14 @@ Route::post('/email/resend-verification-notification', function (Request $reques
 
 
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/chat', [OpenAIController::class, 'showChat'])
+        ->name('chat.show');
 
+    Route::post('/chat', [OpenAIController::class, 'sendMessage'])
+        ->name('chat.send')
+        ->middleware('throttle:60,1'); // Rate limiting
+});
 
 Route::get('/login', function () {
     return view('login');
@@ -77,7 +85,7 @@ Route::post('/congreso/inscribir', [CertificadoController::class, 'inscribir'])
     ->name('congreso.inscribir');
 
 Route::get('/item/detalle/{id}', [MenuController::class, 'detalle'])->name('congreso.detalle');
-Route::get('/Lista', [MenuController::class, 'lista'])->name('lista.cursos.congresos');
+Route::get('/Lista-General', [MenuController::class, 'lista'])->name('lista.cursos.congresos');
 Route::get('/home', [MenuController::class, 'home'])->middleware('noCache')->name('home');
 Route::get('/', [MenuController::class, 'home'])->middleware('noCache')->name('home');
 
@@ -239,10 +247,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/cuestionarios/{actividadId}/store', [CuestionarioController::class, 'store'])->name('cuestionarios.store');
         Route::put('/cuestionarios/update/{id}', [CuestionarioController::class, 'update'])->name('cuestionarios.update');
 
-        //Preguntas
 
+        //Preguntas
         Route::post('/cuestionarios/{cuestionarioId}/preguntas/multiple', [PreguntaController::class, 'store'])->name('pregunta.store');
-        Route::post('/Pregunta/{id}/edit', [PreguntaController::class, 'edit'])->name('pregunta.update');
+        Route::post('/Pregunta/{id}/edit', [PreguntaController::class, 'update'])->name('pregunta.update');
         Route::post('/Pregunta/{id}/delete', [PreguntaController::class, 'delete'])->name('pregunta.delete');
         Route::post('/Pregunta/{id}/restore', [PreguntaController::class, 'restore'])->name('pregunta.restore');
 
@@ -295,7 +303,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('/actividades/{id}', [ActividadController::class, 'destroy'])->name('actividades.destroy');
         Route::patch('/actividades/{id}/ocultar', [ActividadController::class, 'ocultar'])->name('actividades.ocultar');
         Route::patch('/actividades/{id}/mostrar', [ActividadController::class, 'mostrar'])->name('actividades.mostrar');
-
+        Route::get('/actividad/calificar/{id}', [ActividadController::class, 'listadeEntregas'])->name('calificarT');
+        Route::post('/actividad/calificar/{id}', [ActividadController::class, 'listadeEntregasCalificar'])->name('entregas.calificar');
 
         //RecursosGlobal
 
@@ -321,16 +330,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/RestaurarInscripcion/{id}', [InscritosController::class, 'restaurarInscrito'])->name('restaurarIncripcion');
         //ListaDeInscritos
         Route::get('listaRestirados/cursoid={id}', [CursosController::class, 'listaRetirados'])->name('listaretirados');
-        Route::get('VerEntregadeTareas/tarea={id}', [TareasController::class, 'listadeEntregas'])->name('listaEntregas');
-        Route::post('VerEntregadeTareas/tarea={id}', [TareasController::class, 'listadeEntregasCalificar'])->name('calificarT');
-
-        Route::get('VerEntregadeEvaluaciones/evaluacion={id}', [EvaluacionesController::class, 'listadeEntregas'])->name('listaEntregasE');
-        Route::post('VerEntregadeEvaluaciones/evaluacion={id}', [EvaluacionesController::class, 'listadeEntregasCalificarE'])->name('calificarE');
-
-
-
         //ASISTENCIA
-        Route::get('listaAsistencia/cursoid={id}', [AsistenciaController::class, 'index'])->name('asistencias');
+        Route::get('listaAsistencia/cursoid={id}', [AsistenciaController::class, 'show'])->name('asistencias');
         Route::get('DarAsistencia/cursoid={id}', [AsistenciaController::class, 'index2'])->name('darasistencias');
         Route::post('DarAsistencia/cursoid={id}', [AsistenciaController::class, 'store2'])->name('darasistenciasPostIndividual');
         Route::post('listaAsistencia/cursoid={id}', [AsistenciaController::class, 'store'])->name('darasistenciasPostMultiple');
@@ -367,6 +368,10 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('recursos.descargar');
 
 
+        Route::post('/actividad/subir/{id}', [ActividadController::class, 'subirArchivo'])->name('subirArchivo');
+        Route::get('/actividad/quitar/{id}', [ActividadController::class, 'quitarEntrega'])->name('quitarEntrega');
+
+
         Route::get('/ranking-quizz/{id}', [CuestionarioController::class, 'rankingQuizz'])->name('rankingQuizz');
 
         //Calendario
@@ -398,14 +403,11 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/foro/respuesta/delete/{id}', [ForoController::class, 'deleteRespuesta'])->name('foro.respuesta.delete');
         //RECURSOS
         Route::get('VerRecursos/cursoid={id}', [RecursosController::class, 'showRecurso'])->name('VerRecursos');
-        //TAREA
-        Route::get('VerTarea/{id}', [TareasController::class, 'show'])->name('VerTarea');
+        //Actividad Subida de archivos
+        Route::get('VerActividad/{id}', [ActividadController::class, 'index'])->name('actividad.show');
         Route::post('VerTarea/{id}', [TareasEntregaController::class, 'store'])->name('subirTarea');
         Route::get('QuitarEntrega/{id}', [TareasEntregaController::class, 'delete'])->name('quitarEntrega');
         //Evaluaciones
-        Route::get('VerEvaluacion/{id}', [EvaluacionesController::class, 'show'])->name('VerEvaluacion');
-        Route::post('VerEvaluacion/{id}', [EvaluacionEntregaController::class, 'store'])->name('subirEvaluacion');
-        Route::get('QuitarEntrega/{id}', [EvaluacionEntregaController::class, 'delete'])->name('quitarEntrega');
         Route::get('/descargar-archivo/{nombreArchivo}', [CursosController::class, 'descargar'])->name('descargas');
         Route::get('/verBoletin/{id}', [BoletinController::class, 'boletinEstudiantes'])->name('verBoletin');
         Route::get('/verCalificacionFinal/{id}', [BoletinController::class, 'boletinEstudiantes2'])->name('verBoletin2');
@@ -421,7 +423,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('CambiarContrasena/{id}', [UserController::class, 'EditPasswordIndex'])->name('CambiarContrasena');
         Route::post('CambiarContrasena/{id}', [UserController::class, 'CambiarContrasena'])->name('cambiarContrasenaPost');
 
-        Route::get('HistorialAsistencia/cursoid={id}', [AsistenciaController::class, 'show'])->name('historialAsistencias');
+        Route::get('HistorialAsistencia/cursoid={id}', [AsistenciaController::class, 'historialAsistencia'])->name('historialAsistencias');
         //CUESTIONARIO
         Route::get('/cuestionario/{id}/responder', [CuestionarioController::class, 'mostrarCuestionario'])->name('cuestionario.mostrar');
         Route::post('/cuestionarios/{id}/responder', [CuestionarioController::class, 'procesarRespuestas'])->name('responderCuestionario');

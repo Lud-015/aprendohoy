@@ -14,6 +14,72 @@ class Cursos extends Model
     protected $softDelete = true;
 
 
+    protected $fillable = [
+        'nombreCurso',
+        'codigoCurso',
+        'descripcionC',
+        'fecha_ini',
+        'fecha_fin',
+        'archivoContenidodelCurso',
+        'notaAprobacion',
+        'formato',
+        'estado',
+        'tipo',
+        'docente_id',
+        'edadDir_id',
+        'niveles_id',
+        'categoria_id',
+        'precio',
+        'imagen',
+        'duracion',
+        'cupos',
+        'visibilidad'
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    protected $casts = [
+        'estado' => 'boolean',
+        'certificado' => 'boolean',
+    ];
+    protected $dates = [
+        'fecha_ini',
+        'fecha_fin',
+        'deleted_at',
+    ];
+
+    protected $appends = [
+        'duracion_formateada',
+    ];
+    public function getDuracionFormateadaAttribute()
+    {
+        return gmdate("H:i:s", $this->duracion);
+    }
+    public function getEstadoAttribute($value)
+    {
+        return $value === '1' ? 'Activo' : 'Inactivo';
+    }
+    public function setEstadoAttribute($value)
+    {
+        $this->attributes['estado'] = $value === 'Activo' ? '1' : '0';
+    }
+    public function getCertificadoAttribute($value)
+    {
+        return $value === '1' ? 'Con certificado' : 'Sin certificado';
+    }
+    public function setCertificadoAttribute($value)
+    {
+        $this->attributes['certificado'] = $value === 'Con certificado' ? '1' : '0';
+    }
+    protected $table = 'cursos';
+
+
+
+
     public function nivel(): BelongsTo
     {
         return $this->belongsTo(Nivel::class, 'niveles_id');

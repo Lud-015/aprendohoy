@@ -42,6 +42,11 @@ class RespuestaController extends Controller
             return back()->with('error', 'Solo puedes generar respuestas para preguntas de tipo Verdadero/Falso.');
         }
 
+        // Verificar si ya existen respuestas para esta pregunta
+        if ($pregunta->respuestas()->exists()) {
+            return back()->with('error', 'Las respuestas Verdadero/Falso ya han sido generadas para esta pregunta.');
+        }
+
         // Crear respuestas "Verdadero" y "Falso"
         $pregunta->respuestas()->createMany([
             ['contenido' => 'Verdadero', 'es_correcta' => true],
@@ -50,6 +55,7 @@ class RespuestaController extends Controller
 
         return back()->with('success', 'Respuestas Verdadero/Falso generadas correctamente.');
     }
+
 
 
     public function storeMultiple(Request $request, $preguntaId)
@@ -132,13 +138,13 @@ class RespuestaController extends Controller
 
     public function delete($id)
     {
-        $opcion = Opcion::findOrFail($id);
+        $opcion = Respuesta::findOrFail($id);
         $opcion->delete();
         return back()->with('success', 'Respuesta eliminada correctamente.');
     }
     public function restore($id)
     {
-        $opcion = Opcion::onlyTrashed()->findOrFail($id);
+        $opcion = Respuesta::onlyTrashed()->findOrFail($id);
         $opcion->restore();
         return back()->with('success', 'Pregunta restaurada correctamente.');
     }

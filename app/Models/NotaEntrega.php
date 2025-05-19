@@ -9,13 +9,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NotaEntrega extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+
+    protected $table = "calificaciones_entregas";
+    protected $fillable = [
+        'inscripcion_id',
+        'actividad_id',
+        'nota',
+        'retroalimentacion',
+    ];
     protected $softDelete = true;
 
-    
-    public function tarea(): BelongsTo
+
+    public function actividad(): BelongsTo
     {
-        return $this->belongsTo(Tareas::class, 'tarea_id');
+        return $this->belongsTo(Actividad::class, 'actividad_id');
     }
 
     public function inscripcion(): BelongsTo
@@ -24,3 +32,4 @@ class NotaEntrega extends Model
     }
 
 }
+  

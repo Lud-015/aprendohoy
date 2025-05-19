@@ -39,36 +39,63 @@ class Actividad extends Model
         return $this->belongsTo(TipoActividad::class, 'tipo_actividad_id');
     }
 
+
+
+    public function getPuntajeMaximoAttribute()
+    {
+        return $this->tiposEvaluacion->sum('pivot.puntaje_maximo');
+    }
+
+    public function intentosCuestionarios()
+    {
+        return $this->hasManyThrough(
+            IntentoCuestionario::class,
+            Cuestionario::class,
+            'actividad_id', // Foreign key en Cuestionario
+            'cuestionario_id', // Foreign key en IntentoCuestionario
+            'id', // Local key en Actividad
+            'id' // Local key en Cuestionario
+        );
+    }
+
+
+
+
+    public function calificacionesEntregas()
+    {
+        return $this->hasMany(NotaEntrega::class, 'actividad_id');
+    }
+
+
     public function tiposEvaluacion()
     {
         return $this->belongsToMany(TipoEvaluacion::class, 'actividad_tipos_evaluacion')
-            ->withPivot('puntaje_maximo', 'es_obligatorio')
-            ->withTimestamps();
-    }
-    public function intentosCuestionario()
-    {
-        return $this->hasMany(IntentoCuestionario::class);
+            ->withPivot('puntaje_maximo', 'es_obligatorio') // Campos adicionales en la tabla pivote
+            ->withTimestamps(); // Si la tabla pivote tiene timestamps
     }
 
-    public function tipoEvaluacion()
+
+
+    public function cuestionarios()
     {
-        return $this->belongsTo(TipoEvaluacion::class);
-    }
-    public function tipoEvaluacionActividad()
-    {
-        return $this->hasMany(TipoEvaluacionActividad::class);
+        return $this->hasOne(Cuestionario::class, );
     }
 
 
     public function cuestionario()
     {
-        return $this->hasOne(Cuestionario::class);
+        return $this->hasOne(Cuestionario::class, );
     }
 
     public function entregas()
     {
         return $this->hasMany(EntregaArchivo::class);
     }
+
+    public function notaEntrega()
+{
+    return $this->hasMany(NotaEntrega::class, 'actividad_id');
+}
 
     public function completions()
     {

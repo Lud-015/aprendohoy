@@ -5,165 +5,180 @@
 
 
 @section('content')
-
-
 @guest
-<div class="container">
+<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="bg-gray-transparent shadow border-0 p-5 rounded">
-                <!-- Título -->
-                <div class="text-center mb-4">
-                    <h5 style="color: white">Regístrate</h5>
-                </div>
-
-                <!-- Errores -->
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+            <div class="card border-0 shadow-lg bg-white bg-opacity-10 backdrop-blur-sm">
+                <div class="card-body p-4 p-md-5">
+                    <!-- Logo y Título -->
+                    <div class="text-center mb-4">
+                        <img src="{{ asset('assets/img/Acceder.png') }}" alt="Logo" class="mb-3" height="60">
+                        <h4 class="text-white fw-bold">Crear Cuenta Nueva</h4>
                     </div>
-                @endif
 
-                <!-- Formulario -->
-                <form action="{{ route('registrarse') }}" method="post">
-                    @csrf
-
-                    <!-- Email -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label text-white">Correo Electrónico</label>
-                        <div class="input-group">
-                            <span class="input-group-text rounded-start-pill"><i class="fa fa-envelope"></i></span>
-                            <input type="email" class="form-control rounded-end-pill" id="email" name="email"
-                                placeholder="Correo Electrónico" value="{{ old('email') }}" required>
+                    <!-- Alertas de Validación -->
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="list-unstyled mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li><i class="fas fa-exclamation-circle me-2"></i>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    </div>
+                    @endif
 
-                    <!-- Contraseñas -->
-                    <div class="row">
-                        <div class="col-sm-6 mb-3">
-                            <label for="password" class="form-label text-white">Contraseña</label>
+                    <!-- Formulario -->
+                    <form action="{{ route('registrarse') }}" method="post" id="registerForm" class="needs-validation" novalidate>
+                        @csrf
+
+                        <!-- Email -->
+                        <div class="form-floating mb-3">
                             <div class="input-group">
-                                <span class="input-group-text rounded-start-pill"><i class="fa fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password"
-                                    placeholder="Contraseña" required>
-                                <button class="btn btn-secondary rounded-end-pill toggle-password" type="button"
-                                    data-target="password"><i class="fa fa-eye"></i></button>
+                                <span class="input-group-text rounded-start-4 bg-white border-end-0">
+                                    <i class="fa fa-envelope text-primary"></i>
+                                </span>
+                                <input type="email" class="form-control border-start-0 rounded-end-4 ps-0"
+                                    id="email" name="email" placeholder="Correo Electrónico"
+                                    value="{{ old('email') }}" required>
                             </div>
                         </div>
-                        <div class="col-sm-6 mb-3">
-                            <label for="password_confirmation" class="form-label text-white">Confirmar Contraseña</label>
-                            <div class="input-group">
-                                <span class="input-group-text rounded-start-pill"><i class="fa fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password_confirmation"
-                                    name="password_confirmation" placeholder="Confirmar Contraseña" required>
-                                <button class="btn btn-secondary rounded-end-pill toggle-password" type="button"
-                                    data-target="password_confirmation"><i class="fa fa-eye"></i></button>
+
+                        <!-- Contraseñas -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <div class="input-group">
+                                        <span class="input-group-text rounded-start-4 bg-white border-end-0">
+                                            <i class="fa fa-lock text-primary"></i>
+                                        </span>
+                                        <input type="password" class="form-control border-start-0"
+                                            id="password" name="password" placeholder="Contraseña" required>
+                                        <button class="btn btn-light border rounded-end-4 toggle-password"
+                                            type="button" data-target="password">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <div class="input-group">
+                                        <span class="input-group-text rounded-start-4 bg-white border-end-0">
+                                            <i class="fa fa-lock text-primary"></i>
+                                        </span>
+                                        <input type="password" class="form-control border-start-0"
+                                            id="password_confirmation" name="password_confirmation"
+                                            placeholder="Confirmar Contraseña" required>
+                                        <button class="btn btn-light border rounded-end-4 toggle-password"
+                                            type="button" data-target="password_confirmation">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- País -->
-                    <div class="mb-3">
-                        <label for="country" class="form-label text-white">País</label>
-                        <div class="input-group">
-                            <span class="input-group-text rounded-start-pill"><i class="fa fa-globe"></i></span>
-                            <select class="form-control rounded-end-pill" id="country" name="country" required>
-                                <option value="">Selecciona tu país</option>
-                                <option value="Bolivia" {{ old('country') == 'Bolivia' ? 'selected' : '' }}>Bolivia</option>
-                                <option value="Perú">Perú</option>
-                                <option value="Argentina">Argentina</option>
-                                <!-- Agrega más países si querés -->
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Nombres -->
-                    <div class="row">
-                        <div class="col-sm-4 mb-3">
-                            <label for="name" class="form-label text-white">Nombre</label>
-                            <div class="input-group">
-                                <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
-                                <input type="text" class="form-control rounded-end-pill" id="name" name="name"
-                                    placeholder="Nombre" value="{{ old('name') }}" required>
+                        <!-- Datos Personales -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-12">
+                                <div class="form-floating">
+                                    <div class="input-group">
+                                        <span class="input-group-text rounded-start-4 bg-white border-end-0">
+                                            <i class="fa fa-globe text-primary"></i>
+                                        </span>
+                                        <select class="form-select border-start-0 rounded-end-4"
+                                            id="country" name="country" required>
+                                            <option value="">Selecciona tu país</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    <div class="input-group">
+                                        <span class="input-group-text rounded-start-4 bg-white border-end-0">
+                                            <i class="fa fa-user text-primary"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0 rounded-end-4"
+                                            id="name" name="name" placeholder="Nombre"
+                                            value="{{ old('name') }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    <div class="input-group">
+                                        <span class="input-group-text rounded-start-4 bg-white border-end-0">
+                                            <i class="fa fa-user text-primary"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0 rounded-end-4"
+                                            id="lastname1" name="lastname1" placeholder="Apellido Paterno"
+                                            value="{{ old('lastname1') }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    <div class="input-group">
+                                        <span class="input-group-text rounded-start-4 bg-white border-end-0">
+                                            <i class="fa fa-user text-primary"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0 rounded-end-4"
+                                            id="lastname2" name="lastname2" placeholder="Apellido Materno"
+                                            value="{{ old('lastname2') }}" required>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 mb-3">
-                            <label for="lastname1" class="form-label text-white">Apellido Paterno</label>
-                            <div class="input-group">
-                                <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
-                                <input type="text" class="form-control rounded-end-pill" id="lastname1" name="lastname1"
-                                    placeholder="Apellido Paterno" value="{{ old('lastname1') }}" required>
-                            </div>
+
+                        <!-- reCAPTCHA -->
+                        <div class="d-flex justify-content-center mb-4">
+                            <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
                         </div>
-                        <div class="col-sm-4 mb-3">
-                            <label for="lastname2" class="form-label text-white">Apellido Materno</label>
-                            <div class="input-group">
-                                <span class="input-group-text rounded-start-pill"><i class="fa fa-user"></i></span>
-                                <input type="text" class="form-control rounded-end-pill" id="lastname2" name="lastname2"
-                                    placeholder="Apellido Materno" value="{{ old('lastname2') }}" required>
-                            </div>
+
+                        <!-- Botón de Registro -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-4 py-3">
+                                <i class="fa fa-user-plus me-2"></i>Crear Cuenta
+                            </button>
                         </div>
-                    </div>
 
-                    <!-- reCAPTCHA -->
-                    <div class="g-recaptcha mb-3" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
-
-                    <!-- Botón -->
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">Registrarse</button>
-                    </div>
-                </form>
-
-                <!-- Link a login -->
-                <div class="text-center mt-3">
-                    <p class="text-white">¿Ya tienes una cuenta?
-                        <a href="{{ route('login.signin') }}" class="text-white">Inicia sesión aquí</a>
-                    </p>
+                        <!-- Link a login -->
+                        <div class="text-center mt-4">
+                            <p class="text-white mb-0">¿Ya tienes una cuenta?
+                                <a href="{{ route('login.signin') }}" class="text-white fw-bold">
+                                    Inicia sesión aquí
+                                </a>
+                            </p>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 @else
-    <div class="container text-center mt-5">
-        <div class="alert alert-info shadow">
-            Ya has iniciado sesión como <strong>{{ Auth::user()->name }}</strong>.
-            <a href="{{ route('home') }}" class="btn btn-primary btn-sm ms-2">Ir al inicio</a>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-info shadow-lg rounded-4 border-0">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle fa-2x me-3"></i>
+                    <div>
+                        <h5 class="mb-1">Sesión Activa</h5>
+                        <p class="mb-0">Ya has iniciado sesión como <strong>{{ Auth::user()->name }}</strong></p>
+                    </div>
+                    <a href="{{ route('home') }}" class="btn btn-primary rounded-4 ms-auto">
+                        <i class="fas fa-home me-2"></i>Ir al inicio
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 @endguest
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Seleccionar todos los botones con la clase toggle-password
-        const toggleButtons = document.querySelectorAll('.toggle-password');
-
-        // Agregar event listener a cada botón
-        toggleButtons.forEach(function(button) {
-            button.addEventListener('click', function() {
-                // Obtener el ID del campo de contraseña desde el atributo data-target
-                const targetId = this.getAttribute('data-target');
-                const passwordField = document.getElementById(targetId);
-
-                // Cambiar el tipo de input
-                if (passwordField.type === 'password') {
-                    passwordField.type = 'text';
-                    this.querySelector('i').classList.remove('fa-eye');
-                    this.querySelector('i').classList.add('fa-eye-slash');
-                } else {
-                    passwordField.type = 'password';
-                    this.querySelector('i').classList.remove('fa-eye-slash');
-                    this.querySelector('i').classList.add('fa-eye');
-                }
-            });
-        });
-    });
-    </script>
 
 @endsection
 
@@ -234,3 +249,39 @@
         }
     });
 </script>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Password Toggle Function
+        function togglePasswordVisibility(button) {
+            const input = button.previousElementSibling;
+            const icon = button.querySelector('i');
+
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+
+        // SweetAlert Notifications
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '{{ session('success') }}',
+                confirmButtonColor: '#075092'
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#dc3545'
+            });
+        @endif
+    </script>

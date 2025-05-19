@@ -87,8 +87,7 @@
                                                 @endif
                                             </a>
                                             @endif
-                                            @if ($cursos->tipo == 'curso')
-                                            @if ($cursos->fecha_fin && \Carbon\Carbon::now() > \Carbon\Carbon::parse($cursos->fecha_fin))
+                                            @if ($cursos->tipo = 'curso')
                                                 <a class="btn btn-sm btn-info"
                                                     href="{{ route('boletin', [$inscrito->id]) }}">
                                                     <i class="bi bi-file-earmark-text"></i> Ver Boletín
@@ -97,7 +96,6 @@
                                                     href="{{ route('verBoletin2', [$inscrito->id]) }}">
                                                     <i class="bi bi-file-earmark-check"></i> Ver Calificaciones Finales
                                                 </a>
-                                            @endif
                                             @endif
 
                                         @endif
