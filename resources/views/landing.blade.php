@@ -47,8 +47,8 @@
                                     <div class="row">
                                         @foreach ($chunk as $congreso)
                                             @php
-                                                $fecha_ini = \Carbon\Carbon::parse($curso->fecha_ini);
-                                                $fecha_fin = \Carbon\Carbon::parse($curso->fecha_fin);
+                                                $fecha_ini = \Carbon\Carbon::parse($congreso->fecha_ini);
+                                                $fecha_fin = \Carbon\Carbon::parse($congreso->fecha_fin);
                                             @endphp
                                             <div class="col-md-4 mb-4">
                                                 <div class="card h-100 shadow-sm">

@@ -80,60 +80,77 @@
             <div class="tab-content mt-3" id="docenteTabsContent">
                 <!-- Estadísticas -->
                 <div class="tab-pane fade show active" id="estadisticas" role="tabpanel" aria-labelledby="estadisticas-tab">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="card text-bg-primary text-center shadow-sm">
-                                <div class="card-body">
-                                    <i class="bi bi-graph-up fs-1 mb-2"></i>
-                                    <h6>Promedio</h6>
-                                    <p class="fs-5">{{ round($cuestionario->intentos->avg('nota'), 2) }}</p>
+                    @if ($cuestionario->intentos && $cuestionario->intentos->count() > 0)
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card text-bg-primary text-center shadow-sm">
+                                    <div class="card-body">
+                                        <i class="bi bi-graph-up fs-1 mb-2"></i>
+                                        <h6>Promedio</h6>
+                                        <p class="fs-5">{{ round($cuestionario->intentos->avg('nota'), 2) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-bg-success text-center shadow-sm">
+                                    <div class="card-body">
+                                        <i class="bi bi-arrow-up-circle fs-1 mb-2"></i>
+                                        <h6>Nota Máxima</h6>
+                                        <p class="fs-5">{{ $cuestionario->intentos->max('nota') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-bg-danger text-center shadow-sm">
+                                    <div class="card-body">
+                                        <i class="bi bi-arrow-down-circle fs-1 mb-2"></i>
+                                        <h6>Nota Mínima</h6>
+                                        <p class="fs-5">{{ $cuestionario->intentos->min('nota') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-bg-secondary text-center shadow-sm">
+                                    <div class="card-body">
+                                        <i class="bi bi-bar-chart-line fs-1 mb-2"></i>
+                                        <h6>Intentos</h6>
+                                        <p class="fs-5">{{ $cuestionario->intentos->count() }}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card text-bg-success text-center shadow-sm">
-                                <div class="card-body">
-                                    <i class="bi bi-arrow-up-circle fs-1 mb-2"></i>
-                                    <h6>Nota Máxima</h6>
-                                    <p class="fs-5">{{ $cuestionario->intentos->max('nota') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card text-bg-danger text-center shadow-sm">
-                                <div class="card-body">
-                                    <i class="bi bi-arrow-down-circle fs-1 mb-2"></i>
-                                    <h6>Nota Mínima</h6>
-                                    <p class="fs-5">{{ $cuestionario->intentos->min('nota') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card text-bg-secondary text-center shadow-sm">
-                                <div class="card-body">
-                                    <i class="bi bi-bar-chart-line fs-1 mb-2"></i>
-                                    <h6>Intentos</h6>
-                                    <p class="fs-5">{{ $cuestionario->intentos->count() }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="mt-4">
-                        <div class="alert alert-info d-flex align-items-center">
-                            <i class="bi bi-check-circle-fill fs-4 me-2"></i>
-                            <div>
-                                <strong>{{ round(($cuestionario->intentos->where('aprobado', true)->count() / $cuestionario->intentos->count()) * 100, 2) }}%</strong>
-                                aprobaron este cuestionario.
+                        <div class="mt-4">
+                            <div class="alert alert-info d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill fs-4 me-2"></i>
+                                <div>
+                                    <strong>{{ round(($cuestionario->intentos->where('aprobado', true)->count() / $cuestionario->intentos->count()) * 100, 2) }}%</strong>
+                                    aprobaron este cuestionario.
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="alert alert-warning d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle fs-4 me-2"></i>
+                            <div>
+                                <strong>Sin datos disponibles</strong><br>
+                                No hay intentos registrados para este cuestionario.
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Gráfico -->
                 <div class="tab-pane fade" id="grafico" role="tabpanel" aria-labelledby="grafico-tab">
                     <h5><i class="bi bi-bar-chart"></i> Notas por estudiante</h5>
-                    <canvas id="graficoNotas" height="150"></canvas>
+                    @if ($cuestionario->intentos && $cuestionario->intentos->count() > 0)
+                        <canvas id="graficoNotas" height="150"></canvas>
+                    @else
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-graph-up fs-1 mb-2"></i>
+                            <p class="mb-0">No hay datos suficientes para mostrar el gráfico</p>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Resumen -->
@@ -148,13 +165,19 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($cuestionario->intentos->groupBy('inscrito.estudiantes.id') as $intentos)
-                                <tr>
-                                    <td>{{ $intentos->first()->inscrito->estudiantes->name }}</td>
-                                    <td><span class="badge bg-primary">{{ $intentos->count() }}</span></td>
-                                    <td>{{ $intentos->max('nota') }}</td>
-                                </tr>
-                                @endforeach
+                                @if ($cuestionario->intentos && $cuestionario->intentos->count() > 0)
+                                    @foreach ($cuestionario->intentos->groupBy('inscrito.estudiantes.id') as $intentos)
+                                    <tr>
+                                        <td>{{ $intentos->first()->inscrito->estudiantes->name }}</td>
+                                        <td><span class="badge bg-primary">{{ $intentos->count() }}</span></td>
+                                        <td>{{ $intentos->max('nota') }}</td>
+                                    </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="3" class="text-center">No hay intentos registrados.</td>
+                                    </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,12 +29,13 @@ class Cursos extends Model
         'docente_id',
         'edadDir_id',
         'niveles_id',
-        'categoria_id',
         'precio',
         'imagen',
+        'certificados_activados',
         'duracion',
         'cupos',
-        'visibilidad'
+        'visibilidad',
+        'youtube_url',
     ];
 
     protected $hidden = [
@@ -59,14 +61,12 @@ class Cursos extends Model
     {
         return gmdate("H:i:s", $this->duracion);
     }
-    public function getEstadoAttribute($value)
+
+    public function categorias()
     {
-        return $value === '1' ? 'Activo' : 'Inactivo';
+        return $this->belongsToMany(Categoria::class, 'curso_categoria', 'curso_id', 'categoria_id');
     }
-    public function setEstadoAttribute($value)
-    {
-        $this->attributes['estado'] = $value === 'Activo' ? '1' : '0';
-    }
+
     public function getCertificadoAttribute($value)
     {
         return $value === '1' ? 'Con certificado' : 'Sin certificado';
@@ -78,11 +78,9 @@ class Cursos extends Model
     protected $table = 'cursos';
 
 
-
-
-    public function nivel(): BelongsTo
+    public function getCertificadosDisponiblesAttribute()
     {
-        return $this->belongsTo(Nivel::class, 'niveles_id');
+        return $this->certificados_activados && now()->lessThanOrEqualTo(Carbon::parse($this->fecha_fin)->endOfDay());
     }
 
     public function certificateTemplate()
@@ -95,10 +93,6 @@ class Cursos extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function edad_dirigida(): BelongsTo
-    {
-        return $this->belongsTo(EdadDirigida::class, 'edadDir_id');
-    }
     public function horarios()
     {
         return $this->belongsToMany(Horario::class, 'curso_horarios');
@@ -119,12 +113,6 @@ class Cursos extends Model
     public function asistencia(): HasMany
     {
         return $this->hasMany(Asistencia::class,  'id', 'curso_id');
-    }
-
-
-    public function evaluaciones(): HasMany
-    {
-        return $this->hasMany(Evaluaciones::class,  'id', 'curso_id');
     }
 
     public function temas()
@@ -177,4 +165,53 @@ class Cursos extends Model
     }
 
 
+    // app/Models/Cursos.php
+    public function calificaciones()
+    {
+        return $this->hasMany(CursoCalificacion::class, 'curso_id');
+    }
+
+    public function expositores()
+    {
+        return $this->belongsToMany(Expositores::class, 'curso_expositor', 'curso_id', 'expositor_id')
+            ->withPivot(['cargo', 'tema', 'orden'])
+            ->orderBy('curso_expositor.orden')
+            ->withTimestamps();
+    }
+
+
+    // Método para calcular el promedio
+    public function getRatingAttribute()
+    {
+        return $this->calificaciones()->avg('puntuacion') ?? 0;
+    }
+
+    // Método para contar valoraciones
+    public function getRatingsCountAttribute()
+    {
+        return $this->calificaciones()->count();
+    }
+
+    public function getEstadoAttribute()
+    {
+        $hoy = Carbon::today();
+
+        if ($this->fecha_ini && $this->fecha_fin) {
+            if ($hoy->lt($this->fecha_ini)) {
+                return 'Inactivo'; // aún no inicia
+            } elseif ($hoy->between($this->fecha_ini, $this->fecha_fin)) {
+                return 'Activo'; // en curso
+            } else {
+                return 'Finalizado'; // ya pasó
+            }
+        }
+
+        return 'Sin fechas';
+    }
+
+
+    public function imagenes()
+    {
+        return $this->hasMany(CursoImagen::class, 'curso_id')->orderBy('orden');
+    }
 }

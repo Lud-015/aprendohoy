@@ -9,12 +9,14 @@ use App\Models\IntentoCuestionario;
 use App\Models\Cuestionario;
 use App\Models\Inscritos;
 use App\Models\NotaEntrega;
+use App\Traits\CalificacionTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ActividadController extends Controller
 {
+    use CalificacionTrait;
 
     public function index($id)
     {
@@ -62,20 +64,17 @@ class ActividadController extends Controller
             'inscritos_id' => 'required|exists:inscritos,id',
         ]);
 
-        ActividadCompletion::updateOrCreate(
-            [
-                'completable_type' => Actividad::class,
-                'completable_id' => $actividadId,
-                'inscritos_id' => $request->inscritos_id,
-            ],
-            [
-                'completed' => true,
-                'completed_at' => now(),
-            ]
-        );
+        $actividad = Actividad::with(['subtema.tema.curso'])->findOrFail($actividadId);
 
+        if (!$this->verificarCalificacionActividad($actividad, $request->inscritos_id)) {
+            return back()->with('error', 'La actividad debe ser calificada o el cuestionario debe ser completado antes de marcarla como completada.');
+        }
+
+        $this->marcarActividadCompletada($actividad, $request->inscritos_id);
         return back()->with('success', 'Actividad marcada como completada.');
     }
+
+    
 
     public function ocultar($id)
     {
@@ -100,42 +99,55 @@ class ActividadController extends Controller
 
         $actividad = Actividad::findOrFail($id);
         $entregas = EntregaArchivo::where('actividad_id', $id)->get();
-        $inscritos = Inscritos::all();
+        $inscritos = Inscritos::where('cursos_id', $actividad->subtema->tema->curso->id)->get();
         $nota = NotaEntrega::where('actividad_id', $id)->get();
+        $vencido = ($actividad->subtema->tema->curso->fecha_fin && now() > $actividad->subtema->tema->curso->fecha_fin) ||
+                                          ($actividad->fecha_limite && now() > $actividad->fecha_limite);
 
 
-        return view('Docente.ListadeEntregas')->with('inscritos', $inscritos)
+
+        return view('Docente.ListadeEntregas')
+            ->with('inscritos', $inscritos)
             ->with('nota', $nota)
             ->with('actividad', $actividad)
+            ->with('vencido', $vencido)
             ->with('entregas', $entregas);
+
     }
 
     public function listadeEntregasCalificar(Request $request, $id)
     {
         $request->validate([
-            'entregas.*.notaTarea' => 'required|numeric|min:0|max:100', // Ajusta el rango según tus necesidades
+            'entregas.*.notaTarea' => 'required|numeric|min:0|max:100',
             'entregas.*.retroalimentacion' => 'nullable|string|max:1000',
             'entregas.*.id_inscripcion' => 'required|integer',
         ]);
 
+        $actividad = Actividad::findOrFail($id);
         $calificar = $request->input('entregas');
 
+        DB::transaction(function () use ($calificar, $id, $actividad) {
+            foreach ($calificar as $calificarItem) {
+                if (!empty($calificarItem['id'])) {
+                    $nota = NotaEntrega::findOrFail($calificarItem['id']);
+                    $nota->nota = $calificarItem['notaTarea'];
+                    $nota->retroalimentacion = $calificarItem['retroalimentacion'] ?? null;
+                    $nota->save();
+                } else {
+                    $nota = NotaEntrega::create([
+                        'nota' => $calificarItem['notaTarea'],
+                        'retroalimentacion' => $calificarItem['retroalimentacion'] ?? null,
+                        'actividad_id' => $id,
+                        'inscripcion_id' => $calificarItem['id_inscripcion'],
+                    ]);
+                }
 
-        foreach ($calificar as $calificarItem) {
-            if (!empty($calificarItem['id'])) {
-                $nota = NotaEntrega::findOrFail($calificarItem['id']);
-                $nota->nota = $calificarItem['notaTarea'];
-                $nota->retroalimentacion = $calificarItem['retroalimentacion'] ?? null; // Valor predeterminado
-                $nota->save();
-            } else {
-                NotaEntrega::create([
-                    'nota' => $calificarItem['notaTarea'],
-                    'retroalimentacion' => $calificarItem['retroalimentacion'] ?? null, // Valor predeterminado
-                    'actividad_id' => $id,
-                    'inscripcion_id' => $calificarItem['id_inscripcion'],
-                ]);
+                // Marcar como completada si tiene calificación
+                if ($this->verificarCalificacionActividad($actividad, $calificarItem['id_inscripcion'])) {
+                    $this->marcarActividadCompletada($actividad, $calificarItem['id_inscripcion']);
+                }
             }
-        }
+        });
 
         return back()->with('success', 'Calificaciones y retroalimentaciones guardadas correctamente.');
     }
@@ -143,6 +155,8 @@ class ActividadController extends Controller
 
     public function store(Request $request, $cursoId)
     {
+
+
         $data = $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
@@ -176,6 +190,7 @@ class ActividadController extends Controller
                 'updated_at' => now(),
             ]);
         }
+
 
 
 

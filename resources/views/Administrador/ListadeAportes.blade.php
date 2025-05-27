@@ -1,3 +1,4 @@
+@section('titulo', 'Lista de Pagos')
 @section('content')
 <div class="container-fluid my-4">
     <div class="row mb-3 align-items-center">

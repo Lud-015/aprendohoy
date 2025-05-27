@@ -2,115 +2,103 @@
 
 namespace Database\Seeders;
 
+use App\Models\Achievement;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
 
 class AchievementsTableSeeder extends Seeder
 {
     public function run()
     {
-        $achievements = [
-            [
-                'title' => 'Novato',
-                'description' => 'Has ganado tus primeros 100 XP',
-                'icon' => 'badge_novato.png',
-                'xp_reward' => 100,
+        $achievementTypes = [
+            'QUIZ_MASTER' => [
+                'title' => 'Maestro de Cuestionarios',
+                'description' => 'Completa {value} cuestionarios con calificación perfecta',
+                'values' => [1, 5, 10, 25, 50],
+                'xp_rewards' => [100, 250, 500, 1000, 2000],
+                'icons' => ['🎯', '🎯🎯', '🎯🎯🎯', '🎯🎯🎯🎯', '🎯🎯🎯🎯🎯']
             ],
-            [
-                'title' => 'Constante',
-                'description' => 'Te conectaste 7 días seguidos',
-                'icon' => 'badge_constante.png',
-                'xp_reward' => 200,
+            'FORUM_CONTRIBUTOR' => [
+                'title' => 'Contribuidor del Foro',
+                'description' => 'Participa en {value} discusiones del foro',
+                'values' => [1, 10, 25, 50, 100],
+                'xp_rewards' => [50, 150, 300, 600, 1200],
+                'icons' => ['💭', '💭💭', '💭💭💭', '💭💭💭💭', '💭💭💭💭💭']
             ],
-            [
-                'title' => 'Explorador',
-                'description' => 'Completaste 5 actividades diferentes',
-                'icon' => 'badge_explorador.png',
-                'xp_reward' => 150,
+            'RESOURCE_EXPLORER' => [
+                'title' => 'Explorador de Recursos',
+                'description' => 'Visualiza {value} recursos diferentes',
+                'values' => [5, 15, 30, 50, 100],
+                'xp_rewards' => [75, 200, 400, 800, 1500],
+                'icons' => ['📚', '📚📚', '📚📚📚', '📚📚📚📚', '📚📚📚📚📚']
             ],
-            [
-                'title' => 'Nivelado',
-                'description' => 'Alcanzaste el Nivel 5',
-                'icon' => 'badge_nivelado.png',
-                'xp_reward' => 250,
+            'EARLY_BIRD' => [
+                'title' => 'Madrugador',
+                'description' => 'Completa {value} actividades antes de tiempo',
+                'values' => [1, 5, 10, 25, 50],
+                'xp_rewards' => [100, 250, 500, 1000, 2000],
+                'icons' => ['🌅', '🌅🌅', '🌅🌅🌅', '🌅🌅🌅🌅', '🌅🌅🌅🌅🌅']
             ],
-            [
-                'title' => 'Maestro XP',
-                'description' => 'Alcanzaste 1000 puntos de experiencia',
-                'icon' => 'badge_maestro_xp.png',
-                'xp_reward' => 300,
-            ],
-            [
-                'title' => 'Socializador',
-                'description' => 'Completaste 10 interacciones con otros usuarios',
-                'icon' => 'badge_socializador.png',
-                'xp_reward' => 150,
-            ],
-            [
-                'title' => 'Perfeccionista',
-                'description' => 'Completaste una actividad con 100% de precisión',
-                'icon' => 'badge_perfeccionista.png',
-                'xp_reward' => 175,
-            ],
-            [
-                'title' => 'Rayo Veloz',
-                'description' => 'Completaste 3 actividades en menos de 24 horas',
-                'icon' => 'badge_rayo_veloz.png',
-                'xp_reward' => 200,
-            ],
-            [
-                'title' => 'Coleccionista',
-                'description' => 'Desbloqueaste 10 logros diferentes',
-                'icon' => 'badge_coleccionista.png',
-                'xp_reward' => 300,
-            ],
-            [
-                'title' => 'Mentor',
-                'description' => 'Ayudaste a 3 nuevos usuarios',
-                'icon' => 'badge_mentor.png',
-                'xp_reward' => 250,
-            ],
-            [
-                'title' => 'Sin Descanso',
-                'description' => 'Te conectaste 30 días seguidos',
-                'icon' => 'badge_sin_descanso.png',
-                'xp_reward' => 500,
-            ],
-            [
-                'title' => 'Polímata',
-                'description' => 'Completaste actividades en 5 categorías diferentes',
-                'icon' => 'badge_polimata.png',
-                'xp_reward' => 350,
-            ],
-            [
-                'title' => 'Leyenda',
-                'description' => 'Alcanzaste el Nivel 10',
-                'icon' => 'badge_leyenda.png',
-                'xp_reward' => 1000,
-            ],
-            [
-                'title' => 'Primeros Pasos',
-                'description' => 'Completaste tu primera actividad',
-                'icon' => 'badge_primeros_pasos.png',
-                'xp_reward' => 50,
-            ],
-            [
-                'title' => 'Noctámbulo',
-                'description' => 'Completaste una actividad entre las 12am y 5am',
-                'icon' => 'badge_noctambulo.png',
-                'xp_reward' => 100,
-            ],
+            'STREAK_MASTER' => [
+                'title' => 'Maestro de la Constancia',
+                'description' => 'Mantén una racha de actividad de {value} días',
+                'values' => [3, 7, 14, 30, 60],
+                'xp_rewards' => [150, 300, 600, 1200, 2400],
+                'icons' => ['🔥', '🔥🔥', '🔥🔥🔥', '🔥🔥🔥🔥', '🔥🔥🔥🔥🔥']
+            ]
         ];
-
-
-        foreach ($achievements as &$achievement) {
-            $achievement['slug'] = Str::slug($achievement['title']);
-            $achievement['created_at'] = Carbon::now();
-            $achievement['updated_at'] = Carbon::now();
+        
+        // Crear logros normales para cada tipo
+        foreach ($achievementTypes as $type => $config) {
+            foreach ($config['values'] as $index => $value) {
+                Achievement::updateOrCreate(
+                    ['slug' => strtolower($type) . '_' . $value],
+                    [
+                        'title' => $config['title'] . ' ' . $config['icons'][$index],
+                        'description' => str_replace('{value}', $value, $config['description']),
+                        'icon' => $config['icons'][$index],
+                        'xp_reward' => $config['xp_rewards'][$index],
+                        'type' => $type,
+                        'requirement_value' => $value,
+                        'secret' => false
+                    ]
+                );
+            }
         }
 
-        DB::table('achievements')->insert($achievements);
+        // Crear algunos logros secretos
+        $secretAchievements = [
+            [
+                'title' => 'Explorador Nocturno',
+                'description' => 'Completa una actividad entre las 12 AM y las 4 AM',
+                'icon' => '🌙',
+                'xp_reward' => 500
+            ],
+            [
+                'title' => 'Velocista',
+                'description' => 'Completa un cuestionario en menos de 1 minuto con calificación perfecta',
+                'icon' => '⚡',
+                'xp_reward' => 1000
+            ],
+            [
+                'title' => 'Sabio del Foro',
+                'description' => 'Obtén 50 "me gusta" en tus respuestas del foro',
+                'icon' => '👑',
+                'xp_reward' => 1500
+            ],
+            [
+                'title' => 'Maratón de Estudio',
+                'description' => 'Completa 5 actividades diferentes en un solo día',
+                'icon' => '🏃',
+                'xp_reward' => 2000
+            ]
+        ];
+
+        foreach ($secretAchievements as $achievement) {
+            Achievement::updateOrCreate(
+                ['slug' => Str::slug($achievement['title'])],
+                array_merge($achievement, ['secret' => true])
+            );
+        }
     }
 }

@@ -28,7 +28,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Charts\BartChart;
 use App\Events\CursoEvent;
 use App\Helpers\TextHelper;
+use App\Models\Categoria;
 use App\Models\CertificateTemplate;
+use App\Models\Expositores;
 use App\Models\Tema;
 use App\Models\TipoActividad;
 use App\Models\TipoEvaluacion;
@@ -36,6 +38,9 @@ use App\Services\QrTokenService;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Models\Actividad;
+use App\Exports\CursoReporteExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CursosController extends Controller
 {
@@ -73,6 +78,8 @@ class CursosController extends Controller
         $esDocente = $user->id == $cursos->docente_id;
         $pagoIncompleto = $pago_completado == 0; // Aquí comparamos con 0 si no ha completado el pago
         $esCursoNormal = $cursos->tipo == 'curso';
+
+        $expositores = Expositores::all();
 
         // Si es estudiante y no está inscrito
         if (!$inscritos && $esEstudiante) {
@@ -130,6 +137,7 @@ class CursosController extends Controller
             'horarios' => $horarios,
             'qrCode' => $qrCode,
             'template' => $certificado_template,
+            'expositores' => $expositores,
         ]);
     }
 
@@ -167,67 +175,110 @@ class CursosController extends Controller
         $cursos = Cursos::findOrFail($id);
         $docente = User::role('Docente')->get();
         $horario = Horario::all();
+        $categorias = Categoria::all();
 
-        return view('Administrador.EditarCursos')->with('docente', $docente)->with('horario', $horario)->with('cursos', $cursos);
+        return view('Administrador.EditarCursos')->with('docente', $docente)->with('horario', $horario)->with('cursos', $cursos)->with('categorias', $categorias);
     }
     public function EditC($id, Request $request)
     {
         $user = auth()->user();
 
-        $request->validate([
+        // Reglas base que aplican a todos
+        $validationRules = [
             'nombre' => 'required|string|max:255',
-            'fecha_ini' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_ini',
+            'descripcion' => 'nullable|string',
             'formato' => 'required|in:Presencial,Virtual,Híbrido',
             'tipo' => 'required|in:curso,congreso',
             'nota' => 'nullable|numeric|min:0|max:100',
-            'archivo' => 'nullable|file|max:20480', // 20MB max
-            'docente_id' => $user->hasRole('Administrador') ? 'required|exists:users,id' : '',
-        ]);
+            'archivo' => 'nullable|file|mimes:pdf|max:20480', // PDF hasta 20MB
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Imagen hasta 5MB
+            'eliminar_archivo' => 'nullable|boolean',
+            'eliminar_imagen' => 'nullable|boolean'
+        ];
+
+
+
+
+        // Solo admin puede cambiar fechas y docente
+        if ($user->hasRole('Administrador')) {
+            $validationRules['fecha_ini'] = 'required|date_format:Y-m-d\TH:i';
+            $validationRules['fecha_fin'] = 'required|date_format:Y-m-d\TH:i|after_or_equal:fecha_ini';
+            $validationRules['docente_id'] = 'required|exists:users,id';
+            $validationRules['duracion'] = 'required|integer|min:1';
+            $validationRules['cupos'] = 'required|integer|min:1';
+            $validationRules['precio'] = 'required|numeric|min:0';
+        }
+
+        $request->validate($validationRules);
 
         $curso = Cursos::findOrFail($id);
 
+        // Campos básicos para todos
         $curso->nombreCurso = $request->nombre;
-        $curso->descripcionC = $request->descripcion ?? '';
+        $curso->descripcionC = $request->descripcion ?? null;
         $curso->formato = $request->formato;
         $curso->tipo = $request->tipo;
-        $curso->notaAprobacion = $request->nota;
-        $curso->edad_dirigida = $request->edad_id;
-        $curso->nivel = $request->nivel_id;
+        $curso->notaAprobacion = $request->nota ?? null;
+        $curso->edad_dirigida = $request->edad_id ?? null;
+        $curso->nivel = $request->nivel_id ?? null;
 
-        // Manejo de fechas
-        $fecha_ini = Carbon::parse($request->fecha_ini)->format('Y-m-d H:i:s');
-        $fecha_fin = $request->tipo === 'congreso'
-            ? Carbon::parse($request->fecha_ini)->endOfDay()->format('Y-m-d H:i:s')
-            : Carbon::parse($request->fecha_fin)->format('Y-m-d H:i:s');
-
-        $curso->fecha_ini = $fecha_ini;
-        $curso->fecha_fin = $fecha_fin;
-
-        $curso->estado = ($fecha_fin < now()) ? 'Expirado' : 'Activo';
-
-        // Asignar docente según rol
-        if ($user->hasRole('Administrador')) {
-            $curso->docente_id = $request->docente_id;
-        } else {
-            $curso->docente_id = $user->id;
-        }
-
-        // Manejo de archivo
+        // Manejo del archivo PDF
+        // Manejo del archivo PDF
         if ($request->hasFile('archivo')) {
+            // Eliminar archivo anterior si existe
             if ($curso->archivoContenidodelCurso) {
                 Storage::delete('public/' . $curso->archivoContenidodelCurso);
             }
-
-            $cursoArchivo = $request->file('archivo')->store('ArchivoCurso', 'public');
-            $curso->archivoContenidodelCurso = $cursoArchivo;
+            $curso->archivoContenidodelCurso = $request->file('archivo')->store('cursos/pdf', 'public');
+        } elseif ($request->has('eliminar_archivo')) {
+            // Eliminar archivo si se marcó el checkbox
+            Storage::delete('public/' . $curso->archivoContenidodelCurso);
+            $curso->archivoContenidodelCurso = null;
         }
 
-        $curso->updated_at = now();
-        event(new CursoEvent($curso, 'modificado'));
+        // Manejo de la imagen
+        if ($request->hasFile('imagen')) {
+            // Eliminar imagen anterior si existe
+            if ($curso->imagen) {
+                Storage::delete('public/' . $curso->imagen);
+            }
+            $curso->imagen = $request->file('imagen')->store('cursos/imagenes', 'public');
+        } elseif ($request->has('eliminar_imagen')) {
+            // Eliminar imagen si se marcó el checkbox
+            Storage::delete('public/' . $curso->imagen);
+            $curso->imagen = null;
+        }
+
+
+
+
+        // Solo admin actualiza estos campos
+        if ($user->hasRole('Administrador')) {
+            $curso->fecha_ini = Carbon::createFromFormat('Y-m-d\TH:i', $request->fecha_ini)->format('Y-m-d H:i:s');
+            $curso->fecha_fin = Carbon::createFromFormat('Y-m-d\TH:i', $request->fecha_fin)->format('Y-m-d H:i:s');
+            $curso->estado = Carbon::parse($request->fecha_fin)->isFuture() ? 'Activo' : 'Expirado';
+            $curso->docente_id = $request->docente_id;
+            $curso->duracion = $request->duracion;
+            $curso->cupos = $request->cupos;
+            $curso->precio = $request->precio;
+            $curso->visibilidad = $request->visibilidad;
+        }
+
+
+
+
+
         $curso->save();
 
-        return back()->with('success', 'El curso ha sido editado correctamente');
+        return back()->with('success', 'Curso actualizado correctamente');
+    }
+
+    public function updateCategories(Request $request, $id) // o Curso $curso si usas route model binding
+    {
+        $curso = Cursos::findOrFail($id);
+        $curso->categorias()->sync($request->categorias ?? []);
+
+        return back()->with('success', 'Curso actualizado correctamente');
     }
 
 
@@ -259,143 +310,44 @@ class CursosController extends Controller
 
         $writer->toBrowser();
     }
+
+    
     public function ReporteFinal($id)
     {
-        // Obtener asistencias
-        $asistencias = Asistencia::where('curso_id', $id)->get();
+        try {
+            // Obtener inscritos con sus asistencias
+            $inscritos = Inscritos::where('cursos_id', $id)
+                ->with(['estudiantes', 'asistencia', 'cursos'])
+                ->get();
 
-        // Obtener notas de tareas filtradas por curso
-        $notasTareas = NotaEntrega::whereHas('tarea.subtema.tema', function ($query) use ($id) {
-            $query->where('curso_id', $id);
-        })->get();
-
-        // Obtener notas de evaluaciones filtradas por curso
-        $notasEvaluaciones = NotaEvaluacion::whereHas('evaluacion', function ($query) use ($id) {
-            $query->where('cursos_id', $id);
-        })->get();
-
-        // Obtener inscritos en el curso
-        $inscritos = Inscritos::where('cursos_id', $id)->get();
-
-        // Inicializa el escritor de Excel
-        $writer = SimpleExcelWriter::streamDownload('report_final.xlsx');
-
-        // Hoja de Asistencias
-        $asistenciasSheet = $writer->addNewSheetAndMakeItCurrent('Asistencias');
-        $asistenciasSheet->addRow(['Curso', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Fecha', 'Tipo Asistencia']);
-
-        foreach ($asistencias as $asistencia) {
-            $asistenciasSheet->addRow([
-                $asistencia->cursos->nombreCurso,
-                $asistencia->inscritos->estudiantes->name,
-                $asistencia->inscritos->estudiantes->lastname1,
-                $asistencia->inscritos->estudiantes->lastname2,
-                $asistencia->fechaasistencia,
-                $asistencia->tipoAsitencia
-            ]);
-        }
-
-        // Hoja de Tareas
-        $tareasSheet = $writer->addNewSheetAndMakeItCurrent('Tareas');
-        $tareasSheet->addRow(['Nombre Tarea', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA', 'RETROALIMENTACION']);
-
-        foreach ($notasTareas as $notaTarea) {
-            $tareasSheet->addRow([
-                $notaTarea->tarea->titulo_tarea,
-                $notaTarea->inscripcion->estudiantes->name,
-                $notaTarea->inscripcion->estudiantes->lastname1,
-                $notaTarea->inscripcion->estudiantes->lastname2,
-                $notaTarea->nota,
-                $notaTarea->retroalimentacion
-            ]);
-        }
-
-        // Hoja de Evaluaciones
-        $evaluacionesSheet = $writer->addNewSheetAndMakeItCurrent('Evaluaciones');
-        $evaluacionesSheet->addRow(['Nombre Evaluación', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA', 'RETROALIMENTACION']);
-
-        foreach ($notasEvaluaciones as $notaEvaluacion) {
-            $evaluacionesSheet->addRow([
-                $notaEvaluacion->evaluacion->titulo_evaluacion,
-                $notaEvaluacion->inscripcion->estudiantes->name,
-                $notaEvaluacion->inscripcion->estudiantes->lastname1,
-                $notaEvaluacion->inscripcion->estudiantes->lastname2,
-                $notaEvaluacion->nota,
-                $notaEvaluacion->retroalimentacion
-            ]);
-        }
-
-        // Hoja de Promedio Final
-        $promfinalSheet = $writer->addNewSheetAndMakeItCurrent('PromedioFinal');
-        $promfinalSheet->addRow(['Nombre', 'Apellido Paterno', 'Apellido Materno', 'NOTA PROMEDIO TAREAS', 'NOTA PROMEDIO EVALUACIONES', 'PROMEDIO FINAL']);
-
-        foreach ($inscritos as $inscrito) {
-            // Calcular promedio de tareas
-            $promedioTareas = $inscrito->notatarea()
-                ->whereHas('tarea.subtema.tema', function ($query) use ($id) {
-                    $query->where('curso_id', $id);
-                })
-                ->avg('nota');
-
-            // Calcular promedio de evaluaciones
-            $promedioEvaluaciones = $inscrito->notaevaluacion()
-                ->whereHas('evaluacion', function ($query) use ($id) {
-                    $query->where('cursos_id', $id);
-                })
-                ->avg('nota');
-
-            // Calcular promedio final
-            $promedioFinal = ($promedioTareas + $promedioEvaluaciones) / 2;
-
-            $promfinalSheet->addRow([
-                $inscrito->estudiantes->name,
-                $inscrito->estudiantes->lastname1,
-                $inscrito->estudiantes->lastname2,
-                round($promedioTareas, 2), // Redondear a 2 decimales
-                round($promedioEvaluaciones, 2), // Redondear a 2 decimales
-                round($promedioFinal, 2), // Redondear a 2 decimales
-            ]);
-        }
-
-        // Descarga el archivo
-        $writer->toBrowser();
-    }
-
-
-    public function update(Request $request, $id)
-    {
-        // Validación de los datos
-        $request->validate([
-            'precio' => 'required|numeric|min:0',
-            'es_publico' => 'required|boolean',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        // Buscar el curso a actualizar
-        $curso = Cursos::findOrFail($id);
-
-        // Actualizar los campos básicos
-        $curso->precio = $request->precio;
-        $curso->es_publico = $request->es_publico;
-
-        // Manejar la imagen si se subió una nueva
-        if ($request->hasFile('imagen')) {
-            // Eliminar la imagen anterior si existe
-            if ($curso->imagen) {
-                Storage::delete('public/' . $curso->imagen);
+            if ($inscritos->isEmpty()) {
+                return back()->with('error', 'No hay inscritos en este curso.');
             }
 
-            // Guardar la nueva imagen
-            $imagenPath = $request->file('imagen')->store('cursos', 'public');
-            $curso->imagen = $imagenPath;
+            // Obtener actividades del curso
+            $actividades = Actividad::whereHas('subtema.tema', function ($query) use ($id) {
+                $query->where('curso_id', $id);
+            })->with([
+                'subtema.tema',
+                'tipoActividad',
+                'calificacionesEntregas',
+                'cuestionario.intentos',
+                'intentosCuestionarios'
+            ])->get();
+
+            // Crear el nombre del archivo
+            $nombreArchivo = 'reporte_curso_' . $id . '_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            // Crear y descargar el archivo Excel
+            return Excel::download(new CursoReporteExport($inscritos, $actividades), $nombreArchivo);
+
+        } catch (\Exception $e) {
+            \Log::error("Error generando reporte: " . $e->getMessage());
+            return back()->with('error', 'Error generando el reporte: ' . $e->getMessage());
         }
-
-        // Guardar los cambios
-        $curso->save();
-
-        // Redireccionar con mensaje de éxito
-        return redirect()->back()->with('success', 'Curso actualizado correctamente');
     }
+
+
 
     public function restaurarCurso($id)
     {
@@ -410,31 +362,34 @@ class CursosController extends Controller
 
     public function ReporteFinalCurso($id)
     {
-
-
         $cursos = Cursos::findorFail($id);
-
+        
+        // Obtener asistencias una sola vez
         $asistencias = Asistencia::where('curso_id', $id)->get();
 
-        $temas = Tema::where('curso_id', $id)->with(['subtemas.tareas', 'subtemas.cuestionarios'])->get();
+        $temas = Tema::where('curso_id', $id)
+            ->with(['subtemas.actividades.calificacionesEntregas', 'subtemas.actividades.cuestionarios'])
+            ->get();
 
-        $evaluaciones = Evaluaciones::where('cursos_id', $id)->get();
-        $asistencias = Asistencia::where('curso_id', $id)->get();
         $foros = Foro::where('cursos_id', $id)->get();
         $recursos = Recursos::where('cursos_id', $id)->get();
 
-        $notasTareas = NotaEntrega::all(); // Filtra las notas de tareas por curso
+        // Obtener notas filtradas por curso
+        $notasEntregas = NotaEntrega::whereHas('actividad.subtema.tema', function ($query) use ($id) {
+            $query->where('curso_id', $id);
+        })->get();
 
-        $notasEvaluaciones = NotaEvaluacion::all();
-
+        // Obtener notas de cuestionarios
+        $notasCuestionarios = DB::table('intentos_cuestionarios')
+            ->join('cuestionarios', 'intentos_cuestionarios.cuestionario_id', '=', 'cuestionarios.id')
+            ->join('actividades', 'cuestionarios.actividad_id', '=', 'actividades.id')
+            ->join('subtemas', 'actividades.subtema_id', '=', 'subtemas.id')
+            ->join('temas', 'subtemas.tema_id', '=', 'temas.id')
+            ->where('temas.curso_id', $id)
+            ->select('intentos_cuestionarios.*')
+            ->get();
 
         $inscritos = Inscritos::where('cursos_id', $id)->get();
-
-
-
-        $notasEvaluacion = NotaEvaluacion::where('inscripcion_id', $id)->get();
-        $notasTareas = NotaEntrega::where('inscripcion_id', $id)->get();
-
 
         // Inicializa el contador para cada categoría
         $participanteCount = 0;
@@ -442,51 +397,93 @@ class CursosController extends Controller
         $habilidosoCount = 0;
         $expertoCount = 0;
 
-
         foreach ($inscritos as $inscrito) {
-            $promedioNotas = ($inscrito->notatarea->avg('nota') + $inscrito->notaevaluacion->avg('nota')) / 2;
+            $notasInscrito = $notasEntregas->where('inscripcion_id', $inscrito->id);
+            $cuestionariosInscrito = $notasCuestionarios->where('inscripcion_id', $inscrito->id);
+            
+            // Calcular promedio combinado de actividades y cuestionarios
+            $sumaNotas = 0;
+            $cantidadNotas = 0;
 
-            if ($promedioNotas <= 51) {
-                $participanteCount++;
-            } elseif ($promedioNotas <= 65) {
-                $aprendizCount++;
-            } elseif ($promedioNotas <= 75) {
-                $habilidosoCount++;
-            } elseif ($promedioNotas <= 100) {
+            // Sumar notas de actividades
+            if ($notasInscrito->count() > 0) {
+                $sumaNotas += $notasInscrito->sum('nota');
+                $cantidadNotas += $notasInscrito->count();
+            }
+
+            // Sumar notas de cuestionarios
+            if ($cuestionariosInscrito->count() > 0) {
+                $sumaNotas += $cuestionariosInscrito->sum('calificacion');
+                $cantidadNotas += $cuestionariosInscrito->count();
+            }
+
+            // Calcular promedio final
+            $promedioFinal = $cantidadNotas > 0 ? $sumaNotas / $cantidadNotas : 0;
+
+            // Clasificar según el promedio final
+            if ($promedioFinal >= 90) {
                 $expertoCount++;
+            } elseif ($promedioFinal >= 75) {
+                $habilidosoCount++;
+            } elseif ($promedioFinal >= 60) {
+                $aprendizCount++;
+            } else {
+                $participanteCount++;
             }
         }
 
         // Contar la cantidad de cada tipo de asistencia
-
         $conteoPresentes = $asistencias->where('tipoAsitencia', 'Presente')->count();
         $conteoRetrasos = $asistencias->where('tipoAsitencia', 'Retraso')->count();
         $conteoFaltas = $asistencias->where('tipoAsitencia', 'Falta')->count();
         $conteoLicencias = $asistencias->where('tipoAsitencia', 'Licencia')->count();
 
-
-        return view('Cursos.SumarioCurso', compact('conteoPresentes', 'conteoRetrasos', 'conteoFaltas', 'conteoLicencias', 'participanteCount', 'aprendizCount', 'habilidosoCount', 'expertoCount'))
-            ->with('cursos', $cursos)->with('asistencias', $asistencias)
-            ->with('inscritos', $inscritos)
-            ->with('foros', $foros)
-            ->with('recursos', $recursos)
-            ->with('temas', $temas)
-            ->with('evaluaciones', $evaluaciones);
+        return view('Cursos.SumarioCurso', compact(
+            'conteoPresentes',
+            'conteoRetrasos',
+            'conteoFaltas',
+            'conteoLicencias',
+            'participanteCount',
+            'aprendizCount',
+            'habilidosoCount',
+            'expertoCount',
+            'cursos',
+            'asistencias',
+            'inscritos',
+            'foros',
+            'recursos',
+            'temas',
+            'notasEntregas',
+            'notasCuestionarios'
+        ));
     }
 
     public function activarCertificados($id)
     {
         $curso = Cursos::findOrFail($id);
 
-        // Si la fecha de finalización ya pasó, no permitir activación
+        // Verificar que la fecha de fin no haya pasado
         if (now()->greaterThan(Carbon::parse($curso->fecha_fin)->endOfDay())) {
-            return back()->with('error', 'El periodo para obtener certificados ha expirado.');
+            return back()->with('error', 'El periodo para activar certificados ha expirado.');
         }
 
-        // Cambiar el estado a "Certificado Disponible"
-        $curso->estado = 'Certificado Disponible';
+        // Marcar certificados como activados
+        $curso->certificados_activados = true;
         $curso->save();
 
         return back()->with('success', 'Certificados activados correctamente.');
+    }
+
+    public function updateYoutube(Request $request, Cursos $curso)
+    {
+        $request->validate([
+            'youtube_url' => 'nullable|url|max:255',
+        ]);
+
+        $curso->update([
+            'youtube_url' => $request->youtube_url,
+        ]);
+
+        return back()->with('success', 'Enlace de YouTube actualizado correctamente.');
     }
 }

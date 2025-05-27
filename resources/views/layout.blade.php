@@ -63,7 +63,6 @@
         });
     });
 </script>
-
 <style>
     .sidebar {
         width: 250px;
@@ -182,8 +181,6 @@
     }
 
 </style>
-
-
 <style>
     /* Paleta de colores */
 :root {
@@ -273,21 +270,15 @@ bg-third
 
 
 <body>
-
-
-
-    <!-- Bootstrap y Script -->
-
-
-
-    <!-- Agregar Bootstrap 5 JS -->
     @php
         $navItems = [
             'Administrador' => [
-                ['route' => 'Inicio', 'icon' => 'bi bi-house-door ', 'text' => 'Inicio', 'active' => true],
-                ['route' => 'ListadeCursos', 'icon' => 'bi bi-journal-bookmark ', 'text' => 'Lista de Cursos'],
-                ['route' => 'ListaDocentes', 'icon' => 'bi bi-people ', 'text' => 'Lista de Docentes'],
-                ['route' => 'ListaEstudiantes', 'icon' => 'bi bi-people ', 'text' => 'Lista de Estudiantes'],
+                ['route' => 'Inicio', 'icon' => 'bi bi-house-door', 'text' => 'Inicio', 'active' => true],
+                ['route' => 'ListadeCursos', 'icon' => 'bi bi-journal-bookmark', 'text' => 'Lista de Cursos'],
+                ['route' => 'ListaDocentes', 'icon' => 'bi bi-person-video2 ', 'text' => 'Lista de Docentes'],
+                ['route' => 'ListaEstudiantes', 'icon' => 'bi bi-people', 'text' => 'Lista de Estudiantes'],
+                ['route' => 'ListaExpositores', 'icon' => 'bi bi-person-video3', 'text' => 'Lista de Expositores'],
+                ['route' => 'categorias.index', 'icon' => 'bi bi-tag-fill ', 'text' => 'Lista de Categorias'],
                 ['route' => 'aportesLista', 'icon' => 'bi bi-wallet ', 'text' => 'Lista de Pagos'],
                 ['route' => 'AsignarCurso', 'icon' => 'bi bi-person-lines-fill', 'text' => 'Asignación de Cursos'],
                 ['route' => 'lista.cursos.congresos', 'icon' => 'bi bi-backpack2-fill', 'text' => 'Lista de Cursos/Congresos'],
@@ -359,8 +350,6 @@ bg-third
             </a>
         </div>
     </div>
-    {{-- NAV --}}
-
 
     <div class="content">
         <div class="header pt-md-1">

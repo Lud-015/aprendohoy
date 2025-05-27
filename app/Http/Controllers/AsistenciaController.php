@@ -21,15 +21,54 @@ class AsistenciaController extends Controller
         return view('Docente.ListaAsistencia')->with('cursos', $cursos)->with('inscritos', $inscritos);
     }
 
-    public function historialAsistencia($id)
+    public function historialAsistencia(Request $request, $cursoId)
     {
-        $cursos = Cursos::findOrFail($id);
+        $cursos = Cursos::findOrFail($cursoId);
 
+        $query = Asistencia::with(['inscritos.estudiantes'])
+                          ->where('curso_id', $cursoId);
 
-        $inscritos = Inscritos::whereNull('deleted_at')->get();
-        $asistencias = Asistencia::where('curso_id', $id)->get();
+        // Aplicar filtros
+        if ($request->filled('busqueda')) {
+            $busqueda = $request->busqueda;
+            $query->whereHas('inscritos.estudiantes', function($q) use ($busqueda) {
+                $q->where('name', 'LIKE', "%{$busqueda}%")
+                  ->orWhere('lastname1', 'LIKE', "%{$busqueda}%")
+                  ->orWhere('lastname2', 'LIKE', "%{$busqueda}%");
+            });
+        }
 
-        return view('Docente.HistorialAsistencia')->with('cursos', $cursos)->with('inscritos', $inscritos)->with('asistencias', $asistencias);
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('fechaasistencia', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('fechaasistencia', '<=', $request->fecha_hasta);
+        }
+
+        if ($request->filled('tipo_asistencia')) {
+            $query->where('tipoAsitencia', $request->tipo_asistencia);
+        }
+
+        // Aplicar ordenamiento
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'estudiante':
+                    $query->join('inscritos', 'asistencias.inscrito_id', '=', 'inscritos.id')
+                          ->join('users', 'inscritos.estudiante_id', '=', 'users.id')
+                          ->orderBy('users.name', $request->get('direction', 'asc'));
+                    break;
+                case 'fecha':
+                    $query->orderBy('fechaasistencia', $request->get('direction', 'desc'));
+                    break;
+            }
+        } else {
+            $query->orderBy('fechaasistencia', 'desc');
+        }
+
+        $asistencias = $query->paginate(15)->withQueryString();
+
+        return view('Docente.HistorialAsistencia', compact('cursos', 'asistencias'));
     }
 
     public function store(Request $request)

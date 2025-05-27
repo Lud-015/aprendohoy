@@ -22,12 +22,29 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            Roles::class,
-            Administrador::class,
-            CursoSeeeder::class,
-            TipoEvaluacionesSeeder::class,
-            TipoActividadesSeeder::class,
-            XpEventTypesSeeder::class,
+            // 1. Datos básicos del sistema
+            Roles::class, // Roles y permisos
+            TipoEvaluacionesSeeder::class, // Tipos de evaluaciones
+            TipoActividadesSeeder::class, // Tipos de actividades
+            XpEventTypesSeeder::class, // Tipos de eventos XP
+            LevelsTableSeeder::class, // Niveles de usuario
+
+            // 2. Categorías y estructura
+            CategoriaSeeder::class, // Categorías de cursos
+
+            // 3. Usuarios iniciales
+            Administrador::class, // Usuario administrador y docentes iniciales
+
+            // 4. Gamificación
+            AchievementsTableSeeder::class, // Logros del sistema
+ 
+            // 5. Contenido inicial
+            CursoSeeeder::class, // Cursos de ejemplo
+            CursosSeeder::class, // Cursos adicionales 
+            RecursosSeeder::class, // Recursos educativos iniciales
+            ExpositoresSeeder::class, // Expositores iniciales
+
+
         ]);
     }
 }

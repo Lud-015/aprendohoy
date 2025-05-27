@@ -50,6 +50,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\RecursosEvent' => [
             'App\Listeners\RecursosListener',
         ],
+        'App\Events\UserLeveledUp' => [
+            'App\Listeners\UserLeveledUpListener',
+        ],
 
     ];
 

@@ -14,7 +14,7 @@ class Boletin extends Model
 
     protected $table = "boletin";
     protected $softDelete = true;
-    protected $fillable = ['id', 'nota_final', 'comentario_boletin', 'inscripcion'];
+    protected $fillable = [ 'nota_final', 'comentario_boletin', 'inscripcion_id',  'updated_at'];
 
 
     public function incripcion(): BelongsTo

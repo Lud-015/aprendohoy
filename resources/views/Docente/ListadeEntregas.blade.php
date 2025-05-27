@@ -45,8 +45,7 @@
                             @php
                                 $notaExistente = $nota->where('inscripcion_id', $inscrito->id)->where('actividad_id', $actividad->id)->first();
                                 $entrega = $entregas->firstWhere('user_id', $inscrito->estudiante_id);
-                                $vencido = ($actividad->subtema->tema->curso->fecha_fin && now() > $actividad->subtema->tema->curso->fecha_fin) ||
-                                          ($actividad->fecha_limite && now() > $actividad->fecha_limite);
+
                             @endphp
 
                             <tr>
@@ -78,7 +77,7 @@
                                             <i class="fas fa-eye"></i> Ver Tarea
                                         </a>
                                     @else
-                                        <span class="badge badge-danger">No entregado</span>
+                                    <span class="badge bg-warning text-dark">No entregado</span>
                                     @endif
                                 </td>
                                 <td>

@@ -33,63 +33,61 @@ class CertificadoController extends Controller
         $request->validate([
             'template_front' => 'required|image|mimes:png,jpg,jpeg|max:2048',
             'template_back' => 'required|image|mimes:png,jpg,jpeg|max:2048',
+            'primary_color' => 'nullable|string',
+            'font_family' => 'nullable|string',
+            'font_size' => 'nullable|integer|min:6|max:108',
         ]);
-
 
         $pathFront = $request->file('template_front')->store('certificates/templates', 'public');
         $pathBack = $request->file('template_back')->store('certificates/templates', 'public');
 
-        // Guardar la imagen en storage
-
-        // Crear el registro en la base de datos
         CertificateTemplate::create([
             'curso_id' => $id,
             'template_front_path' => $pathFront,
             'template_back_path' => $pathBack,
+            'primary_color' => $request->primary_color ?? '#000000',
+            'font_family' => $request->font_family ?? 'Arial',
+            'font_size' => $request->font_size ?? 12,
         ]);
 
         return back()->with('success', 'Plantilla subida correctamente');
     }
+
 
     public function update(Request $request, $id)
     {
         $request->validate([
             'template_front' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
             'template_back' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'primary_color' => 'nullable|string',
+            'font_family' => 'nullable|string',
+            'font_size' => 'nullable|integer|min:6|max:108',
         ]);
 
         $certificateTemplate = CertificateTemplate::where('curso_id', $id)->firstOrFail();
 
-        // Si se sube una nueva imagen frontal
         if ($request->hasFile('template_front')) {
-            // Eliminar la imagen anterior
             Storage::disk('public')->delete($certificateTemplate->template_front_path);
-
-            // Guardar la nueva imagen
             $pathFront = $request->file('template_front')->store('certificates/templates', 'public');
-
-            // Actualizar el registro con la nueva imagen frontal
-            $certificateTemplate->update([
-                'template_front_path' => $pathFront,
-            ]);
+            $certificateTemplate->template_front_path = $pathFront;
         }
 
-        // Si se sube una nueva imagen trasera
         if ($request->hasFile('template_back')) {
-            // Eliminar la imagen anterior
             Storage::disk('public')->delete($certificateTemplate->template_back_path);
-
-            // Guardar la nueva imagen
             $pathBack = $request->file('template_back')->store('certificates/templates', 'public');
-
-            // Actualizar el registro con la nueva imagen trasera
-            $certificateTemplate->update([
-                'template_back_path' => $pathBack,
-            ]);
+            $certificateTemplate->template_back_path = $pathBack;
         }
+
+        // Actualizar los nuevos campos
+        $certificateTemplate->primary_color = $request->primary_color ?? $certificateTemplate->primary_color;
+        $certificateTemplate->font_family = $request->font_family ?? $certificateTemplate->font_family;
+        $certificateTemplate->font_size = $request->font_size ?? $certificateTemplate->font_size;
+
+        $certificateTemplate->save();
 
         return back()->with('success', 'Plantilla actualizada correctamente');
     }
+
 
 
 
@@ -205,7 +203,7 @@ class CertificadoController extends Controller
             return back()->with('error', 'No se puede generar certificados para este tipo de curso.');
         }
 
-        if ($curso->estado != 'Certificado Disponible') {
+        if (!$curso->certificados_disponibles) {
             return back()->with('error', 'El certificado no está Disponible.');
         }
 
@@ -263,6 +261,50 @@ class CertificadoController extends Controller
         return back()->with('success', 'Certificado generado. Se ha enviado un enlace de verificación.');
     }
 
+    public function vistaPreviaCertificado($curso_id)
+    {
+        $curso = Cursos::findOrFail($curso_id);
+        $plantilla = CertificateTemplate::where('curso_id', $curso_id)->first();
+
+        if (!$plantilla) {
+            return back()->with('error', 'No hay plantilla de certificado para este curso.');
+        }
+
+        $inscrito = (object) [
+            'id' => 999,
+            'estudiantes' => (object) [
+                'name' => 'Juan',
+                'lastname1' => 'Pérez',
+                'lastname2' => 'Gómez',
+                'email' => 'juan@example.com',
+            ],
+            'cursos_id' => $curso->id,
+        ];
+
+        $qr_url = route('verificar.certificado', ['codigo' => 'PREVIEW-123456']);
+
+        $data = [
+            'inscrito' => $inscrito,
+            'nombre' => 'Nombre de Prueba',
+            'curso' => $curso->nombre,
+            'fecha' => now()->format('d/m/Y'),
+            'plantillaf' => $plantilla->template_front_path,
+            'plantillab' => $plantilla->template_back_path,
+            'dni' => '00000000', // Dato simulado
+            'codigo_certificado' => 'PREVIEW-CERT-1234', // Dato de prueba
+            'qr_url' => $qr_url,
+            'primary_color' => $plantilla->primary_color,
+            'font_family' => $plantilla->font_family,
+            'font_size' => $plantilla->font_size
+        ];
+
+
+        $pdf = Pdf::loadView('certificados.plantilla', $data)->setPaper('A4', 'landscape');
+        $pdf->setOption('dpi', 250);
+
+        return $pdf->stream('vista-previa-certificado.pdf');
+    }
+
 
 
     public function verificarCertificado($codigo)
@@ -273,7 +315,7 @@ class CertificadoController extends Controller
         // Cargar solo lo necesario
         $curso = Cursos::select('id', 'nombreCurso', 'fecha_fin')->findOrFail($certificado->curso_id);
         $inscrito = Inscritos::findOrFail($certificado->inscrito_id);
-        $plantilla = CertificateTemplate::select('template_front_path', 'template_back_path')
+        $plantilla = CertificateTemplate::select('template_front_path', 'template_back_path', 'primary_color', 'font_family', 'font_size')
             ->where('curso_id', $certificado->curso_id)
             ->first();
 
@@ -291,6 +333,9 @@ class CertificadoController extends Controller
             'tipo' => 'Congreso',
             'plantillaf' => $plantilla->template_front_path,
             'plantillab' => $plantilla->template_back_path,
+            'primary_color' => $plantilla->primary_color,
+            'font_family' => $plantilla->font_family,
+            'font_size' => $plantilla->font_size
         ]);
 
         $pdf->setPaper('A4', 'portrait');
@@ -442,11 +487,11 @@ class CertificadoController extends Controller
 
         if ($certificadoGenerado) {
             return redirect()->route('Inicio')
-                   ->with('success', 'Certificado generado exitosamente');
+                ->with('success', 'Certificado generado exitosamente');
         }
 
         return redirect()->route('Inicio')
-               ->with('error', 'No se pudo generar el certificado');
+            ->with('error', 'No se pudo generar el certificado');
     }
 
     public function inscribir(Request $request)
@@ -461,7 +506,7 @@ class CertificadoController extends Controller
 
         if (!$user) {
             return back()->withInput()
-                   ->with('error', 'No existe una cuenta con este email. Por favor regístrate primero.');
+                ->with('error', 'No existe una cuenta con este email. Por favor regístrate primero.');
         }
 
         // Buscar inscripción existente para este congreso
@@ -473,12 +518,12 @@ class CertificadoController extends Controller
         if ($inscripcionExistente) {
             if ($inscripcionExistente->certificado) {
                 return back()
-                       ->with('info', 'Ya estás inscrito en este congreso y tu certificado fue generado anteriormente.');
+                    ->with('info', 'Ya estás inscrito en este congreso y tu certificado fue generado anteriormente.');
             }
 
             $this->generarCertificadoIndividual($request->congreso_id, $inscripcionExistente->id, $user);
             return back()
-                   ->with('success', '¡Certificado generado exitosamente! Revisa tu email.');
+                ->with('success', '¡Certificado generado exitosamente! Revisa tu email.');
         }
 
         // Crear nueva inscripción
@@ -492,8 +537,6 @@ class CertificadoController extends Controller
         $this->generarCertificadoIndividual($request->congreso_id, $nuevaInscripcion->id, $user);
 
         return back()
-               ->with('success', 'Inscripción completada. Tu certificado ha sido enviado por email.');
+            ->with('success', 'Inscripción completada. Tu certificado ha sido enviado por email.');
     }
-
-
 }

@@ -1,3 +1,5 @@
+@extends('layout')
+
 @section('content')
 <!-- Temporizador -->
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -19,7 +21,7 @@
         <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" id="progressBar"></div>
     </div>
 
-    <form method="POST" action="{{ route('responderCuestionario', $cuestionario->id) }}">
+    <form id="cuestionarioForm" method="POST" action="{{ route('responderCuestionario', $cuestionario->id) }}">
         @csrf
         @foreach ($cuestionario->preguntas->shuffle() as $pregunta)
         <div class="card shadow-lg pregunta" id="pregunta-{{ $loop->index }}" style="{{ $loop->index > 0 ? 'display: none;' : '' }}">
@@ -179,11 +181,169 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     </script>
 
+@push('scripts')
+<script>
+    // Variables para el temporizador
+    let tiempoLimite = {{ $cuestionario->tiempo_limite ?? 0 }} * 60; // Convertir a segundos
+    let tiempoRestante = tiempoLimite;
+    let temporizador;
 
+    // Función para formatear el tiempo
+    function formatearTiempo(segundos) {
+        const minutos = Math.floor(segundos / 60);
+        const segs = segundos % 60;
+        return `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+    }
 
+    // Función para actualizar el temporizador
+    function actualizarTemporizador() {
+        if (tiempoLimite > 0) {
+            tiempoRestante--;
+            document.getElementById('temporizador').textContent = formatearTiempo(tiempoRestante);
+
+            if (tiempoRestante <= 0) {
+                clearInterval(temporizador);
+                alert('¡Se acabó el tiempo! El cuestionario se enviará automáticamente.');
+                document.getElementById('cuestionarioForm').submit();
+            } else if (tiempoRestante <= 60) {
+                document.getElementById('temporizador').style.color = 'red';
+            }
+        }
+    }
+
+    // Iniciar temporizador si hay tiempo límite
+    if (tiempoLimite > 0) {
+        temporizador = setInterval(actualizarTemporizador, 1000);
+    }
+
+    // Prevenir navegación con botones del navegador
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = function() {
+        window.history.pushState(null, '', window.location.href);
+        mostrarAdvertencia();
+    };
+
+    // Prevenir recarga de página
+    window.onbeforeunload = function(e) {
+        if (!window.submitted) {
+            const mensaje = '¿Estás seguro de que quieres abandonar? Se perderán todas tus respuestas.';
+            e.returnValue = mensaje;
+            return mensaje;
+        }
+    };
+
+    // Función para mostrar advertencia
+    function mostrarAdvertencia() {
+        Swal.fire({
+            title: '¡Atención!',
+            text: 'No uses los botones de navegación del navegador. Si necesitas salir, usa el botón "Enviar" para guardar tus respuestas.',
+            icon: 'warning',
+            confirmButtonText: 'Entendido'
+        });
+    }
+
+    // Manejar envío del formulario
+    document.getElementById('cuestionarioForm').onsubmit = function() {
+        window.submitted = true;
+        // Registrar el abandono si se cierra la página
+        window.onbeforeunload = null;
+        
+        // Detener el temporizador si existe
+        if (temporizador) {
+            clearInterval(temporizador);
+        }
+    };
+
+    // Detectar cuando la pestaña pierde el foco
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            // Registrar intento de cambio de pestaña
+            fetch('/cuestionarios/{{ $cuestionario->id }}/registrar-abandono', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
+                }
+            }).catch(function(error) {
+                console.error('Error al registrar abandono:', error);
+            });
+        }
+    });
+
+    // Detectar si el usuario intenta copiar o pegar
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+        mostrarAdvertenciaCopiar();
+    });
+
+    document.addEventListener('paste', function(e) {
+        e.preventDefault();
+        mostrarAdvertenciaCopiar();
+    });
+
+    function mostrarAdvertenciaCopiar() {
+        Swal.fire({
+            title: '¡Acción no permitida!',
+            text: 'No está permitido copiar o pegar durante el cuestionario.',
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+        });
+    }
+
+    // Mostrar advertencia inicial
+    window.onload = function() {
+        Swal.fire({
+            title: 'Instrucciones importantes',
+            html: `
+                <ul class="text-left">
+                    <li>No uses los botones de navegación del navegador</li>
+                    <li>No cambies de pestaña o ventana</li>
+                    <li>No está permitido copiar o pegar</li>
+                    ${tiempoLimite > 0 ? `<li>Tienes ${Math.floor(tiempoLimite/60)} minutos para completar el cuestionario</li>` : ''}
+                    <li>Usa el botón "Enviar" cuando termines</li>
+                </ul>
+            `,
+            icon: 'info',
+            confirmButtonText: 'Entendido, comenzar'
+        });
+    };
+</script>
+@endpush
+
+@section('styles')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<style>
+    #temporizador {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background-color: #fff;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 1.2em;
+        font-weight: bold;
+        z-index: 1000;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .pregunta {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #fff;
+    }
+
+    .respuestas {
+        margin-top: 1rem;
+    }
+
+    .form-check {
+        margin: 0.5rem 0;
+    }
+</style>
+@endsection
 
 @endsection
 
-
-
-@include('layout')

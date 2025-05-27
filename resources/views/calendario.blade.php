@@ -1,7 +1,5 @@
 @extends('FundacionPlantillaUsu.index')
 
-
-
 @section('content')
 
 <!-- CDN: Year Calendar -->
@@ -52,16 +50,20 @@
     <h2 class="h5 fw-semibold mb-3">Filtrar eventos</h2>
     <div class="d-flex flex-wrap gap-3">
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="tasks-checkbox" checked>
-            <label class="form-check-label" for="tasks-checkbox">Tareas</label>
+            <input class="form-check-input" type="checkbox" id="tarea-checkbox" checked>
+            <label class="form-check-label" for="tarea-checkbox">Tareas</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="evaluations-checkbox" checked>
-            <label class="form-check-label" for="evaluations-checkbox">Evaluaciones</label>
+            <input class="form-check-input" type="checkbox" id="cuestionario-checkbox" checked>
+            <label class="form-check-label" for="cuestionario-checkbox">Cuestionarios</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="forums-checkbox" checked>
-            <label class="form-check-label" for="forums-checkbox">Foros</label>
+            <input class="form-check-input" type="checkbox" id="foro-checkbox" checked>
+            <label class="form-check-label" for="foro-checkbox">Foros</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="evaluacion-checkbox" checked>
+            <label class="form-check-label" for="evaluacion-checkbox">Evaluaciones</label>
         </div>
     </div>
 </div>
@@ -73,45 +75,32 @@
 <!-- Script -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const tasks = @json($tareas);
-        const evaluations = @json($evaluaciones);
-        const forums = @json($foros);
+        const actividades = @json($actividades);
         const cursos = @json($cursos->pluck('nombreCurso', 'id')->toArray());
 
         const tooltip = document.getElementById('tooltip');
 
         const getEvents = () => {
             let events = [];
+            const tiposActividad = {
+                'tarea': document.getElementById('tarea-checkbox').checked,
+                'cuestionario': document.getElementById('cuestionario-checkbox').checked,
+                'foro': document.getElementById('foro-checkbox').checked,
+                'evaluacion': document.getElementById('evaluacion-checkbox').checked
+            };
 
-            if (document.getElementById('tasks-checkbox').checked) {
-                events = events.concat(tasks.map(task => ({
-                    startDate: new Date(task.fecha_vencimiento),
-                    endDate: new Date(task.fecha_vencimiento),
-                    name: task.titulo_tarea,
-                    description: cursos[task.cursos_id],
-                    type: 'Tarea'
-                })));
-            }
-
-            if (document.getElementById('evaluations-checkbox').checked) {
-                events = events.concat(evaluations.map(evaluation => ({
-                    startDate: new Date(evaluation.fecha_vencimiento),
-                    endDate: new Date(evaluation.fecha_vencimiento),
-                    name: evaluation.titulo_evaluacion,
-                    description: cursos[evaluation.cursos_id],
-                    type: 'Evaluación'
-                })));
-            }
-
-            if (document.getElementById('forums-checkbox').checked) {
-                events = events.concat(forums.map(forum => ({
-                    startDate: new Date(forum.fechaFin),
-                    endDate: new Date(forum.fechaFin),
-                    name: forum.nombreForo,
-                    description: cursos[forum.cursos_id],
-                    type: 'Foro'
-                })));
-            }
+            actividades.forEach(actividad => {
+                const tipoSlug = actividad.tipo_actividad.slug;
+                if (tiposActividad[tipoSlug]) {
+                    events.push({
+                        startDate: new Date(actividad.fecha_limite),
+                        endDate: new Date(actividad.fecha_limite),
+                        name: actividad.titulo,
+                        description: `${actividad.subtema.tema.titulo} - ${cursos[actividad.subtema.tema.curso_id]}`,
+                        type: actividad.tipo_actividad.nombre
+                    });
+                }
+            });
 
             return events;
         };
@@ -150,8 +139,8 @@
         };
 
         // Event listeners for checkboxes
-        ['tasks-checkbox', 'evaluations-checkbox', 'forums-checkbox'].forEach(id => {
-            document.getElementById(id).addEventListener('change', () => {
+        ['tarea', 'cuestionario', 'foro', 'evaluacion'].forEach(tipo => {
+            document.getElementById(`${tipo}-checkbox`).addEventListener('change', () => {
                 calendar.setDataSource(getEvents());
             });
         });

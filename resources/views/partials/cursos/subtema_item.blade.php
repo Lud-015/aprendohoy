@@ -821,7 +821,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{ route('actividades.store', $subtema->id) }}"
+                <form method="POST" action="{{ route('actividades.store', $cursos->id) }}"
                     enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="subtema_id" value="{{ $subtema->id }}">

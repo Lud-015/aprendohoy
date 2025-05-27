@@ -214,43 +214,72 @@ public function factura($id)
 
     public function comprarCurso(Request $request)
     {
-        $request->validate([
-            'comprobante' => 'required|file|mimes:pdf,jpg,png|max:2048',
-            'montopagar' => 'required|numeric|min:0',
-            'descripcion' => 'required',
-            'curso_id' => 'required|exists:cursos,id' // Ensure curso_id exists
-        ]);
-
-        $aportes = new Aportes();
-        $aportes->codigopago = uniqid();
-
-        // User information
-        $user = auth()->user();
-        $aportes->pagante = $user->name.' '.$user->lastname1.' '.$user->lastname2;
-        $aportes->paganteci = $user->CI;
-        $aportes->estudiante_id = $user->id;
-
-        // Student data
-        $aportes->datosEstudiante = $user->name.' '.$user->lastname1.' '.$user->lastname2.' '.$user->CI;
-
-        // Payment information
-        $aportes->DescripcionDelPago = $request->input('descripcion');
-        $aportes->monto_pagado = 0;
-        $aportes->monto_a_pagar = $request->montopagar;
-        $aportes->restante_a_pagar = $request->montopagar; // Since monto_pagado is 0
-        $aportes->cursos_id = $request->curso_id;
-        $aportes->tipopago = 'Comprobante';
-        $aportes->saldo = 0;
-
-        // Handle file upload
-        if ($request->hasFile('comprobante')) {
-            $rutaArchivo = $request->file('comprobante')->store('comprobantes', 'public');
-            $aportes->comprobante = $rutaArchivo; // Store the path, not the file object
+        $curso = Cursos::find($request->curso_id);
+        if (!$curso) {
+            return redirect()->back()->with('error', 'Curso no encontrado');
         }
 
-        $aportes->save();
+        // Si el curso es pago, validamos los campos de pago
+        if ($curso->precio > 0) {
+            $request->validate([
+                'comprobante' => 'required|file|mimes:pdf,jpg,png|max:2048',
+                'montopagar' => 'required|numeric|min:0',
+                'descripcion' => 'required',
+                'curso_id' => 'required|exists:cursos,id'
+            ]);
+        } else {
+            // Si es gratuito, solo validamos el curso_id
+            $request->validate([
+                'curso_id' => 'required|exists:cursos,id'
+            ]);
+        }
 
-        return redirect(route('Inicio'))->with('success', 'Tu pago será validado, por favor espere!');
+        $user = auth()->user();
+
+        // Solo crear un registro de aporte si el curso es pago
+        if ($curso->precio > 0) {
+            $aportes = new Aportes();
+            $aportes->codigopago = uniqid();
+
+            // User information
+            $aportes->pagante = $user->name.' '.$user->lastname1.' '.$user->lastname2;
+            $aportes->paganteci = $user->CI;
+            $aportes->estudiante_id = $user->id;
+
+            // Student data
+            $aportes->datosEstudiante = $user->name.' '.$user->lastname1.' '.$user->lastname2.' '.$user->CI;
+
+            // Payment information
+            $aportes->DescripcionDelPago = $request->input('descripcion');
+            $aportes->monto_pagado = 0;
+            $aportes->monto_a_pagar = $request->montopagar;
+            $aportes->restante_a_pagar = $request->montopagar;
+            $aportes->cursos_id = $request->curso_id;
+            $aportes->tipopago = 'Comprobante';
+            $aportes->saldo = 0;
+
+            // Handle file upload
+            if ($request->hasFile('comprobante')) {
+                $rutaArchivo = $request->file('comprobante')->store('comprobantes', 'public');
+                $aportes->comprobante = $rutaArchivo;
+            }
+
+            $aportes->save();
+
+            // Emitir evento para notificar al estudiante
+            event(new EstudianteEvent($user, 'Nuevo pago registrado', 'Tu pago ha sido registrado y está en proceso de validación.'));
+        }
+
+        // Crear la inscripción en ambos casos (curso pago o gratuito)
+        $incripcion = new Inscritos();
+        $incripcion->estudiante_id = $user->id;
+        $incripcion->cursos_id = $request->curso_id;
+        $incripcion->pago_completado = ($curso->precio == 0); // true si es gratuito, false si es pago
+        $incripcion->save();
+
+        return redirect(route('Inicio'))->with('success', $curso->precio > 0
+            ? 'Tu pago será validado, por favor espere!'
+            : '¡Inscripción al curso gratuito realizada con éxito!');
     }
 
 

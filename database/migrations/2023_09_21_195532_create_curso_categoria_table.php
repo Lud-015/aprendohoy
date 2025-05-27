@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('curso_categoria', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->string('image')->nullable();
-            $table->unsignedBigInteger('parent_id')->nullable();
-            $table->foreign('parent_id')->references('id')->on('curso_categoria')->onDelete('set null');
+            $table->unsignedBigInteger('curso_id');
+            $table->unsignedBigInteger('categoria_id');
+
+            $table->foreign('curso_id')->references('id')->on('cursos')->onDelete('cascade');
+            $table->foreign('categoria_id')->references('id')->on('categoria')->onDelete('cascade');
+
             $table->timestamps();
-            $table->softDeletes();
         });
+
+
     }
 
     /**
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('courso_categoria');
+        Schema::dropIfExists('curso_categoria');
     }
 };

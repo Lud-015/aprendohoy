@@ -108,11 +108,7 @@
                                             <i class="fas fa-calendar-plus text-primary me-2"></i> Crear Horarios
                                         </a>
                                     </li>
-                                    <li>
-                                        <a class="dropdown-item py-2" href="{{ route('asistencias', [$cursos->id]) }}">
-                                            <i class="fas fa-check text-success me-2"></i> Dar Asistencia
-                                        </a>
-                                    </li>
+
                                     <li>
                                         <a class="dropdown-item py-2" href="#" data-bs-toggle="modal"
                                             data-bs-target="#qrModal">
@@ -120,16 +116,30 @@
                                         </a>
                                     </li>
 
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ route('curso-imagenes.index', $cursos) }}">
+                                            <i class="fas fa-image text-dark me-2"></i> Imagenes de Presentacion
+                                        </a>
+                                    </li>
+
                                     @if ($cursos->docente_id == auth()->user()->id)
                                         <li>
                                             <hr class="dropdown-divider">
                                         </li>
-                                        <li>
-                                            <a class="dropdown-item py-2" href="{{ route('repF', [$cursos->id]) }}"
-                                                onclick="mostrarAdvertencia2(event)">
-                                                <i class="fas fa-star text-warning me-2"></i> Calificaciones
-                                            </a>
-                                        </li>
+                                        @if ($cursos->tipo == 'curso')
+                                            <li>
+                                                <a class="dropdown-item py-2" href="{{ route('repF', [$cursos->id]) }}"
+                                                    onclick="mostrarAdvertencia2(event)">
+                                                    <i class="fas fa-star text-warning me-2"></i> Calificaciones
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item py-2"
+                                                    href="{{ route('asistencias', [$cursos->id]) }}">
+                                                    <i class="fas fa-check text-success me-2"></i> Dar Asistencia
+                                                </a>
+                                            </li>
+                                        @endif
                                         <li>
                                             <a class="dropdown-item py-2" href="{{ route('editarCurso', [$cursos->id]) }}">
                                                 <i class="fas fa-edit text-info me-2"></i> Editar Curso
@@ -144,13 +154,14 @@
                                                 <i class="fas fa-file-pdf text-danger me-2"></i> Ver Plan Del Curso
                                             </a>
                                         </li>
-
+                                    @endif
+                                    @role('Administrador')
                                         <li>
                                             <a class="dropdown-item py-2" href="{{ route('editarCurso', [$cursos->id]) }}">
                                                 <i class="fas fa-edit text-info me-2"></i> Editar Curso
                                             </a>
                                         </li>
-                                    @endif
+                                    @endrole
 
                                     <!-- Certificate Options -->
                                     @if ($cursos->tipo === 'congreso')
@@ -167,7 +178,7 @@
                                             </li>
                                         @endif
 
-                                        @if ($cursos->estado === 'Activo')
+                                        @if ($cursos->estado == 'Activo')
                                             <li>
                                                 <form
                                                     action="{{ route('cursos.activarCertificados', ['id' => $cursos->id]) }}"
@@ -181,8 +192,6 @@
                                             </li>
                                         @endif
                                     @endif
-
-                                    <!-- Admin-only Certificate Template Options -->
                                     @if (auth()->user()->hasRole('Administrador'))
                                         @if (!isset($template))
                                             <li>
@@ -201,6 +210,10 @@
                                                 </a>
                                             </li>
                                         @endif
+                                        <a href="{{ route('certificados.vistaPrevia', $cursos->id) }}" class="btn "
+                                            target="_blank">
+                                            <i class="fas fa-eye"></i> Vista previa del certificado
+                                        </a>
                                     @endif
                                 </ul>
                             </div>
@@ -221,122 +234,389 @@
                         Descarga tu Certificado</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                {{-- <div class="modal-body text-center">
-                    @if ($cursos->estado === 'Certificado Disponible')
-                        <h3>¡Descarga tu certificado antes de la medianoche!
-                        </h3>
-                        <div class="text-center mt-4 mb-4">
-                            {{ QrCode::size(150)->generate(route('certificados.obtener', ['id' => encrypt($cursos->id)])) }}
-                            <p class="mt-3">
-                                <a href="#"
-                                    onclick="copiarAlPortapapeles('{{ route('certificados.obtener', ['id' => encrypt($cursos->id)]) }}')"
-                                    class="btn btn-success">
-                                    Copiar enlace del certificado
-                                </a>
-                            </p>
-                        </div>
-                        <script>
-                            async function copiarAlPortapapeles(url) {
-                                try {
-                                    await navigator.clipboard.writeText(url);
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: '¡Enlace copiado!',
-                                        text: 'El enlace del certificado se ha copiado al portapapeles.',
-                                        confirmButtonText: 'Aceptar',
-                                        timer: 3000,
-                                        timerProgressBar: true,
-                                    });
-                                } catch (err) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: 'No se pudo copiar el enlace. Inténtalo de nuevo.',
-                                        confirmButtonText: 'Aceptar',
-                                    });
-                                }
-                            }
-                        </script>
-                    @elseif($cursos->estado === 'Expirado')
-                        <p>El tiempo para obtener el certificado ha
-                            expirado.</p>
-                    @endif
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div> --}}
             </div>
         </div>
     </div>
 
 
     <!-- Modal para editar plantilla -->
+    <style>
+        .image-preview {
+            transition: all 0.3s ease;
+            border: 2px dashed var(--bs-border-color);
+            border-radius: var(--bs-border-radius);
+        }
 
+        .image-preview:hover {
+            border-color: var(--bs-primary);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--bs-border-radius);
+            border: 2px solid var(--bs-border-color);
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        .form-floating-custom {
+            position: relative;
+        }
+
+        .preview-container {
+            background: var(--bs-gray-100);
+            border-radius: var(--bs-border-radius);
+            padding: 1rem;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-placeholder {
+            color: var(--bs-secondary);
+            font-size: 0.9rem;
+        }
+
+        .current-template {
+            background: var(--bs-light);
+            border-radius: var(--bs-border-radius);
+            padding: 1rem;
+        }
+    </style>
+    <!-- Modal: Subir Nueva Plantilla -->
     <div class="modal fade" id="modalCertificado" tabindex="-1" aria-labelledby="modalCertificadoLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalCertificadoLabel">Subir Plantilla Horario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ route('certificates.store', $cursos->id) }}" method="POST"
-                        enctype="multipart/form-data">
-                        @csrf
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content shadow">
+                <form action="{{ route('certificates.store', $cursos->id) }}" method="POST"
+                    enctype="multipart/form-data" novalidate>
+                    @csrf
+                    <div class="modal-header bg-primary text-white">
+                        <h1 class="modal-title fs-5" id="modalCertificadoLabel">
+                            <i class="bi bi-file-earmark-plus me-2"></i>Subir Plantilla de Certificado
+                        </h1>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                    </div>
 
-                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Frontal del
-                            Certificado</label>
-                        <input type="file" name="template_front" class="w-full border rounded px-3 py-2" required>
-                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Trasera del
-                            Certificado</label>
-                        <input type="file" name="template_back" class="w-full border rounded px-3 py-2" required>
-                        <div class="flex justify-end mt-4">
-                            <button type="submit" class="btn btn-primary">
-                                Subir
+                    <div class="modal-body">
+                        <div class="row g-4">
+                            <!-- Plantilla Frontal -->
+                            <div class="col-lg-6">
+                                <div class="card h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="card-title mb-0">
+                                            <i class="bi bi-image me-2"></i>Parte Frontal del Certificado
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Seleccionar archivo</label>
+                                            <input type="file" name="template_front" class="form-control"
+                                                accept="image/*" required onchange="previewImage(this, '#preview-front')">
+                                            <div class="form-text">
+                                                <i class="bi bi-info-circle me-1"></i>
+                                                Formatos soportados: JPG, PNG, GIF (máx. 5MB)
+                                            </div>
+                                        </div>
+                                        <div class="preview-container" id="preview-container-front">
+                                            <div class="preview-placeholder">
+                                                <i class="bi bi-cloud-upload fs-1 d-block mb-2"></i>
+                                                Vista previa aparecerá aquí
+                                            </div>
+                                            <img id="preview-front" class="img-fluid rounded shadow-sm d-none"
+                                                style="max-height: 250px;" alt="Vista previa frontal" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Plantilla Trasera -->
+                            <div class="col-lg-6">
+                                <div class="card h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="card-title mb-0">
+                                            <i class="bi bi-image-fill me-2"></i>Parte Trasera del Certificado
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Seleccionar archivo</label>
+                                            <input type="file" name="template_back" class="form-control"
+                                                accept="image/*" required onchange="previewImage(this, '#preview-back')">
+                                            <div class="form-text">
+                                                <i class="bi bi-info-circle me-1"></i>
+                                                Formatos soportados: JPG, PNG, GIF (máx. 5MB)
+                                            </div>
+                                        </div>
+                                        <div class="preview-container" id="preview-container-back">
+                                            <div class="preview-placeholder">
+                                                <i class="bi bi-cloud-upload fs-1 d-block mb-2"></i>
+                                                Vista previa aparecerá aquí
+                                            </div>
+                                            <img id="preview-back" class="img-fluid rounded shadow-sm d-none"
+                                                style="max-height: 250px;" alt="Vista previa trasera" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Configuración de Texto -->
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="card-title mb-0">
+                                    <i class="bi bi-type me-2"></i>Configuración del Texto
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">
+                                            <i class="bi bi-palette me-1"></i>Color Primario del Texto
+                                        </label>
+                                        <div class="d-flex align-items-center">
+                                            <input type="color" name="primary_color"
+                                                class="form-control form-control-color me-2" value="#000000"
+                                                title="Seleccionar color">
+                                            <span class="text-muted small" id="color-value">#000000</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">
+                                            <i class="bi bi-fonts me-1"></i>Fuente del Texto
+                                        </label>
+                                        <select name="font_family" class="form-select">
+                                            <option value="Arial">Arial</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Helvetica">Helvetica</option>
+                                            <option value="Courier New">Courier New</option>
+                                            <option value="Georgia">Georgia</option>
+                                            <option value="Verdana">Verdana</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">
+                                            <i class="bi bi-text-paragraph me-1"></i>Tamaño de Fuente
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="range" name="font_size_range" class="form-range"
+                                                min="8" max="72" value="14"
+                                                oninput="updateFontSize(this.value)">
+                                            <input type="number" name="font_size" class="form-control" min="8"
+                                                max="72" value="14" style="max-width: 80px;">
+                                            <span class="input-group-text">px</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cloud-upload me-1"></i>Subir Plantilla
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Plantilla -->
+    @if ($cursos->certificateTemplate)
+        <div class="modal fade" id="modalEditarCertificado" tabindex="-1" aria-labelledby="modalEditarCertificadoLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content shadow">
+                    <form action="{{ route('certificates.update', $cursos->id) }}" method="POST"
+                        enctype="multipart/form-data" novalidate>
+                        @csrf
+                        <div class="modal-header bg-warning text-dark">
+                            <h1 class="modal-title fs-5" id="modalEditarCertificadoLabel">
+                                <i class="bi bi-pencil-square me-2"></i>Actualizar Plantilla de Certificado
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Cerrar"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row g-4">
+                                <!-- Plantillas Actuales -->
+                                <div class="col-12">
+                                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                        <div>
+                                            <strong>Plantillas actuales:</strong> Puedes mantener las plantillas existentes
+                                            o
+                                            subir nuevas. Si no seleccionas nuevos archivos, se mantendrán los actuales.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Plantillas Actuales - Vista Previa -->
+                                <div class="col-lg-6">
+                                    <div class="current-template">
+                                        <h6 class="fw-semibold mb-3">
+                                            <i class="bi bi-eye me-2"></i>Plantilla Frontal Actual
+                                        </h6>
+                                        <div class="text-center">
+                                            <img src="{{ asset('storage/' . $template->template_front_path ?? '') }}"
+                                                class="img-fluid rounded shadow-sm mb-2" style="max-height: 150px;"
+                                                alt="Plantilla frontal actual" />
+                                            <div class="text-muted small">Plantilla frontal en uso</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <div class="current-template">
+                                        <h6 class="fw-semibold mb-3">
+                                            <i class="bi bi-eye-fill me-2"></i>Plantilla Trasera Actual
+                                        </h6>
+                                        <div class="text-center">
+                                            <img src="{{ asset('storage/' . $template->template_back_path ?? '') }}"
+                                                class="img-fluid rounded shadow-sm mb-2" style="max-height: 150px;"
+                                                alt="Plantilla trasera actual" />
+                                            <div class="text-muted small">Plantilla trasera en uso</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Nuevas Plantillas -->
+                                <div class="col-lg-6">
+                                    <div class="card h-100 border-warning">
+                                        <div class="card-header bg-warning bg-opacity-25">
+                                            <h6 class="card-title mb-0">
+                                                <i class="bi bi-upload me-2"></i>Nueva Parte Frontal (Opcional)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <input type="file" name="template_front" class="form-control"
+                                                    accept="image/*" onchange="previewImage(this, '#edit-preview-front')">
+                                                <div class="form-text">Deja vacío para mantener la plantilla actual</div>
+                                            </div>
+                                            <div class="preview-container">
+                                                <div class="preview-placeholder">
+                                                    <i class="bi bi-cloud-upload fs-3 d-block mb-2"></i>
+                                                    Nueva vista previa
+                                                </div>
+                                                <img id="edit-preview-front" class="img-fluid rounded shadow-sm d-none"
+                                                    style="max-height: 200px;" alt="Nueva vista previa frontal" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <div class="card h-100 border-warning">
+                                        <div class="card-header bg-warning bg-opacity-25">
+                                            <h6 class="card-title mb-0">
+                                                <i class="bi bi-upload me-2"></i>Nueva Parte Trasera (Opcional)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <input type="file" name="template_back" class="form-control"
+                                                    accept="image/*" onchange="previewImage(this, '#edit-preview-back')">
+                                                <div class="form-text">Deja vacío para mantener la plantilla actual</div>
+                                            </div>
+                                            <div class="preview-container">
+                                                <div class="preview-placeholder">
+                                                    <i class="bi bi-cloud-upload fs-3 d-block mb-2"></i>
+                                                    Nueva vista previa
+                                                </div>
+                                                <img id="edit-preview-back" class="img-fluid rounded shadow-sm d-none"
+                                                    style="max-height: 200px;" alt="Nueva vista previa trasera" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Configuración de Texto Actual -->
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="bi bi-type me-2"></i>Configuración del Texto
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold">Color Primario del Texto</label>
+                                            <div class="d-flex align-items-center">
+                                                <input type="color" name="primary_color"
+                                                    class="form-control form-control-color me-2" value="#ff6b35">
+                                                <span class="text-muted small">#ff6b35</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold">Fuente del Texto</label>
+                                            <select name="font_family" class="form-select">
+                                                <option value="Arial">Arial</option>
+                                                <option value="Times New Roman" selected>Times New Roman</option>
+                                                <option value="Helvetica">Helvetica</option>
+                                                <option value="Courier New">Courier New</option>
+                                                <option value="Georgia">Georgia</option>
+                                                <option value="Verdana">Verdana</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold">Tamaño de Fuente</label>
+                                            <div class="input-group">
+                                                <input type="range" name="font_size_range" class="form-range"
+                                                    min="8" max="72" value="18"
+                                                    oninput="updateFontSizeEdit(this.value)">
+                                                <input type="number" name="font_size" class="form-control"
+                                                    min="8" max="72" value="18"
+                                                    style="max-width: 80px;">
+                                                <span class="input-group-text">px</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-arrow-repeat me-1"></i>Actualizar Plantilla
                             </button>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
             </div>
         </div>
-    </div>
+    @endif
 
-    <div class="modal fade" id="modalEditarCertificado" tabindex="-1" aria-labelledby="modalEditarCertificadoLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditarCertificadoLabel">Actualizar Plantilla de Certificado</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ route('certificates.update', $cursos->id) }}" method="POST"
-                        enctype="multipart/form-data">
-                        @csrf
-                        <!-- Mostrar imagen actual si existe -->
-                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Frontal del
-                            Certificado</label>
-                        <input type="file" name="template_front" class="w-full border rounded px-3 py-2" required>
 
-                        <label class="block text-sm font-medium mt-2">Seleccionar Imagen Para La Parte Trasera del
-                            Certificado</label>
-                        <input type="file" name="template_back" class="w-full border rounded px-3 py-2" required>
-
-                        <div class="flex justify-end mt-4">
-                            <button type="submit" class="btn btn-primary">Actualizar</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal de Horarios -->
     <div class="modal fade" id="modalHorario" tabindex="-1" aria-labelledby="modalHorarioLabel" aria-hidden="true">
@@ -692,14 +972,15 @@
                                 <i class="fas fa-list me-2"></i>Temario
                             </button>
                         </li>
-                        @if ($cursos->tipo == 'curso')
-                            {{-- <li class="nav-item" role="presentation">
-                                <button class="nav-link px-4 py-3" id="evaluaciones-tab" data-bs-toggle="tab"
-                                        data-bs-target="#tab-evaluaciones" type="button" role="tab"
-                                        aria-controls="tab-evaluaciones" aria-selected="false">
-                                    <i class="fas fa-tasks me-2"></i>Evaluaciones
+
+                        @if ($cursos->tipo == 'congreso')
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link px-4 py-3" id="expositores-tab" data-bs-toggle="tab"
+                                    data-bs-target="#tab-expositores" type="button" role="tab"
+                                    aria-controls="tab-expositores" aria-selected="false">
+                                    <i class="fas fa-tasks me-2"></i>Expositores
                                 </button>
-                            </li> --}}
+                            </li>
                         @endif
                         <li class="nav-item" role="presentation">
                             <button class="nav-link px-4 py-3" id="foros-tab" data-bs-toggle="tab"
@@ -722,7 +1003,142 @@
                     <div class="tab-content" id="course-tab-content">
                         <!-- Contenido de las pestañas (común para ambos roles) -->
                         @include('partials.cursos.temario_tab')
-                        @include('partials.cursos.evaluaciones_tab')
+                        @if ($cursos->tipo == 'congreso')
+                            <!-- Botón para abrir modal -->
+
+
+
+                            <div class="tab-pane fade" id="tab-expositores">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="mb-0">Expositores asignados</h4>
+                                    <button class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#modalExpositores">
+                                        <i class="bi bi-person-plus"></i> Asignar Expositores
+                                    </button>
+                                </div>
+
+                                {{-- Modal Asignar Expositores --}}
+                                <div class="modal fade" id="modalExpositores" tabindex="-1"
+                                    aria-labelledby="modalExpositoresLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <form method="POST"
+                                            action="{{ route('cursos.asignarExpositores', $cursos->id) }}">
+                                            @csrf
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalExpositoresLabel">Asignar Expositores
+                                                        al Curso</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <input type="text" id="buscadorExpositores"
+                                                        class="form-control mb-3"
+                                                        placeholder="Buscar expositor por nombre...">
+
+                                                    <div class="overflow-auto" style="max-height: 400px;">
+                                                        @foreach ($expositores as $expositor)
+                                                            <div class="border rounded p-3 mb-3 expositor-item"
+                                                                data-nombre="{{ strtolower($expositor->nombre) }}">
+                                                                <strong
+                                                                    class="d-block mb-2">{{ $expositor->nombre }}</strong>
+                                                                <div class="row g-2 align-items-center">
+                                                                    <input type="hidden"
+                                                                        name="expositores[{{ $loop->index }}][id]"
+                                                                        value="{{ $expositor->id }}">
+
+                                                                    <div class="col-md-4">
+                                                                        <input type="text" class="form-control"
+                                                                            name="expositores[{{ $loop->index }}][cargo]"
+                                                                            placeholder="Cargo">
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <input type="text" class="form-control"
+                                                                            name="expositores[{{ $loop->index }}][tema]"
+                                                                            placeholder="Tema">
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <input type="number" class="form-control"
+                                                                            name="expositores[{{ $loop->index }}][orden]"
+                                                                            placeholder="Orden">
+                                                                    </div>
+                                                                    <div class="col-md-2 text-center">
+                                                                        <div class="form-check">
+                                                                            <input type="checkbox"
+                                                                                class="form-check-input"
+                                                                                name="expositoresSeleccionados[]"
+                                                                                value="{{ $loop->index }}">
+
+                                                                            <label
+                                                                                class="form-check-label">Seleccionar</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-success">Guardar
+                                                        Asignaciones</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                {{-- Lista de Expositores asignados --}}
+                                @forelse ($cursos->expositores as $expositor)
+                                    <div class="card mb-3 shadow-sm">
+                                        <div class="row g-0 align-items-center">
+                                            <div class="col-md-3 text-center p-3">
+                                                @if ($expositor->imagen && file_exists(public_path('storage/' . $expositor->imagen)))
+                                                    <img src="{{ asset('storage/' . $expositor->imagen) }}"
+                                                        class="img-fluid rounded" style="max-height: 130px;"
+                                                        alt="Foto de {{ $expositor->nombre }}">
+                                                @else
+                                                    <img src="{{ asset('assets2/img/talker.png') }}"
+                                                        class="img-fluid rounded" style="max-height: 130px;"
+                                                        alt="Imagen no disponible">
+                                                @endif
+                                            </div>
+                                            <div class="col-md-7">
+                                                <div class="card-body">
+                                                    <h5 class="card-title mb-1">{{ $expositor->nombre }}</h5>
+                                                    <p class="mb-1"><strong>Cargo:</strong>
+                                                        {{ $expositor->pivot->cargo ?? 'No especificado' }}</p>
+                                                    <p class="mb-1"><strong>Tema:</strong>
+                                                        {{ $expositor->pivot->tema ?? 'No especificado' }}</p>
+                                                    <p class="mb-0"><strong>Orden:</strong>
+                                                        {{ $expositor->pivot->orden ?? '-' }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 text-end pe-3">
+                                                @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Docente'))
+                                                    <form
+                                                        action="{{ route('cursos.quitarExpositor', [$cursos->id, $expositor->id]) }}"
+                                                        method="POST"
+                                                        onsubmit="return confirm('¿Deseas quitar este expositor del curso?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button class="btn btn-outline-danger btn-sm"
+                                                            title="Quitar expositor">
+                                                            <i class="bi bi-x-circle"></i> Quitar
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="alert alert-info text-center">
+                                        <i class="bi bi-info-circle"></i> No hay expositores asignados a este curso.
+                                    </div>
+                                @endforelse
+                            </div>
+                        @endif
                         @include('partials.cursos.foros_tab')
                         @include('partials.cursos.recursos_tab')
                     </div>
@@ -903,6 +1319,27 @@
 </script>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buscador = document.getElementById('buscadorExpositores');
+        const items = document.querySelectorAll('.expositor-item');
+
+        buscador.addEventListener('input', function() {
+            const filtro = this.value.toLowerCase();
+
+            items.forEach(item => {
+                const nombre = item.getAttribute('data-nombre');
+                if (nombre.includes(filtro)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+
+
+<script>
     document.addEventListener("DOMContentLoaded", function() {
         var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
         var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
@@ -932,4 +1369,126 @@
         });
     });
 </script>
+
+
+<script>
+    function previewImage(input, previewSelector) {
+        const file = input.files[0];
+        const preview = document.querySelector(previewSelector);
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+
+
+<script>
+    // Función para previsualizar imágenes
+    function previewImage(input, previewSelector) {
+        const preview = document.querySelector(previewSelector);
+        const container = preview.closest('.preview-container');
+        const placeholder = container.querySelector('.preview-placeholder');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.classList.add('d-none');
+            if (placeholder) {
+                placeholder.style.display = 'block';
+            }
+        }
+    }
+
+    // Sincronizar el rango con el input numérico
+    function updateFontSize(value) {
+        document.querySelector('input[name="font_size"]').value = value;
+    }
+
+    function updateFontSizeEdit(value) {
+        document.querySelector('#modalEditarCertificado input[name="font_size"]').value = value;
+    }
+
+    // Actualizar el valor del color mostrado
+    document.addEventListener('DOMContentLoaded', function() {
+        const colorInputs = document.querySelectorAll('input[type="color"]');
+
+        colorInputs.forEach(input => {
+            const valueSpan = input.parentElement.querySelector('.text-muted');
+            if (valueSpan) {
+                input.addEventListener('input', function() {
+                    valueSpan.textContent = this.value;
+                });
+            }
+        });
+
+        // Sincronizar rangos con inputs numéricos
+        const fontSizeRange = document.querySelector('input[name="font_size_range"]');
+        const fontSizeInput = document.querySelector('input[name="font_size"]');
+
+        if (fontSizeRange && fontSizeInput) {
+            fontSizeInput.addEventListener('input', function() {
+                fontSizeRange.value = this.value;
+            });
+        }
+
+        // Para el modal de edición
+        const editFontSizeRange = document.querySelector(
+            '#modalEditarCertificado input[name="font_size_range"]');
+        const editFontSizeInput = document.querySelector('#modalEditarCertificado input[name="font_size"]');
+
+        if (editFontSizeRange && editFontSizeInput) {
+            editFontSizeInput.addEventListener('input', function() {
+                editFontSizeRange.value = this.value;
+            });
+        }
+    });
+
+    // Validación de archivos
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    // Validar tamaño (5MB máximo)
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    if (file.size > maxSize) {
+                        alert(
+                            'El archivo es demasiado grande. El tamaño máximo permitido es 5MB.'
+                            );
+                        this.value = '';
+                        return;
+                    }
+
+                    // Validar tipo de archivo
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                    if (!allowedTypes.includes(file.type)) {
+                        alert(
+                            'Tipo de archivo no permitido. Solo se permiten archivos JPG, PNG y GIF.'
+                            );
+                        this.value = '';
+                        return;
+                    }
+                }
+            });
+        });
+    });
+</script>
+
 @include('layout')

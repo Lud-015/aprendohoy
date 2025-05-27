@@ -89,13 +89,21 @@
     <!-- Primera página (Frontal) -->
     <div class="container">
         <div class="background" style="background-image: url('{{ storage_path('app/public/' . $plantillaf) }}');"></div>
-        <p class="nombre">{{ $inscrito->estudiantes->name }} {{ $inscrito->estudiantes->lastname1 }}
-            {{ $inscrito->estudiantes->lastname2 }}</p>
+        <p class="nombre"
+            style="
+        color: {{ $primary_color ?? '#2980B9' }};
+        font-family: '{{ $font_family ?? 'Bebas Neue' }}', sans-serif;
+        font-size: {{ $font_size ?? 102 }}px;
+    ">
+            {{ $inscrito->estudiantes->name }} {{ $inscrito->estudiantes->lastname1 }}
+            {{ $inscrito->estudiantes->lastname2 }}
+        </p>
 
 
         <div class="qr-container">
             <div class="qr-code">
-                <img src="{{ storage_path('app/public/' . $qr_url) }}" alt="Código QR de verificación" style="width: 200px; height: 200px;">
+                <img src="{{ storage_path('app/public/' . $qr_url) }}" alt="Código QR de verificación"
+                    style="width: 200px; height: 200px;">
             </div>
         </div>
     </div>

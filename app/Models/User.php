@@ -67,6 +67,13 @@ class User extends Authenticatable
         return Carbon::parse($this->attributes['fechadenac'])->age;
     }
 
+    public function cursos(): BelongsToMany
+    {
+        return $this->belongsToMany(Cursos::class, 'inscritos', 'estudiante_id', 'cursos_id');
+    }
+
+
+
 
 
 
@@ -83,16 +90,6 @@ class User extends Authenticatable
     public function foromensaje(): HasMany
     {
         return $this->hasMany(ForoMensaje::class, 'estudiante_id');
-    }
-
-    public function entregatarea(): HasMany
-    {
-        return $this->hasMany(TareasEntrega::class, 'estudiante_id');
-    }
-
-    public function entregaevaluacion(): HasMany
-    {
-        return $this->hasMany(EvaluacionEntrega::class, 'estudiante_id');
     }
 
 
@@ -138,6 +135,21 @@ class User extends Authenticatable
         })
         ->sum('xp'); // Suma el campo 'xp' de todos los registros
 }
+
+    public function userXP()
+    {
+        return $this->hasOneThrough(
+            UserXP::class,
+            Inscritos::class,
+            'estudiante_id', // Clave foránea en inscritos
+            'inscrito_id',   // Clave foránea en user_xp
+            'id',            // Clave local en users
+            'id'            // Clave local en inscritos
+        );
+    }
+
+
+    
 
 
 

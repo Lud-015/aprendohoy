@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
+            $table->string('type')->nullable();
+            $table->integer('requirement_value')->nullable();
+            $table->boolean('secret')->default(false);
             $table->string('icon')->nullable();
             $table->integer('xp_reward')->default(0);
             $table->timestamps();

@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Actividad;
 use App\Models\Aportes;
+use App\Models\Categoria;
+use App\Models\Certificado;
 use App\Models\Horario;
 use App\Models\User;
 use App\Models\Cursos;
 use App\Models\Evaluaciones;
+use App\Models\Expositores;
 use App\Models\Foro;
 use App\Models\Inscritos;
 use App\Models\Tareas;
@@ -20,54 +24,42 @@ class MenuController extends Controller
 
     public function detalle($id)
     {
-        $curso = Cursos::findOrFail($id);
+        $curso = Cursos::with(['calificaciones.user', 'inscritos'])
+            ->withAvg('calificaciones', 'puntuacion')
+            ->withCount('calificaciones')
+            ->findOrFail($id);
+
+        $usuarioInscrito = $curso->inscritos->firstWhere('estudiante_id', Auth::id());
 
 
-        $usuarioInscrito = $curso->inscritos->contains('estudiante_id', Auth::id());
-
-        return view('cursosDetalle')
-        ->with('cursos', $curso)
-        ->with('usuarioInscrito', $usuarioInscrito);
-    }
 
 
-    public function lista(Request $request)
-    {
-        $request->validate([
-            'type' => 'nullable|in:curso,congreso', // Asegúrate de que el tipo sea válido
-            'sort' => 'nullable|in:price_asc,price_desc,date_desc,rating_desc', // Asegúrate de que el orden sea válido
+
+
+        // Verificar si el usuario ya calificó el curso
+        $usuarioCalifico = false;
+        $calificacionUsuario = null;
+
+        if (Auth::check()) {
+            $calificacionUsuario = $curso->calificaciones->where('user_id', Auth::id())->first();
+            $usuarioCalifico = $calificacionUsuario !== null;
+        }
+
+        return view('cursosDetalle', [
+            'cursos' => $curso,
+            'usuarioInscrito' => $usuarioInscrito,
+            'usuarioCalifico' => $usuarioCalifico,
+            'calificacionUsuario' => $calificacionUsuario,
+            'calificacionesRecientes' => $curso->calificaciones()
+                ->with('user')
+                ->latest()
+                ->take(5)
+                ->get()
         ]);
-
-        $query = Cursos::query();
-
-        if ($request->has('type')) {
-            $query->where('tipo', $request->input('type'));
-        }
-
-        if ($request->has('sort')) {
-            switch ($request->input('sort')) {
-                case 'price_asc':
-                    $query->orderBy('precio', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('precio', 'desc');
-                    break;
-                case 'date_desc':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-                case 'rating_desc':
-                    $query->orderBy('rating', 'desc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc');
-                    break;
-            }
-        }
-
-        $cursos = $query->paginate(9);
-
-        return view('listacursoscongresos', compact('cursos'));
     }
+
+
+
 
 
 
@@ -89,14 +81,38 @@ class MenuController extends Controller
     }
     public function index()
     {
+        // Consultas optimizadas por conteo si solo usas los totales
+        $totalCursos = Cursos::whereNull('deleted_at')->count();
+        $totalEstudiantes = User::role('Estudiante')->whereNull('deleted_at')->count();
+        $totalDocentes = User::role('Docente')->whereNull('deleted_at')->count();
+        $totalInscritos = Inscritos::whereNull('deleted_at')->count();
 
-        $cursos2 = Cursos::whereNull('deleted_at')->get();
+        // Para listas completas que podrías necesitar en tabs o tablas
+        $categorias = Categoria::whereNull('deleted_at')->get();
+        $certificados = Certificado::whereNull('deleted_at')->get();
+        $aportes = Aportes::whereNull('deleted_at')->get();
+        $foros = Foro::whereNull('deleted_at')->get();
+        $actividades = Actividad::whereNull('deleted_at')->get();
+        $expositores = Expositores::whereNull('deleted_at')->get();
+
+        // Solo una vez los cursos, evita duplicación ($cursos2 no es necesario)
         $cursos = Cursos::whereNull('deleted_at')->get();
-        $estudiantes = User::whereNull('deleted_at')->role('Estudiante')->get();
-        $docentes = User::whereNull('deleted_at')->role('Docente')->get();
         $inscritos = Inscritos::whereNull('deleted_at')->get();
-        return view('Inicio')->with('cursos2', $cursos2)->with('cursos', $cursos)->with('inscritos', $inscritos)->with('estudiantes', $estudiantes)->with('docentes', $docentes);
+        $estudiantes = User::role('Estudiante')->whereNull('deleted_at')->get();
+        $docentes = User::role('Docente')->whereNull('deleted_at')->get();
+
+        // Logs internos (limitado para evitar mostrar todo el archivo)
+        $logPath = storage_path('logs/laravel.log');
+        $logs = file_exists($logPath) ? collect(explode("\n", file_get_contents($logPath)))->take(-100)->implode("\n") : 'No hay logs disponibles.';
+
+        return view('Inicio', compact(
+            'categorias', 'certificados', 'aportes', 'foros',
+            'actividades', 'expositores', 'cursos', 'inscritos',
+            'estudiantes', 'docentes', 'totalCursos', 'totalEstudiantes',
+            'totalDocentes', 'totalInscritos', 'logs'
+        ));
     }
+
 
     public function ListaDeCursos()
     {
@@ -112,6 +128,127 @@ class MenuController extends Controller
         $cursos = Cursos::onlyTrashed()->get();
 
         return view('Administrador.ListadeCursosEliminados')->with('cursos', $cursos);
+    }
+
+    public function lista(Request $request)
+    {
+        // 1. Validación básica de los parámetros de entrada
+        $validated = $request->validate([
+            'type' => 'nullable|in:curso,congreso',
+            'sort' => 'nullable|in:price_asc,price_desc,date_desc,rating_desc',
+            'search' => 'nullable|string|max:255',
+            'formato' => 'nullable|in:Presencial,Virtual,Híbrido',
+            'nivel' => 'nullable|string',
+            'visibilidad' => 'nullable|in:publico,privado',
+            'categoria' => 'nullable|exists:categoria,id' // Filtro por categoría
+        ]);
+
+        // 2. Crear la consulta base con todas las relaciones necesarias
+        $query = Cursos::query()
+            ->with([
+                'docente',
+                'categorias', // Relación muchos a muchos
+                'calificaciones' => function($q) {
+                    $q->select('curso_id', 'puntuacion'); // Solo campos necesarios para optimizar
+                }
+            ])
+            ->withAvg('calificaciones', 'puntuacion') // Promedio de calificaciones
+            ->withCount('calificaciones') // Cantidad de calificaciones
+            ->withCount('inscritos'); // Cantidad de inscritos
+
+        // 3. Filtro de visibilidad basado en rol
+        $isAdmin = auth()->user() && auth()->user()->hasRole('Administrador');
+        if (!$isAdmin) {
+            $query->where('visibilidad', 'publico');
+        } elseif ($request->filled('visibilidad')) {
+            $query->where('visibilidad', $validated['visibilidad']);
+        }
+
+        // 4. Filtro de búsqueda (incluye nombre del curso, descripción y categorías)
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nombreCurso', 'like', '%' . $request->search . '%')
+                    ->orWhere('descripcionC', 'like', '%' . $request->search . '%')
+                    ->orWhereHas('categorias', function($catQuery) use ($request) {
+                        $catQuery->where('name', 'like', '%' . $request->search . '%');
+                    });
+            });
+        }
+
+        // 5. Filtros simples
+        if ($request->filled('type')) {
+            $query->where('tipo', $request->type);
+        }
+
+        if ($request->filled('formato')) {
+            $query->where('formato', $request->formato);
+        }
+
+        if ($request->filled('nivel')) {
+            $query->where('nivel', $request->nivel);
+        }
+
+        // 6. Filtro por categoría (relación muchos a muchos)
+        if ($request->filled('categoria')) {
+            $query->whereHas('categorias', function($catQuery) use ($validated) {
+                $catQuery->where('categoria.id', $validated['categoria']);
+            });
+        }
+
+        // 7. Ordenamiento
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'price_asc':
+                    $query->orderBy('precio', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('precio', 'desc');
+                    break;
+                case 'date_desc':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'rating_desc':
+                    $query->orderByDesc('calificaciones_avg_puntuacion')
+                          ->orderByDesc('calificaciones_count');
+                    break;
+            }
+        } else {
+            // Ordenamiento por defecto: mejor calificados primero, luego por fecha
+            $query->orderByDesc('calificaciones_avg_puntuacion')
+                  ->orderBy('created_at', 'desc');
+        }
+
+        // 8. Paginación
+        $cursos = $query->paginate(9)->withQueryString();
+
+        // 9. Obtener categorías para el filtro (solo las que tienen cursos públicos)
+        $categorias = Categoria::whereHas('cursos', function($q) use ($isAdmin) {
+                if (!$isAdmin) {
+                    $q->where('visibilidad', 'publico');
+                }
+            })
+            ->withCount(['cursos' => function($q) use ($isAdmin) {
+                if (!$isAdmin) {
+                    $q->where('visibilidad', 'publico');
+                }
+            }])
+            ->orderBy('name')
+            ->get();
+
+        // 10. Estadísticas adicionales para la vista
+        $stats = [
+            'total_cursos' => $cursos->total(),
+            'promedio_general' => $cursos->avg('calificaciones_avg_puntuacion'),
+            'categorias_disponibles' => $categorias->count()
+        ];
+
+        // 11. Retornar la vista con los datos
+        return view('listacursoscongresos', [
+            'cursos' => $cursos,
+            'categorias' => $categorias,
+            'filters' => $validated,
+            'stats' => $stats
+        ]);
     }
 
 
@@ -204,7 +341,7 @@ class MenuController extends Controller
 
     public function calendario()
     {
-
+        // Obtener los cursos según el rol del usuario
         if (Auth::user()->hasRole('Docente')) {
             $cursos = Cursos::where('docente_id', Auth::user()->id)->get();
         } elseif (Auth::user()->hasRole('Estudiante')) {
@@ -212,29 +349,22 @@ class MenuController extends Controller
             $cursos = Cursos::whereIn('id', $inscripciones->pluck('cursos_id'))->get();
         }
 
-        $tareas = collect();
-        $evaluaciones = collect();
-        $foros = collect();
+        // Colección para almacenar todas las actividades
+        $actividades = collect();
 
+        // Obtener actividades para cada curso
         foreach ($cursos as $curso) {
-            $cursoTareas = Tareas::with(['subtema.tema'])
+            $actividadesCurso = Actividad::with(['subtema.tema', 'tipoActividad'])
                 ->whereHas('subtema.tema', function ($query) use ($curso) {
                     $query->where('curso_id', $curso->id);
                 })
                 ->get();
 
-            $cursoEvaluaciones = Evaluaciones::where('cursos_id', $curso->id)->get();
-            $cursoForos = Foro::where('cursos_id', $curso->id)->get();
-
-            $tareas = $tareas->merge($cursoTareas);
-            $evaluaciones = $evaluaciones->merge($cursoEvaluaciones);
-            $foros = $foros->merge($cursoForos);
+            $actividades = $actividades->merge($actividadesCurso);
         }
 
         return view('calendario', [
-            'tareas' => $tareas,
-            'foros' => $foros,
-            'evaluaciones' => $evaluaciones,
+            'actividades' => $actividades,
             'cursos' => $cursos
         ]);
     }

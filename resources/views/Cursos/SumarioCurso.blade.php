@@ -120,7 +120,6 @@
             <div class="col-md-6">
                 <h5 class="text-primary">Contenido</h5>
                 <p><strong>Temas:</strong> {{ $temas->count() }}</p>
-                <p><strong>Evaluaciones:</strong> {{ $evaluaciones->count() }}</p>
                 <p><strong>Foros:</strong> {{ $foros->count() }}</p>
             </div>
             <div class="col-md-6">
@@ -153,7 +152,26 @@
                 <tbody>
                     @foreach ($inscritos as $inscrito)
                         @php
-                            $notaFinal = round((($inscrito->notatarea->avg('nota') + $inscrito->notaevaluacion->avg('nota')) / 2), 2);
+                            $notasInscrito = $notasEntregas->where('inscripcion_id', $inscrito->id);
+                            $cuestionariosInscrito = $notasCuestionarios->where('inscripcion_id', $inscrito->id);
+                            
+                            $sumaNotas = 0;
+                            $cantidadNotas = 0;
+
+                            // Sumar notas de actividades
+                            if ($notasInscrito->count() > 0) {
+                                $sumaNotas += $notasInscrito->sum('nota');
+                                $cantidadNotas += $notasInscrito->count();
+                            }
+
+                            // Sumar notas de cuestionarios
+                            if ($cuestionariosInscrito->count() > 0) {
+                                $sumaNotas += $cuestionariosInscrito->sum('calificacion');
+                                $cantidadNotas += $cuestionariosInscrito->count();
+                            }
+
+                            // Calcular promedio final
+                            $notaFinal = $cantidadNotas > 0 ? round($sumaNotas / $cantidadNotas, 2) : 0;
                         @endphp
                         <tr>
                             <td>{{ $inscrito->estudiantes->name }} {{ $inscrito->estudiantes->lastname1 }} {{ $inscrito->estudiantes->lastname2 }}</td>
@@ -167,14 +185,14 @@
                             </td>
                             <td>{{ $notaFinal }}</td>
                             <td>
-                                @if ($notaFinal <= 51)
-                                    Participante
-                                @elseif ($notaFinal <= 65)
-                                    Aprendiz
-                                @elseif ($notaFinal <= 75)
-                                    Habilidoso
-                                @else
+                                @if ($notaFinal >= 90)
                                     Experto
+                                @elseif ($notaFinal >= 75)
+                                    Habilidoso
+                                @elseif ($notaFinal >= 60)
+                                    Aprendiz
+                                @else
+                                    Participante
                                 @endif
                             </td>
                             @else

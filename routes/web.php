@@ -29,8 +29,13 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\RecursoSubtemaController;
 use App\Http\Controllers\BotManController;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\CursoCalificacionController;
+use App\Http\Controllers\CursoImagenController;
+use App\Http\Controllers\ExpositoresController;
 use App\Http\Controllers\OpenAIController;
 use App\Http\Controllers\RespuestaController;
+use App\Http\Controllers\AchievementController;
 
 Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 
@@ -67,6 +72,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/chat', [OpenAIController::class, 'sendMessage'])
         ->name('chat.send')
         ->middleware('throttle:60,1'); // Rate limiting
+
+    // Ruta para logros y niveles
+    Route::get('/profile/achievements', [AchievementController::class, 'index'])->name('profile.achievements');
 });
 
 Route::get('/login', function () {
@@ -128,6 +136,8 @@ Route::get('/verificar-certificado/{codigo}', [CertificadoController::class, 've
 
 Route::group(['middleware' => ['auth']], function () {
 
+    Route::post('/cuestionarios/{cuestionario}/registrar-abandono', [CuestionarioController::class, 'registrarAbandono'])
+        ->name('cuestionarios.registrar-abandono');
 
     //Solo Estudiante
     Route::group(['middleware' => ['role:Estudiante']], function () {
@@ -164,10 +174,19 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::post('/Curso/{id}', [CursosController::class, 'update'])->name('cursos.update');
 
+        Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
+        Route::post('/categorias', [CategoriaController::class, 'store'])->name('categorias.store');
+        Route::put('/categorias/{categoria}', [CategoriaController::class, 'update'])->name('categorias.update');
+        Route::delete('/categorias/{categoria}', [CategoriaController::class, 'destroy'])->name('categorias.destroy');
+        Route::post('/categorias/{id}/restore', [CategoriaController::class, 'restore'])->name('categorias.restore');
+
         Route::get('certificadosCongreso/generarAdm/{id}/', [CertificadoController::class, 'generarCertificadoAdmin'])->name('certificadosCongreso.generar.admin');
 
         Route::post('/cursos/{id}/activar-certificados', [CursosController::class, 'activarCertificados'])
             ->name('cursos.activarCertificados');
+
+        Route::put('/cursos/{id}', [CursosController::class, 'updateCategories'])->name('cursos.updateCategories');
+
         // Route::get('/certificates', [cer::class, 'index'])->name('certificates.index');
         Route::post('/certificates/{id}', [CertificadoController::class, 'store'])->name('certificates.store');
         Route::post('/certificates/update/{id}', [CertificadoController::class, 'update'])->name('certificates.update');
@@ -191,6 +210,17 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/CrearDocente', [MenuController::class, 'storeDIndex'])->name('CrearDocente');
         Route::post('/CrearDocente', [AdministradorController::class, 'storeDocente'])->name('CrearDocentePost');
         Route::get('/deleteUser/{id}', [UserController::class, 'eliminarUsuario'])->name('eliminarUser');
+        //Expositores
+
+        Route::get('/expositores', [ExpositoresController::class, 'ListaExpositores'])->name('ListaExpositores');
+        Route::post('/expositores', [ExpositoresController::class, 'store'])->name('expositores.store');
+        Route::get('/expositores/{id}/edit', [ExpositoresController::class, 'edit']);
+        Route::put('/expositores/{id}', [ExpositoresController::class, 'update'])->name('expositores.update');
+        Route::delete('/expositores/{id}', [ExpositoresController::class, 'destroy'])->name('expositores.destroy');
+        Route::post('/expositores/{id}/restore', [ExpositoresController::class, 'restore'])->name('expositores.restore');
+
+
+
         //Administrador/Cursos
         Route::get('/ListadeCursos', [MenuController::class, 'ListaDeCursos'])->name('ListadeCursos');
         Route::get('/ListaCursosCerrados', [MenuController::class, 'ListaDeCursosEliminados'])->name('ListadeCursosEliminados');
@@ -223,18 +253,33 @@ Route::group(['middleware' => ['auth']], function () {
 
     //DOCENTE
     Route::group(['middleware' => ['role:Docente|Administrador']], function () {
+
+        Route::post('/cursos/{curso}/asignar-expositores', [ExpositoresController::class, 'asignarExpositores'])->name('cursos.asignarExpositores');
+        Route::delete('/cursos/{curso}/expositores/{expositor}', [ExpositoresController::class, 'quitarExpositor'])->name('cursos.quitarExpositor');
+
+
+        Route::get('/certificados/vista-previa/{curso_id}', [CertificadoController::class, 'vistaPreviaCertificado'])
+        ->name('certificados.vistaPrevia');
+
+        //Curso
         Route::get('/sumario',  [MenuController::class, 'analytics'])->name('sumario');
         Route::get('/getEstudiantesNoInscritos/{curso_id}', [InscritosController::class, 'getEstudiantesNoInscritos']);
+
+        Route::prefix('cursos/{curso}')->group(function () {
+            Route::get('imagenes', [CursoImagenController::class, 'index'])->name('curso-imagenes.index');
+            Route::post('imagenes', [CursoImagenController::class, 'store'])->name('curso-imagenes.store');
+        });
+
+        Route::put('curso-imagenes/{imagen}', [CursoImagenController::class, 'update'])->name('curso-imagenes.update');
+        Route::delete('curso-imagenes/{imagen}', [CursoImagenController::class, 'destroy'])->name('curso-imagenes.destroy');
+        Route::put('curso-imagenes/{imagen}/restaurar', [CursoImagenController::class, 'restore'])->name('curso-imagenes.restore');
+        Route::put('/cursos/{curso}/editar-youtube', [CursosController::class, 'updateYoutube'])->name('cursos.updateYoutube');
+
         //HORARIO
         Route::post('/store', [HorarioController::class, 'store'])->name('horarios.store');
         Route::post('/horarios/{id}', [HorarioController::class, 'update'])->name('horarios.update');
         Route::delete('/horarios/{id}', [HorarioController::class, 'delete'])->name('horarios.delete');
         Route::post('/horarios/{id}/restore', [HorarioController::class, 'restore'])->name('horarios.restore');
-
-
-        //Recursos Subtema
-
-
 
 
         //Cuestionarios
@@ -434,6 +479,23 @@ Route::group(['middleware' => ['auth']], function () {
             return Storage::disk('public')->download($rutaCompleta);
         })->name('descargar.comprobante');
     });
+
+    // Rutas para calificaciones de cursos
+    Route::middleware(['auth'])->group(function () {
+        // Guardar calificación
+        Route::post('/cursos/{curso}/calificar', [CursoCalificacionController::class, 'store'])
+            ->name('cursos.calificar');
+
+        // Eliminar calificación (opcional)
+        Route::delete('/calificaciones/{calificacion}', [CursoCalificacionController::class, 'destroy'])
+            ->name('calificaciones.destroy');
+
+        // Ver todas las calificaciones (opcional)
+        Route::get('/cursos/{curso}/calificaciones', [CursoCalificacionController::class, 'index'])
+            ->name('cursos.calificaciones');
+    });
+
+
     Route::get('certificado/qr/{codigo}', [CertificadoController::class, 'descargarQR'])->name('descargar.qr');
     //QR
     // Ruta para inscribirse utilizando el QR

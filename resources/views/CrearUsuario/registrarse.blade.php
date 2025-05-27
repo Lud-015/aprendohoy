@@ -201,26 +201,18 @@
 <script>
     // Array of countries
     const countries = [
-        // América del Norte
-        "Canada", "Estados Unidos", "México",
-
-        // América Central y el Caribe
-        "Belice", "Costa Rica", "Cuba", "El Salvador", "Guatemala", "Honduras", "Nicaragua", "Panamá",
+        "Canada", "Estados Unidos", "México", "Belice", "Costa Rica", "Cuba", "El Salvador", "Guatemala", "Honduras", "Nicaragua", "Panamá",
         "República Dominicana",
 
-        // América del Sur
         "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Ecuador", "Guyana", "Paraguay", "Perú", "Surinam",
         "Uruguay", "Venezuela",
 
-        // Europa
         "Alemania", "Francia", "España", "Italia", "Reino Unido", "Portugal", "Países Bajos", "Bélgica", "Suiza",
         "Austria", "Grecia", "Suecia", "Noruega",
 
-        // Asia
         "China", "India", "Japón", "Corea del Sur", "Indonesia", "Filipinas", "Malasia", "Singapur", "Tailandia",
         "Vietnam", "Israel", "Turquía", "Arabia Saudita",
 
-        // Oceanía
         "Australia", "Nueva Zelanda"
     ];
 
@@ -255,16 +247,27 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        // Password Toggle Function
-        function togglePasswordVisibility(button) {
-            const input = button.previousElementSibling;
-            const icon = button.querySelector('i');
+<script>
+    // Función para alternar la visibilidad de la contraseña
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manejar el evento click para todos los botones de toggle-password
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = this.querySelector('i');
 
-            input.type = input.type === 'password' ? 'text' : 'password';
-            icon.classList.toggle('fa-eye');
-            icon.classList.toggle('fa-eye-slash');
-        }
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
 
         // SweetAlert Notifications
         @if(session('success'))
@@ -284,4 +287,7 @@
                 confirmButtonColor: '#dc3545'
             });
         @endif
-    </script>
+
+
+    });
+</script>

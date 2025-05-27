@@ -10,7 +10,7 @@ class CertificateTemplate extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['curso_id', 'template_front_path', 'template_back_path'];
+    protected $fillable = ['curso_id', 'template_front_path', 'template_back_path', 'primary_color', 'font_family', 'font_size'];
     public function curso()
     {
         return $this->belongsTo(Cursos::class, 'curso_id','id');
