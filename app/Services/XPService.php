@@ -2,105 +2,136 @@
 
 namespace App\Services;
 
-use App\Models\UserXP;
+use App\Models\User;
 use App\Models\Inscritos;
 use Illuminate\Support\Facades\Cache;
 
 class XPService
 {
-    protected $xpActions = [
-        'complete_activity' => 50,
-        'perfect_quiz' => 100,
-        'forum_participation' => 25,
-        'help_others' => 30,
-        'daily_login' => 10,
-        'resource_view' => 5,
-        'early_submission' => 20
+    // Niveles y XP requerida
+    private $levels = [
+        1 => 0,
+        2 => 100,
+        3 => 250,
+        4 => 500,
+        5 => 1000,
+        6 => 2000,
+        7 => 3500,
+        8 => 5000,
+        9 => 7500,
+        10 => 10000
     ];
 
-    protected $multipliers = [
-        'weekend' => 1.5,
-        'streak' => 1.2,
-        'first_daily' => 1.1
-    ];
-
-    public function awardXP(Inscritos $inscrito, string $action, array $context = [])
+    /**
+     * Añade XP a un usuario inscrito
+     */
+    public function addXP(Inscritos $inscrito, int $amount, string $reason)
     {
-        if (!isset($this->xpActions[$action])) {
-            throw new \InvalidArgumentException("Acción de XP no válida: {$action}");
-        }
-
-        $baseXP = $this->xpActions[$action];
-        $multiplier = $this->calculateMultiplier($inscrito);
-        $finalXP = round($baseXP * $multiplier);
-
-        $userXP = UserXP::firstOrCreate(
-            ['inscrito_id' => $inscrito->id],
-            [
-                'current_xp' => 0,
-                'total_xp_earned' => 0,
-                'current_level' => 1,
-                'last_activity_at' => now()
-            ]
+        // Obtener XP actual del cache o DB
+        $currentXP = Cache::remember(
+            "user_xp:{$inscrito->id}",
+            now()->addHours(24),
+            fn() => $inscrito->xp ?? 0
         );
 
-        $userXP->addXP($finalXP);
+        // Calcular nuevo XP
+        $newXP = $currentXP + $amount;
 
-        // Invalidar caché relacionada
-        $this->invalidateUserCache($inscrito->id);
+        // Actualizar en DB
+        $inscrito->update(['xp' => $newXP]);
 
-        return $finalXP;
-    }
+        // Limpiar cache
+        Cache::forget("user_xp:{$inscrito->id}");
+        Cache::forget("user_level:{$inscrito->id}");
 
-    protected function calculateMultiplier(Inscritos $inscrito)
-    {
-        $finalMultiplier = 1;
+        // Verificar si subió de nivel
+        $oldLevel = $this->getCurrentLevel($currentXP);
+        $newLevel = $this->getCurrentLevel($newXP);
 
-        // Multiplicador de fin de semana
-        if (now()->isWeekend()) {
-            $finalMultiplier *= $this->multipliers['weekend'];
+        if ($newLevel > $oldLevel) {
+            // Trigger evento de subida de nivel
+            event(new UserLevelUp($inscrito, $newLevel, $oldLevel));
         }
 
-        // Multiplicador de racha
-        if ($this->hasLoginStreak($inscrito)) {
-            $finalMultiplier *= $this->multipliers['streak'];
-        }
+        // Registrar la ganancia de XP
+        $this->logXPGain($inscrito, $amount, $reason);
 
-        // Multiplicador de primera actividad del día
-        if ($this->isFirstDailyActivity($inscrito)) {
-            $finalMultiplier *= $this->multipliers['first_daily'];
-        }
-
-        return $finalMultiplier;
-    }
-
-    protected function hasLoginStreak(Inscritos $inscrito)
-    {
-        $key = "user_login_streak:{$inscrito->id}";
-        return Cache::get($key, 0) >= 7;
-    }
-
-    protected function isFirstDailyActivity(Inscritos $inscrito)
-    {
-        $userXP = UserXP::where('inscrito_id', $inscrito->id)->first();
-        
-        if (!$userXP || !$userXP->last_activity_at) {
-            return true;
-        }
-
-        return !$userXP->last_activity_at->isToday();
-    }
-
-    protected function invalidateUserCache($inscritoId)
-    {
-        $cacheKeys = [
-            "user_xp:{$inscritoId}",
-            "user_level:{$inscritoId}",
-            "user_achievements:{$inscritoId}"
+        return [
+            'old_xp' => $currentXP,
+            'new_xp' => $newXP,
+            'gained' => $amount,
+            'old_level' => $oldLevel,
+            'new_level' => $newLevel,
+            'leveled_up' => $newLevel > $oldLevel
         ];
+    }
 
-        foreach ($cacheKeys as $key) {
-            Cache::forget($key);
+    /**
+     * Obtiene el nivel actual basado en XP
+     */
+    public function getCurrentLevel(int $xp): int
+    {
+        foreach ($this->levels as $level => $requiredXP) {
+            if ($xp < $requiredXP) {
+                return $level - 1;
+            }
         }
+        return max(array_keys($this->levels));
+    }
+
+    /**
+     * Obtiene XP necesaria para el siguiente nivel
+     */
+    public function getNextLevelXP(int $currentXP): int
+    {
+        $currentLevel = $this->getCurrentLevel($currentXP);
+        return $this->levels[$currentLevel + 1] ?? $this->levels[max(array_keys($this->levels))];
+    }
+
+    /**
+     * Registra la ganancia de XP
+     */
+    private function logXPGain(Inscritos $inscrito, int $amount, string $reason)
+    {
+        \DB::table('xp_events')->insert([
+            'users_id' => $inscrito->estudiante_id,
+            'curso_id' => $inscrito->cursos_id,
+            'xp' => $amount,
+            'origen_type' => 'system',
+            'origen_id' => 0,
+            'xp_event_type_id' => 1, // ID del tipo de evento por defecto
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+    }
+
+    /**
+     * Obtiene el ranking del usuario
+     */
+    public function getUserRank(Inscritos $inscrito): int
+    {
+        $key = "user_rank:{$inscrito->id}";
+        
+        return Cache::remember($key, now()->addMinutes(30), function () use ($inscrito) {
+            return Inscritos::where('xp', '>', $inscrito->xp)->count() + 1;
+        });
+    }
+
+    /**
+     * Obtiene las estadísticas de XP del usuario
+     */
+    public function getUserStats(Inscritos $inscrito): array
+    {
+        $currentXP = $inscrito->xp;
+        $currentLevel = $this->getCurrentLevel($currentXP);
+        $nextLevelXP = $this->getNextLevelXP($currentXP);
+        
+        return [
+            'current_xp' => $currentXP,
+            'current_level' => $currentLevel,
+            'next_level_xp' => $nextLevelXP,
+            'progress_percentage' => ($currentXP / $nextLevelXP) * 100,
+            'rank' => $this->getUserRank($inscrito)
+        ];
     }
 } 

@@ -60,7 +60,7 @@ class AchievementsTableSeeder extends Seeder
                         'xp_reward' => $config['xp_rewards'][$index],
                         'type' => $type,
                         'requirement_value' => $value,
-                        'secret' => false
+                        'is_secret' => false
                     ]
                 );
             }
@@ -72,32 +72,40 @@ class AchievementsTableSeeder extends Seeder
                 'title' => 'Explorador Nocturno',
                 'description' => 'Completa una actividad entre las 12 AM y las 4 AM',
                 'icon' => '🌙',
-                'xp_reward' => 500
+                'xp_reward' => 500,
+                'type' => 'NIGHT_OWL',
+                'requirement_value' => 1
             ],
             [
                 'title' => 'Velocista',
                 'description' => 'Completa un cuestionario en menos de 1 minuto con calificación perfecta',
                 'icon' => '⚡',
-                'xp_reward' => 1000
+                'xp_reward' => 1000,
+                'type' => 'SPEED_RUNNER',
+                'requirement_value' => 1
             ],
             [
                 'title' => 'Sabio del Foro',
                 'description' => 'Obtén 50 "me gusta" en tus respuestas del foro',
                 'icon' => '👑',
-                'xp_reward' => 1500
+                'xp_reward' => 1500,
+                'type' => 'FORUM_LIKES',
+                'requirement_value' => 50
             ],
             [
                 'title' => 'Maratón de Estudio',
                 'description' => 'Completa 5 actividades diferentes en un solo día',
                 'icon' => '🏃',
-                'xp_reward' => 2000
+                'xp_reward' => 2000,
+                'type' => 'DAILY_ACTIVITIES',
+                'requirement_value' => 5
             ]
         ];
 
         foreach ($secretAchievements as $achievement) {
             Achievement::updateOrCreate(
                 ['slug' => Str::slug($achievement['title'])],
-                array_merge($achievement, ['secret' => true])
+                array_merge($achievement, ['is_secret' => true])
             );
         }
     }

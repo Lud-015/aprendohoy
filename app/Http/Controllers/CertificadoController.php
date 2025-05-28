@@ -22,11 +22,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\Facades\Image;
+use App\Services\XPService;
+use App\Services\AchievementService;
 
 
 class CertificadoController extends Controller
 {
+    protected $xpService;
+    protected $achievementService;
 
+    public function __construct(XPService $xpService, AchievementService $achievementService)
+    {
+        $this->xpService = $xpService;
+        $this->achievementService = $achievementService;
+    }
 
     public function store(Request $request, $id)
     {
@@ -148,42 +157,24 @@ class CertificadoController extends Controller
 
         // Obtener los inscritos que aún no tienen certificado
         $inscritos = Inscritos::where('cursos_id', $id)
-            ->whereDoesntHave('certificado') // Verifica que no tengan un certificado aún
+            ->whereDoesntHave('certificado')
             ->with('estudiantes')
             ->get();
 
-        // Verificar si hay inscritos sin certificado
         if ($inscritos->isEmpty()) {
             return back()->with('info', 'Todos los inscritos ya tienen su certificado.');
         }
 
-        // Recorrer cada inscrito y generar su certificado
         foreach ($inscritos as $inscrito) {
-            // Generar código único
-            $codigo_certificado = Str::uuid();
+            $certificado = $this->generarCertificadoIndividual(
+                $id,
+                $inscrito->id,
+                $inscrito->estudiantes
+            );
 
-            // Generar el código QR
-            $qrCode = QrCode::format('svg')
-                ->size(200)
-                ->generate(route('verificar.certificado', ['codigo' => $codigo_certificado]));
-
-            // Guardar el código QR en el almacenamiento
-            $qrPath = "certificados/{$id}/qrcode_{$inscrito->id}.svg";
-            Storage::put("public/$qrPath", $qrCode);
-
-            // Guardar los datos en la base de datos
-            Certificado::create([
-                'curso_id' => $curso->id,
-                'inscrito_id' => $inscrito->id,
-                'codigo_certificado' => $codigo_certificado,
-                'ruta_certificado' => $qrPath, // Usar ruta_certificado para guardar la ruta del QR
-            ]);
-
-            // Enviar notificación al estudiante
-            if ($inscrito->estudiantes && $inscrito->estudiantes->email) {
-                $inscrito->estudiantes->notify(new CertificadoGeneradoNotification($inscrito, $codigo_certificado));
-            } else {
-                Log::warning("El estudiante con ID {$inscrito->estudiante_id} no tiene un correo electrónico registrado.");
+            // Otorgar XP adicional por certificado de congreso
+            if ($certificado->wasRecentlyCreated) {
+                $this->xpService->addXP($inscrito, 300, "Certificado de congreso - {$curso->nombreCurso}");
             }
         }
 
@@ -222,9 +213,6 @@ class CertificadoController extends Controller
             ->where('inscrito_id', $inscrito->id)
             ->first();
 
-
-
-        // Si ya existe, usamos el código existente
         if ($certificadoExistente) {
             $codigo_certificado = $certificadoExistente->codigo_certificado;
             $regenerando = true;
@@ -243,14 +231,19 @@ class CertificadoController extends Controller
             $regenerando = false;
 
             // Crear registro de certificado
-            Certificado::create([
+            $certificado = Certificado::create([
                 'curso_id' => $curso->id,
                 'inscrito_id' => $inscrito->id,
                 'codigo_certificado' => $codigo_certificado,
             ]);
+
+            // Otorgar XP por obtener certificado de congreso
+            $this->xpService->addXP($inscrito, 300, "Certificado de congreso - {$curso->nombreCurso}");
+
+            // Verificar logro de certificados
+            $totalCertificados = Certificado::where('inscrito_id', $inscrito->id)->count();
+            $this->achievementService->checkAndAwardAchievements($inscrito, 'CERTIFICATE_EARNED', $totalCertificados);
         }
-
-
 
         // Enviar notificación con el link de verificación solo si no se está regenerando
         if (!$regenerando && $inscrito->estudiantes && $inscrito->estudiantes->email) {
@@ -417,47 +410,41 @@ class CertificadoController extends Controller
 
     private function generarCertificadoIndividual($cursoId, $inscritoId, $user)
     {
+        $inscrito = Inscritos::findOrFail($inscritoId);
         $curso = Cursos::findOrFail($cursoId);
 
-        $inscripcion = Inscritos::findOrfail($inscritoId);
+        // Verificar si ya existe un certificado
+        $certificadoExistente = Certificado::where('curso_id', $cursoId)
+            ->where('inscrito_id', $inscritoId)
+            ->first();
 
-        if ($curso->tipo != 'congreso') {
-            return false;
+        if (!$certificadoExistente) {
+            // Generar código único
+            $codigo_certificado = Str::uuid();
+
+            // Crear registro de certificado
+            $certificado = Certificado::create([
+                'curso_id' => $cursoId,
+                'inscrito_id' => $inscritoId,
+                'codigo_certificado' => $codigo_certificado,
+            ]);
+
+            // Otorgar XP por obtener certificado
+            $this->xpService->addXP($inscrito, 200, "Certificado obtenido - {$curso->nombreCurso}");
+
+            // Verificar logro de primer certificado
+            $totalCertificados = Certificado::where('inscrito_id', $inscritoId)->count();
+            $this->achievementService->checkAndAwardAchievements($inscrito, 'CERTIFICATE_EARNED', $totalCertificados);
+
+            // Enviar notificación
+            if ($user && $user->email) {
+                $user->notify(new CertificadoGeneradoNotification($inscrito, $codigo_certificado));
+            }
+
+            return $certificado;
         }
 
-        $plantilla = CertificateTemplate::where('curso_id', $cursoId)->first();
-        if (!$plantilla) {
-            return false;
-        }
-
-        // Generar código único
-        $codigo_certificado = Str::uuid();
-
-        // Generar el código QR
-        $qrCode = QrCode::format('svg')
-            ->size(200)
-            ->generate(route('verificar.certificado', ['codigo' => $codigo_certificado]));
-
-        // Guardar el código QR
-        $qrPath = "certificados/{$cursoId}/qrcode_{$inscritoId}.svg";
-        Storage::put("public/$qrPath", $qrCode);
-
-        // Crear el certificado
-        $certificado = Certificado::create([
-            'curso_id' => $curso->id,
-            'inscrito_id' => $inscritoId,
-            'codigo_certificado' => $codigo_certificado,
-            'ruta_certificado' => $qrPath,
-        ]);
-
-        // Enviar notificación al estudiante
-        if ($user->email) {
-            $user->notify(new CertificadoGeneradoNotification($inscripcion, $codigo_certificado));
-        } else {
-            Log::warning("El usuario con ID {$user->id} no tiene un correo electrónico registrado.");
-        }
-
-        return true;
+        return $certificadoExistente;
     }
 
 

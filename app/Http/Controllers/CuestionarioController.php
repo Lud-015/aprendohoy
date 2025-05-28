@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\XPService;
 use App\Services\AchievementService;
+use App\Models\ActividadCompletion;
 
 class CuestionarioController extends Controller
 {
@@ -167,55 +168,86 @@ class CuestionarioController extends Controller
 
             // Otorgar XP basado en el rendimiento
             $xpService = app(XPService::class);
+            $achievementService = app(AchievementService::class);
             
-            // Cuestionario perfecto
-            if ($puntajeObtenido == $puntajeTotal) {
-                $xpService->awardXP($inscrito, 'perfect_quiz', [
-                    'cuestionario_id' => $id,
-                    'puntaje' => $puntajeObtenido
-                ]);
+            // Base XP por completar el cuestionario
+            $baseXP = 50;
+            
+            // Bonus por porcentaje de aciertos
+            $porcentajeAciertos = ($puntajeObtenido / $puntajeTotal) * 100;
+            $bonusXP = round($porcentajeAciertos / 2); // Máximo 50 XP extra por 100%
+            
+            // Bonus por velocidad si hay tiempo límite
+            $bonusVelocidad = 0;
+            if ($cuestionario->tiempo_limite) {
+                $tiempoUtilizado = $intento->iniciado_en->diffInMinutes($intento->finalizado_en);
+                if ($tiempoUtilizado < ($cuestionario->tiempo_limite * 0.5)) {
+                    $bonusVelocidad = 25; // Bonus por completar en menos de la mitad del tiempo
+                    
+                    // Verificar logro de velocista
+                    if ($puntajeObtenido == $puntajeTotal) {
+                        $speedyQuizzes = IntentoCuestionario::where('inscrito_id', $inscrito->id)
+                            ->whereHas('cuestionario', function($q) {
+                                $q->whereNotNull('tiempo_limite');
+                            })
+                            ->where(DB::raw('TIMESTAMPDIFF(MINUTE, iniciado_en, finalizado_en)'), '<', 
+                                DB::raw('cuestionarios.tiempo_limite * 0.5'))
+                            ->where('nota', function ($q) {
+                                $q->select(DB::raw('SUM(preguntas.puntaje)'))
+                                    ->from('preguntas')
+                                    ->whereColumn('preguntas.cuestionario_id', 'intento_cuestionarios.cuestionario_id');
+                            })
+                            ->count();
+                            
+                        $achievementService->checkAndAwardAchievements($inscrito, 'SPEED_RUNNER', $speedyQuizzes);
+                    }
+                }
+            }
+            
+            // XP total
+            $totalXP = $baseXP + $bonusXP + $bonusVelocidad;
+            
+            // Otorgar XP
+            $xpService->addXP($inscrito, $totalXP, "Cuestionario completado - Puntuación: {$puntajeObtenido}/{$puntajeTotal}");
 
-                // Verificar logros de cuestionarios perfectos
+            // Verificar logros
+            if ($puntajeObtenido == $puntajeTotal) {
+                // Logro de cuestionarios perfectos
                 $perfectQuizzes = IntentoCuestionario::where('inscrito_id', $inscrito->id)
-                    ->where('nota', function ($query) {
-                        $query->select(DB::raw('preguntas.puntaje'))
-                            ->from('cuestionarios')
-                            ->join('actividades', 'actividades.id', '=', 'cuestionarios.actividad_id')
-                            ->join('preguntas', 'preguntas.cuestionario_id', '=', 'cuestionarios.id')
-                            ->whereColumn('cuestionarios.id', 'intento_cuestionarios.cuestionario_id')
-                            ->groupBy('cuestionarios.id')
-                            ->havingRaw('SUM(preguntas.puntaje)');
+                    ->where('nota', function ($q) {
+                        $q->select(DB::raw('SUM(preguntas.puntaje)'))
+                            ->from('preguntas')
+                            ->whereColumn('preguntas.cuestionario_id', 'intento_cuestionarios.cuestionario_id');
                     })
                     ->count();
-
-                $achievementService = app(AchievementService::class);
+                    
                 $achievementService->checkAndAwardAchievements($inscrito, 'QUIZ_MASTER', $perfectQuizzes);
-            } 
-            // Cuestionario aprobado
-            elseif ($puntajeObtenido >= ($puntajeTotal * 0.6)) {
-                $xpService->awardXP($inscrito, 'complete_activity', [
-                    'cuestionario_id' => $id,
-                    'puntaje' => $puntajeObtenido
-                ]);
             }
 
-            // Verificar si es una entrega temprana
-            $tiempoLimite = $cuestionario->tiempo_limite;
-            if ($tiempoLimite) {
+            // Verificar entrega temprana
+            if ($cuestionario->tiempo_limite) {
                 $tiempoUtilizado = $intento->iniciado_en->diffInMinutes($intento->finalizado_en);
-                if ($tiempoUtilizado < ($tiempoLimite * 0.5)) {
-                    $achievementService = app(AchievementService::class);
+                if ($tiempoUtilizado < ($cuestionario->tiempo_limite * 0.5)) {
                     $earlySubmissions = IntentoCuestionario::where('inscrito_id', $inscrito->id)
-                        ->whereHas('cuestionario', function ($query) {
-                            $query->whereNotNull('tiempo_limite');
+                        ->whereHas('cuestionario', function($q) {
+                            $q->whereNotNull('tiempo_limite');
                         })
-                        ->where(function ($query) {
-                            $query->whereRaw('TIMESTAMPDIFF(MINUTE, iniciado_en, finalizado_en) < cuestionarios.tiempo_limite * 0.5');
-                        })
+                        ->where(DB::raw('TIMESTAMPDIFF(MINUTE, iniciado_en, finalizado_en)'), '<', 
+                            DB::raw('cuestionarios.tiempo_limite * 0.5'))
                         ->count();
-                    
+                        
                     $achievementService->checkAndAwardAchievements($inscrito, 'EARLY_BIRD', $earlySubmissions);
                 }
+            }
+
+            // Verificar actividad nocturna
+            if (now()->hour >= 0 && now()->hour < 4) {
+                $nightActivities = ActividadCompletion::where('inscrito_id', $inscrito->id)
+                    ->whereTime('created_at', '>=', '00:00:00')
+                    ->whereTime('created_at', '<', '04:00:00')
+                    ->count();
+                    
+                $achievementService->checkAndAwardAchievements($inscrito, 'NIGHT_OWL', $nightActivities);
             }
 
             // Marcar la actividad como completada

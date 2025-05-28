@@ -11,10 +11,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Services\XPService;
+use App\Services\AchievementService;
 
 
 class InscritosController extends Controller
 {
+    protected $xpService;
+    protected $achievementService;
+
+    public function __construct(XPService $xpService, AchievementService $achievementService)
+    {
+        $this->xpService = $xpService;
+        $this->achievementService = $achievementService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -82,10 +93,17 @@ class InscritosController extends Controller
 
         // Inscribir a los estudiantes
         foreach ($estudiante_ids as $estudiante_id) {
-            Inscritos::create([
+            $inscrito = Inscritos::create([
                 'estudiante_id' => $estudiante_id,
                 'cursos_id' => $curso_id,
+                'pago_completado' => true,
+                'progreso' => 0,
             ]);
+
+            // Otorgar XP por inscripción
+            $curso = Cursos::find($curso_id);
+            $xpBase = $curso->tipo == 'congreso' ? 100 : 50;
+            $this->xpService->addXP($inscrito, $xpBase, "Inscripción en {$curso->nombreCurso}");
         }
 
         return redirect()->back()->with('success', 'Estudiantes inscritos correctamente.');
@@ -112,6 +130,10 @@ class InscritosController extends Controller
         $inscribir->cursos_id = $cursoId;
         $inscribir->estudiante_id = $estudianteId;
         $inscribir->save();
+
+        // Otorgar XP por inscripción en congreso
+        $curso = Cursos::find($cursoId);
+        $this->xpService->addXP($inscribir, 100, "Inscripción en congreso - {$curso->nombreCurso}");
 
         // Obtener el estudiante y el curso para la notificación
         $estudiante = User::find($estudianteId);
@@ -242,10 +264,19 @@ class InscritosController extends Controller
     {
         // Encuentra el registro de inscripción
         $inscrito = Inscritos::findOrFail($inscrito_id);
+        $pagoAnterior = $inscrito->pago_completado;
 
         // Actualiza el campo 'pago_completado' basado en el valor enviado desde el formulario
         $inscrito->pago_completado = filter_var($request->input('pago_completado'), FILTER_VALIDATE_BOOLEAN);
         $inscrito->save();
+
+        // Si el pago se completó y antes no estaba completado
+        if ($inscrito->pago_completado && !$pagoAnterior) {
+            // Otorgar XP por completar el pago
+            $curso = Cursos::find($inscrito->cursos_id);
+            $xpPago = $curso->tipo == 'congreso' ? 150 : 75; // Más XP por pagar un congreso
+            $this->xpService->addXP($inscrito, $xpPago, "Pago completado - {$curso->nombreCurso}");
+        }
 
         // Redirige con un mensaje de éxito
         return back()->with('success', 'El estado del pago se ha actualizado correctamente.');

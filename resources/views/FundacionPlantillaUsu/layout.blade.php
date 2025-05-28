@@ -145,6 +145,37 @@
 </style>
     @include('botman.tinker')
 
+    <!-- Incluir el componente de XP -->
+    @php
+        if (auth()->check()) {
+            $user = auth()->user();
+            $inscripciones = $user->inscritos()->with(['cursos'])->get();
+            $xpHistory = \DB::table('xp_events')
+                ->where('users_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $totalXP = $xpHistory->sum('xp');
+            $currentLevel = \App\Models\Level::getCurrentLevel($totalXP);
+            $nextLevel = \App\Models\Level::getNextLevel($currentLevel ? $currentLevel->level_number : 1);
+            
+            // Calcular el progreso al siguiente nivel
+            if ($currentLevel && $nextLevel) {
+                $xpForCurrentLevel = $currentLevel->xp_required;
+                $xpForNextLevel = $nextLevel->xp_required;
+                $xpProgress = $totalXP - $xpForCurrentLevel;
+                $xpNeeded = $xpForNextLevel - $xpForCurrentLevel;
+                $progressToNext = ($xpNeeded > 0) ? min(100, ($xpProgress / $xpNeeded) * 100) : 0;
+            } else {
+                $progressToNext = 0;
+            }
+
+            $unlockedAchievements = \App\Models\Achievement::whereHas('inscritos', function($query) use ($inscripciones) {
+                $query->whereIn('inscrito_id', $inscripciones->pluck('id'));
+            })->latest()->take(3)->get();
+        }
+    @endphp
+    
+    @include('components.xp-system')
 
 </body>
 <script>

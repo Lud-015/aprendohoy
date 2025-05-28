@@ -13,10 +13,21 @@ use App\Traits\CalificacionTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\XPService;
+use App\Services\AchievementService;
 
 class ActividadController extends Controller
 {
     use CalificacionTrait;
+    
+    protected $xpService;
+    protected $achievementService;
+
+    public function __construct(XPService $xpService, AchievementService $achievementService)
+    {
+        $this->xpService = $xpService;
+        $this->achievementService = $achievementService;
+    }
 
     public function index($id)
     {
@@ -37,11 +48,15 @@ class ActividadController extends Controller
         $request->validate([
             'actividad_id' => 'required|integer',
             'user_id' => 'required|integer',
-            'archivo' => 'required|file|max:2048', // Ajusta los tipos de archivo y el tamaño máximo
+            'archivo' => 'required|file|max:2048',
             'comentario' => 'nullable|string|max:1000',
         ]);
 
         $archivo = $request->file('archivo')->store('entregas', 'public');
+        $actividad = Actividad::findOrFail($request->actividad_id);
+        $inscrito = Inscritos::where('estudiante_id', $request->user_id)
+            ->where('cursos_id', $actividad->subtema->tema->curso->id)
+            ->firstOrFail();
 
         EntregaArchivo::create([
             'actividad_id' => $request->actividad_id,
@@ -50,6 +65,47 @@ class ActividadController extends Controller
             'comentario' => $request->comentario,
             'fecha_entrega' => now(),
         ]);
+
+        // Otorgar XP por entrega
+        $baseXP = 30;
+        $bonusEntregaTemprana = 0;
+
+        // Bonus por entrega temprana
+        if ($actividad->fecha_limite && now() < $actividad->fecha_limite) {
+            $diasAntes = now()->diffInDays($actividad->fecha_limite);
+            $bonusEntregaTemprana = min($diasAntes * 5, 20); // Máximo 20 XP extra
+            
+            // Verificar logro de entregas tempranas
+            $earlySubmissions = EntregaArchivo::where('user_id', $request->user_id)
+                ->whereHas('actividad', function($q) {
+                    $q->whereNotNull('fecha_limite')
+                        ->whereRaw('fecha_entrega < DATE_SUB(fecha_limite, INTERVAL 1 DAY)');
+                })->count();
+            
+            $this->achievementService->checkAndAwardAchievements($inscrito, 'EARLY_BIRD', $earlySubmissions);
+        }
+
+        // Verificar actividad nocturna
+        if (now()->hour >= 0 && now()->hour < 4) {
+            $nightActivities = ActividadCompletion::where('inscrito_id', $inscrito->id)
+                ->whereTime('created_at', '>=', '00:00:00')
+                ->whereTime('created_at', '<', '04:00:00')
+                ->count();
+            
+            $this->achievementService->checkAndAwardAchievements($inscrito, 'NIGHT_OWL', $nightActivities);
+        }
+
+        // Verificar múltiples actividades en un día
+        $actividadesHoy = ActividadCompletion::where('inscrito_id', $inscrito->id)
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+        
+        if ($actividadesHoy >= 5) {
+            $this->achievementService->checkAndAwardAchievements($inscrito, 'DAILY_ACTIVITIES', $actividadesHoy);
+        }
+
+        $totalXP = $baseXP + $bonusEntregaTemprana;
+        $this->xpService->addXP($inscrito, $totalXP, "Entrega de actividad - {$actividad->titulo}");
 
         return back()->with('success', 'Tarea enviada correctamente.');
     }
@@ -141,6 +197,17 @@ class ActividadController extends Controller
                         'inscripcion_id' => $calificarItem['id_inscripcion'],
                     ]);
                 }
+
+                // Otorgar XP basado en la calificación
+                $inscrito = Inscritos::findOrFail($calificarItem['id_inscripcion']);
+                $baseXP = 20;
+                $bonusCalificacion = round($calificarItem['notaTarea'] / 2); // Máximo 50 XP por 100%
+                
+                $this->xpService->addXP(
+                    $inscrito, 
+                    $baseXP + $bonusCalificacion, 
+                    "Calificación de actividad - Nota: {$calificarItem['notaTarea']}/100"
+                );
 
                 // Marcar como completada si tiene calificación
                 if ($this->verificarCalificacionActividad($actividad, $calificarItem['id_inscripcion'])) {

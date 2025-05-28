@@ -36,6 +36,7 @@ use App\Http\Controllers\ExpositoresController;
 use App\Http\Controllers\OpenAIController;
 use App\Http\Controllers\RespuestaController;
 use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\XPController;
 
 Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 
@@ -75,6 +76,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Ruta para logros y niveles
     Route::get('/profile/achievements', [AchievementController::class, 'index'])->name('profile.achievements');
+
+    // Ruta para ver XP y logros
+    Route::get('/perfil/xp', [XPController::class, 'index'])->name('perfil.xp');
 });
 
 Route::get('/login', function () {
@@ -500,4 +504,8 @@ Route::group(['middleware' => ['auth']], function () {
     //QR
     // Ruta para inscribirse utilizando el QR
     Route::get('/inscribirse/{id}/{token}', [InscritosController::class, 'inscribirse'])->name('inscribirse.qr');
+
+    // Rutas para el sistema de logros
+    Route::post('/achievements/unlock', [AchievementController::class, 'unlockAchievement'])->name('achievements.unlock');
+    Route::get('/achievements/progress', [AchievementController::class, 'getProgress'])->name('achievements.progress');
 });
