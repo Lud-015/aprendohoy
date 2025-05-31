@@ -6,11 +6,29 @@ use App\Events\ForoEvent;
 use App\Models\Cursos;
 use App\Models\Foro;
 use App\Models\ForoMensaje;
+use App\Models\Achievement;
+use App\Models\UserXP;
+use App\Models\Inscritos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\XPService;
+use App\Services\AchievementService;
 
 class ForoController extends Controller
 {
+    protected $xpService;
+    protected $achievementService;
+
+    public function __construct(XPService $xpService, AchievementService $achievementService)
+    {
+        $this->xpService = $xpService;
+        $this->achievementService = $achievementService;
+    }
+
+    // Constantes para XP
+    const XP_NUEVO_MENSAJE = 50;
+    const XP_NUEVA_RESPUESTA = 30;
+    const XP_PRIMER_MENSAJE_DIA = 20;
 
     public function Crearforo($id){
 
@@ -85,16 +103,139 @@ class ForoController extends Controller
         ], $messages);
 
         try {
+            DB::beginTransaction();
+
+            // Crear el mensaje
             $mensaje = ForoMensaje::create($validated);
-            return back()->with('success', 'Mensaje enviado exitosamente.');
+
+            // Obtener el foro y el curso
+            $foro = Foro::findOrFail($request->foro_id);
+
+            // Obtener el inscrito correspondiente
+            $inscrito = Inscritos::where('estudiante_id', $request->estudiante_id)
+                               ->where('cursos_id', $foro->cursos_id)
+                               ->first();
+
+            if (!$inscrito) {
+                throw new \Exception('El estudiante no está inscrito en este curso.');
+            }
+
+            // XP base por el mensaje
+            $xpToAdd = $request->respuesta_a ? self::XP_NUEVA_RESPUESTA : self::XP_NUEVO_MENSAJE;
+
+            // Bonus por primer mensaje del día
+            $ultimoMensajeHoy = ForoMensaje::where('estudiante_id', $request->estudiante_id)
+                ->whereDate('created_at', today())
+                ->where('id', '!=', $mensaje->id)
+                ->exists();
+
+            if (!$ultimoMensajeHoy) {
+                $xpToAdd += self::XP_PRIMER_MENSAJE_DIA;
+            }
+
+            // Añadir XP usando XPService
+            $this->xpService->addXP(
+                $inscrito,
+                $xpToAdd,
+                $request->respuesta_a ? "Nueva respuesta en foro" : "Nuevo mensaje en foro"
+            );
+
+            // Verificar logros usando AchievementService
+            $totalMensajes = ForoMensaje::where('estudiante_id', $request->estudiante_id)->count();
+            $this->achievementService->checkAndAwardAchievements($inscrito, 'FORUM_CONTRIBUTOR', $totalMensajes);
+
+            DB::commit();
+
+            // Retornar con los mensajes de éxito y XP ganado
+            return back()->with([
+                'success' => 'Mensaje enviado exitosamente.',
+                'xp_earned' => $xpToAdd
+            ]);
+
         } catch (\Exception $e) {
+            DB::rollBack();
             \Log::error('Error creating mensaje: ' . $e->getMessage());
-            return back()->with('error', 'Hubo un problema al enviar el mensaje. Inténtalo nuevamente.');
+            return back()->with('error', 'Hubo un problema al enviar el mensaje: ' . $e->getMessage());
         }
     }
 
+    protected function checkAchievements(Inscritos $inscrito)
+    {
+        try {
+            // Contar mensajes totales del usuario
+            $totalMensajes = ForoMensaje::where('estudiante_id', $inscrito->estudiante_id)->count();
 
+            // Logros por cantidad de mensajes
+            $messageAchievements = [
+                ['count' => 1, 'title' => 'Primer Mensaje', 'xp' => 100],
+                ['count' => 5, 'title' => 'Participante Activo', 'xp' => 200],
+                ['count' => 10, 'title' => 'Contribuidor Frecuente', 'xp' => 300],
+                ['count' => 25, 'title' => 'Experto en Discusiones', 'xp' => 500],
+                ['count' => 50, 'title' => 'Maestro del Foro', 'xp' => 1000],
+            ];
 
+            foreach ($messageAchievements as $achievement) {
+                if ($totalMensajes >= $achievement['count']) {
+                    // Buscar o crear el logro
+                    $achievementModel = Achievement::firstOrCreate(
+                        ['title' => $achievement['title']],
+                        [
+                            'description' => "Publicar {$achievement['count']} mensajes en el foro",
+                            'type' => 'foro',
+                            'requirement_value' => $achievement['count'],
+                            'xp_reward' => $achievement['xp'],
+                            'is_secret' => false
+                        ]
+                    );
+
+                    // Otorgar el logro si no lo tiene
+                    if (!$achievementModel->isUnlockedByInscrito($inscrito)) {
+                        $achievementModel->award($inscrito);
+
+                        // Guardar información del logro para la notificación
+                        session()->flash('achievement', [
+                            'title' => $achievement['title'],
+                            'description' => "¡Has publicado {$achievement['count']} mensajes en el foro!",
+                            'xp_reward' => $achievement['xp']
+                        ]);
+                    }
+                }
+            }
+
+            // Logro por respuestas
+            $totalRespuestas = ForoMensaje::where('estudiante_id', $inscrito->estudiante_id)
+                ->whereNotNull('respuesta_a')
+                ->count();
+
+            if ($totalRespuestas >= 10) {
+                $supporterAchievement = Achievement::firstOrCreate(
+                    ['title' => 'Colaborador Destacado'],
+                    [
+                        'description' => 'Ayudar a otros respondiendo 10 mensajes en el foro',
+                        'type' => 'foro',
+                        'requirement_value' => 10,
+                        'xp_reward' => 400,
+                        'is_secret' => false
+                    ]
+                );
+
+                if (!$supporterAchievement->isUnlockedByInscrito($inscrito)) {
+                    $supporterAchievement->award($inscrito);
+
+                    // Guardar información del logro para la notificación
+                    session()->flash('achievement', [
+                        'title' => 'Colaborador Destacado',
+                        'description' => '¡Has ayudado a otros respondiendo 10 mensajes!',
+                        'xp_reward' => 400
+                    ]);
+                }
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Error checking achievements: ' . $e->getMessage());
+            // No lanzamos la excepción para no interrumpir el flujo principal
+        }
+    }
 
     public function EditarForoIndex($id){
 

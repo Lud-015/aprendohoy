@@ -8,6 +8,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use App\Events\ResourceViewed;
+use App\Listeners\HandleResourceViewed;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -53,10 +55,10 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UserLeveledUp' => [
             'App\Listeners\UserLeveledUpListener',
         ],
-
+        ResourceViewed::class => [
+            HandleResourceViewed::class,
+        ],
     ];
-
-
 
     /**
      * Register any events for your application.

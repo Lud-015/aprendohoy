@@ -37,10 +37,10 @@ class DatabaseSeeder extends Seeder
 
             // 4. Gamificación
             AchievementsTableSeeder::class, // Logros del sistema
- 
+
             // 5. Contenido inicial
             CursoSeeeder::class, // Cursos de ejemplo
-            CursosSeeder::class, // Cursos adicionales 
+            CursosSeeder::class, // Cursos adicionales
             RecursosSeeder::class, // Recursos educativos iniciales
             ExpositoresSeeder::class, // Expositores iniciales
 

@@ -1,5 +1,7 @@
 @extends('layout')
 
+@section('titulo', 'Tu nivel y logros')
+
 @section('content')
 <div class="container py-4">
     <!-- Sección de Nivel y XP -->
@@ -67,8 +69,8 @@
                             <span class="h4 mb-0">{{ $achievement->icon }}</span>
                         </div>
                         <div>
-                            <h4 class="h6 text-success mb-1">{{ $achievement->title }}</h4>
-                            <small class="text-success">+{{ $achievement->xp_reward }} XP</small>
+                            <h4 class="h6 text-white mb-1">{{ $achievement->title }}</h4>
+                            <small class="text-white">+{{ $achievement->xp_reward }} XP</small>
                         </div>
                     </div>
                 </div>

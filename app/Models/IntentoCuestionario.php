@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class IntentoCuestionario extends Model
 {
@@ -34,5 +35,30 @@ class IntentoCuestionario extends Model
 
     public function inscrito() {
         return $this->belongsTo(Inscritos::class, 'inscrito_id');
+    }
+
+    public static function intentosPerfectos($inscritoId, $cuestionarioId)
+    {
+        return DB::table('intentos_cuestionarios')
+            ->where('inscrito_id', $inscritoId)
+            ->where('cuestionario_id', $cuestionarioId)
+            ->whereRaw('nota = (
+                SELECT SUM(preguntas.puntaje)
+                FROM preguntas
+                WHERE preguntas.cuestionario_id = intentos_cuestionarios.cuestionario_id
+            )')
+            ->count();
+    }
+
+    // Método alternativo usando Query Builder
+    public static function intentosPerfectosAlternativo($inscritoId, $cuestionarioId)
+    {
+        return DB::table('intentos_cuestionarios as ic')
+            ->join('preguntas as p', 'p.cuestionario_id', '=', 'ic.cuestionario_id')
+            ->where('ic.inscrito_id', $inscritoId)
+            ->where('ic.cuestionario_id', $cuestionarioId)
+            ->groupBy('ic.id', 'ic.nota')
+            ->havingRaw('ic.nota = SUM(p.puntaje)')
+            ->count();
     }
 }

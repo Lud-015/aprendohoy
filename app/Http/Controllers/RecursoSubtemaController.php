@@ -7,6 +7,8 @@ use App\Models\RecursoSubtema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class RecursoSubtemaController extends Controller
 {
@@ -35,50 +37,88 @@ class RecursoSubtemaController extends Controller
 
     public function store(Request $request, $id)
     {
+        try {
+            $messages = [
+                'tituloRecurso.required' => 'El título del recurso es obligatorio.',
+                'tituloRecurso.max' => 'El título no puede superar los 255 caracteres.',
+                'descripcionRecurso.required' => 'La descripción del recurso es obligatoria.',
+                'archivo.file' => 'El archivo debe ser un archivo válido.',
+                'archivo.mimes' => 'El archivo debe ser de uno de los tipos permitidos.',
+                'archivo.max' => 'El archivo no debe superar los 10MB.',
+            ];
 
+            // Validar los datos del formulario
+            $validatedData = $request->validate([
+                'tituloRecurso' => 'required|string|max:255',
+                'descripcionRecurso' => 'required|string',
+                'tipoRecurso' => 'nullable|string',
+                'archivo' => 'nullable|file|mimes:jpg,jpeg,png,gif,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,mp4,mp3,wav,ogg,zip,rar|max:10240',
+            ], $messages);
 
+            // Crear una nueva instancia del modelo Recursos
+            $recurso = new RecursoSubtema();
+            $recurso->nombreRecurso = $validatedData['tituloRecurso'];
+            $recurso->subtema_id = $id;
 
-        $messages = [
-            'tituloRecurso.required' => 'El título del recurso es obligatorio.',
-            'tituloRecurso.max' => 'El título no puede superar los 255 caracteres.',
-            'descripcionRecurso.required' => 'La descripción del recurso es obligatoria.',
-            'archivo.file' => 'El archivo debe ser un archivo válido.',
-            'archivo.mimes' => 'El archivo debe ser de tipo: jpg, jpeg, png, pdf, doc, docx o zip.',
-            'archivo.max' => 'El archivo no debe superar los 2MB.',
-        ];
+            // Procesar la descripción para detectar y manejar enlaces de YouTube
+            $descripcion = $validatedData['descripcionRecurso'];
+            $recurso->descripcionRecursos = $this->procesarDescripcionConIframe($descripcion);
+            $recurso->tipoRecurso = $validatedData['tipoRecurso'] ?? null;
 
-        // Validar los datos del formulario
-        $validatedData = $request->validate([
-            'tituloRecurso' => 'required|string|max:255',
-            'descripcionRecurso' => 'required|string',
-            'tipoRecurso' => 'nullable|string',
-            'archivo' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip|max:2048',
-        ], $messages);
+            // Procesar archivo adjunto si se incluye
+            if ($request->hasFile('archivo')) {
+                $file = $request->file('archivo');
 
-        // Crear una nueva instancia del modelo Recursos
-        $recurso = new RecursoSubtema();
-        $recurso->nombreRecurso = $validatedData['tituloRecurso'];
-        $recurso->subtema_id = $id;
+                // Generar un nombre único para el archivo
+                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-        // Procesar la descripción para detectar y manejar enlaces de YouTube
-        $descripcion = $validatedData['descripcionRecurso'];
-        $recurso->descripcionRecursos = $this->procesarDescripcionConIframe($descripcion);
+                // Determinar el subdirectorio según el tipo de archivo
+                $subDirectory = $this->getSubDirectoryByMimeType($file->getMimeType());
 
-        // Asignar el tipo de recurso si existe
-        $recurso->tipoRecurso = $validatedData['tipoRecurso'] ?? null;
+                // Crear la ruta completa
+                $path = $subDirectory . '/' . $fileName;
 
-        // Procesar archivo adjunto si se incluye
-        if ($request->hasFile('archivo')) {
-            $recurso->archivoRecurso = $request->file('archivo')->store('archivo', 'public');
+                // Intentar subir el archivo
+                try {
+                    Storage::disk('public')->putFileAs($subDirectory, $file, $fileName);
+                    $recurso->archivoRecurso = $path;
+                } catch (\Exception $e) {
+                    Log::error('Error al subir archivo: ' . $e->getMessage());
+                    return back()->with('error', 'Error al subir el archivo. Por favor, inténtelo de nuevo.');
+                }
+            }
+
+            // Guardar el recurso en la base de datos
+            $recurso->save();
+
+            return back()->with('success', 'Recurso creado con éxito');
+        } catch (\Exception $e) {
+            Log::error('Error al crear recurso: ' . $e->getMessage());
+            return back()->with('error', 'Error al crear el recurso. Por favor, inténtelo de nuevo.');
         }
-
-        // Guardar el recurso en la base de datos
-        $recurso->save();
-
-        // Redirigir con un mensaje de éxito
-        return back()->with('success', 'Recurso creado con éxito');
     }
 
+    /**
+     * Determina el subdirectorio según el tipo MIME del archivo
+     */
+    private function getSubDirectoryByMimeType($mimeType)
+    {
+        $baseDir = 'recursos';
+
+        if (Str::startsWith($mimeType, 'image/')) {
+            return $baseDir . '/imagenes';
+        } elseif (Str::startsWith($mimeType, 'video/')) {
+            return $baseDir . '/videos';
+        } elseif (Str::startsWith($mimeType, 'audio/')) {
+            return $baseDir . '/audios';
+        } elseif (Str::contains($mimeType, ['pdf', 'msword', 'vnd.openxmlformats-officedocument'])) {
+            return $baseDir . '/documentos';
+        } elseif (Str::contains($mimeType, ['zip', 'rar', 'x-compressed'])) {
+            return $baseDir . '/comprimidos';
+        }
+
+        return $baseDir . '/otros';
+    }
 
     private function procesarDescripcionConIframe(string $descripcion): string
     {
@@ -126,53 +166,77 @@ class RecursoSubtemaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $messages = [
-            'tituloRecurso.required' => 'El campo título del recurso es obligatorio.',
-            'descripcionRecurso.required' => 'El campo descripción del recurso es obligatorio.',
-        ];
+        try {
+            $messages = [
+                'tituloRecurso.required' => 'El título del recurso es obligatorio.',
+                'tituloRecurso.max' => 'El título no puede superar los 255 caracteres.',
+                'descripcionRecurso.required' => 'La descripción del recurso es obligatoria.',
+                'archivo.file' => 'El archivo debe ser un archivo válido.',
+                'archivo.mimes' => 'El archivo debe ser de uno de los tipos permitidos.',
+                'archivo.max' => 'El archivo no debe superar los 10MB.',
+            ];
 
-        // Validar los datos del formulario
-        $validatedData = $request->validate([
-            'tituloRecurso' => 'required|string|max:255',
-            'descripcionRecurso' => 'required|string',
-            'tipoRecurso' => 'nullable|string',
-            'archivo' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip|max:2048',
-            'eliminarArchivo' => 'nullable|boolean',
-        ], $messages);
+            // Validar los datos del formulario
+            $validatedData = $request->validate([
+                'tituloRecurso' => 'required|string|max:255',
+                'descripcionRecurso' => 'required|string',
+                'tipoRecurso' => 'nullable|string',
+                'archivo' => 'nullable|file|mimes:jpg,jpeg,png,gif,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,mp4,mp3,wav,ogg,zip,rar|max:10240',
+                'eliminarArchivo' => 'nullable|boolean',
+            ], $messages);
 
-        // Buscar el recurso a editar
-        $recurso = RecursoSubtema::findOrFail($id);
+            // Buscar el recurso a editar
+            $recurso = RecursoSubtema::findOrFail($id);
 
-        // Actualizar los campos del recurso
-        $recurso->nombreRecurso = $validatedData['tituloRecurso'];
-        $recurso->descripcionRecursos = $this->procesarDescripcionConIframe($validatedData['descripcionRecurso']);
-        $recurso->tipoRecurso = $validatedData['tipoRecurso'] ?? $recurso->tipoRecurso;
+            // Actualizar los campos del recurso
+            $recurso->nombreRecurso = $validatedData['tituloRecurso'];
+            $recurso->descripcionRecursos = $this->procesarDescripcionConIframe($validatedData['descripcionRecurso']);
+            $recurso->tipoRecurso = $validatedData['tipoRecurso'] ?? $recurso->tipoRecurso;
 
-        // Eliminar el archivo actual si el checkbox está marcado
-        if ($request->has('eliminarArchivo') && $request->eliminarArchivo) {
-            if ($recurso->archivoRecurso && \Storage::disk('public')->exists($recurso->archivoRecurso)) {
-                \Storage::disk('public')->delete($recurso->archivoRecurso);
-            }
-            $recurso->archivoRecurso = null; // Eliminar referencia en la base de datos
-        }
-
-        // Procesar archivo si se incluye uno nuevo
-        if ($request->hasFile('archivo')) {
-            // Eliminar el archivo anterior si existe
-            if ($recurso->archivoRecurso && \Storage::disk('public')->exists($recurso->archivoRecurso)) {
-                \Storage::disk('public')->delete($recurso->archivoRecurso);
+            // Eliminar el archivo actual si el checkbox está marcado
+            if ($request->has('eliminarArchivo') && $request->eliminarArchivo) {
+                if ($recurso->archivoRecurso && Storage::disk('public')->exists($recurso->archivoRecurso)) {
+                    Storage::disk('public')->delete($recurso->archivoRecurso);
+                }
+                $recurso->archivoRecurso = null;
             }
 
-            // Guardar el nuevo archivo
-            $recursosPath = $request->file('archivo')->store('archivo', 'public');
-            $recurso->archivoRecurso = $recursosPath;
+            // Procesar archivo si se incluye uno nuevo
+            if ($request->hasFile('archivo')) {
+                $file = $request->file('archivo');
+
+                // Generar un nombre único para el archivo
+                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+
+                // Determinar el subdirectorio según el tipo de archivo
+                $subDirectory = $this->getSubDirectoryByMimeType($file->getMimeType());
+
+                // Crear la ruta completa
+                $path = $subDirectory . '/' . $fileName;
+
+                // Eliminar el archivo anterior si existe
+                if ($recurso->archivoRecurso && Storage::disk('public')->exists($recurso->archivoRecurso)) {
+                    Storage::disk('public')->delete($recurso->archivoRecurso);
+                }
+
+                // Intentar subir el archivo
+                try {
+                    Storage::disk('public')->putFileAs($subDirectory, $file, $fileName);
+                    $recurso->archivoRecurso = $path;
+                } catch (\Exception $e) {
+                    Log::error('Error al subir archivo: ' . $e->getMessage());
+                    return back()->with('error', 'Error al subir el archivo. Por favor, inténtelo de nuevo.');
+                }
+            }
+
+            // Guardar los cambios en la base de datos
+            $recurso->save();
+
+            return back()->with('success', 'Recurso actualizado con éxito.');
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar recurso: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar el recurso. Por favor, inténtelo de nuevo.');
         }
-
-        // Guardar los cambios en la base de datos
-        $recurso->save();
-
-        // Redirigir con un mensaje de éxito
-        return back()->with('success', 'Recurso actualizado con éxito.');
     }
 
     public function delete($id)

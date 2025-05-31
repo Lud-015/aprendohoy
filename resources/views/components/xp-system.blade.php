@@ -6,14 +6,14 @@
             top: 50px;
             right: -400px;
             width: 350px;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(26, 71, 137, 0.95);
             color: white;
             border-radius: 10px;
             padding: 20px;
             z-index: 9999;
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             backdrop-filter: blur(5px);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(57, 166, 203, 0.2);
             opacity: 0;
         }
 
@@ -31,7 +31,7 @@
         .xbox-xp-icon {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #00ff00, #008000);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -48,13 +48,13 @@
             font-size: 18px;
             font-weight: bold;
             margin: 0;
-            color: #00ff00;
+            color: var(--secondary-color);
         }
 
         .xbox-xp-description {
             font-size: 14px;
             margin: 5px 0 0;
-            opacity: 0.8;
+            opacity: 0.9;
         }
 
         .xbox-progress-bar {
@@ -67,20 +67,20 @@
 
         .xbox-progress-fill {
             height: 100%;
-            background: #00ff00;
+            background: var(--secondary-color);
             width: 0%;
             transition: width 1s ease;
         }
 
         @keyframes pulse {
             0% {
-                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.4);
+                box-shadow: 0 0 0 0 rgba(57, 166, 203, 0.4);
             }
             70% {
-                box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
+                box-shadow: 0 0 0 10px rgba(57, 166, 203, 0);
             }
             100% {
-                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
+                box-shadow: 0 0 0 0 rgba(57, 166, 203, 0);
             }
         }
 
@@ -91,20 +91,23 @@
             right: 30px;
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #107C10, #0B5C0B);
+            background: var(--primary-color);
+            color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 24px;
             cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 1050;
-            box-shadow: 0 4px 15px rgba(16, 124, 16, 0.3);
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(26, 71, 137, 0.2);
         }
 
         .xbox-floating-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(16, 124, 16, 0.4);
+            transform: translateY(-5px);
+            background: var(--secondary-color);
+            box-shadow: 0 6px 20px rgba(57, 166, 203, 0.3);
         }
 
         .xbox-floating-button i {
@@ -115,17 +118,16 @@
         /* Panel lateral estilo Xbox */
         .xbox-sidebar {
             position: fixed;
-            right: -400px;
             top: 0;
-            width: 400px;
+            right: -400px;
+            width: 380px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            transition: all 0.5s cubic-bezier(0.7, 0, 0.3, 1);
-            z-index: 1060;
+            background: var(--primary-color);
             padding: 30px;
-            color: white;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1050;
             overflow-y: auto;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
         }
 
         .xbox-sidebar.show {
@@ -140,6 +142,7 @@
             transform: translateX(50px);
             opacity: 0;
             transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .xbox-achievement.show {
@@ -156,11 +159,26 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            z-index: 1060;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .xbox-close-button:hover {
             transform: rotate(90deg);
+            color: var(--secondary-color);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .xbox-close-button i {
+            font-size: 28px;
+            line-height: 1;
         }
     </style>
 
@@ -174,17 +192,17 @@
         <button class="xbox-close-button" id="xboxCloseButton">
             <i class="bi bi-x"></i>
         </button>
-        
-        <h3 class="mb-4" style="color: #107C10">Mi Progreso</h3>
-        
+
+        <h3 class="mb-4 text-white">Mi Progreso</h3>
+
         <!-- Nivel actual -->
-        <div class="xbox-achievement show" style="background: linear-gradient(135deg, rgba(16, 124, 16, 0.2), rgba(16, 124, 16, 0.1))">
+        <div class="xbox-achievement show" style="background: rgba(255, 255, 255, 0.15)">
             <div class="d-flex align-items-center gap-3">
                 <div class="xbox-xp-icon">
                     {{ $currentLevel ? $currentLevel->level_number : 1 }}
                 </div>
                 <div>
-                    <h4 class="mb-0" style="color: #107C10">Nivel {{ $currentLevel ? $currentLevel->level_number : 1 }}</h4>
+                    <h4 class="mb-0 text-white">Nivel {{ $currentLevel ? $currentLevel->level_number : 1 }}</h4>
                     <p class="mb-0 text-white-50">{{ number_format($totalXP) }} XP Total</p>
                 </div>
             </div>
@@ -202,7 +220,7 @@
                         {!! $achievement->icon !!}
                     </div>
                     <div>
-                        <h6 class="mb-0" style="color: #107C10">{{ $achievement->title }}</h6>
+                        <h6 class="mb-0 text-white">{{ $achievement->title }}</h6>
                         <small class="text-white-50">+{{ $achievement->xp_reward }} XP</small>
                     </div>
                 </div>
@@ -213,8 +231,8 @@
             </div>
         @endforelse
 
-        <a href="{{ route('perfil.xp') }}" class="btn w-100 mt-4" 
-           style="background: #107C10; color: white; border: none;">
+        <a href="{{ route('perfil.xp') }}" class="btn w-100 mt-4"
+           style="background: var(--secondary-color); color: white; border: none;">
             Ver todos mis logros
         </a>
     </div>
@@ -267,7 +285,7 @@
                 const notification = document.getElementById('xboxNotification');
                 const progressFill = notification.querySelector('.xbox-progress-fill');
                 document.getElementById('achievementText').textContent = title + ' (+' + xp + ' XP)';
-                
+
                 notification.classList.add('show');
                 progressFill.style.width = '100%';
 
@@ -291,23 +309,23 @@
 
     <div class="modal fade" id="xboxRegisterModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">¡Únete a la aventura!</h5>
+            <div class="modal-content border-0">
+                <div class="modal-header border-0" style="background: var(--primary-color);">
+                    <h5 class="modal-title text-white">¡Únete a la aventura!</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center py-4">
                     <div class="xbox-xp-icon mx-auto mb-3">
                         <i class="bi bi-trophy-fill"></i>
                     </div>
-                    <h4 class="mb-3" style="color: #107C10">Desbloquea tu potencial</h4>
-                    <p class="mb-4">Regístrate para comenzar a ganar XP y desbloquear logros mientras aprendes.</p>
+                    <h4 class="mb-3" style="color: var(--primary-color)">Desbloquea tu potencial</h4>
+                    <p class="mb-4 text-muted">Regístrate para comenzar a ganar XP y desbloquear logros mientras aprendes.</p>
                     <div class="d-grid gap-2">
-                        <a href="{{ route('signin') }}" class="btn btn-success">Registrarme ahora</a>
-                        <a href="{{ route('login') }}" class="btn btn-outline-light">Ya tengo cuenta</a>
+                        <a href="{{ route('signin') }}" class="btn text-white" style="background: var(--primary-color);">Registrarme ahora</a>
+                        <a href="{{ route('login') }}" class="btn btn-outline-secondary">Ya tengo cuenta</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@endauth 
+@endauth

@@ -55,41 +55,100 @@
     @endif
 
 
-    <footer class="bg-light border-top mt-5 shadow-sm">
-        <div class="container py-5">
-            <div class="row">
-                <!-- Info de la Fundación -->
-                <div class="col-md-4 mb-4 mb-md-0">
-                    <h5 class="fw-semibold text-primary">Fundación Educar Para La Vida</h5>
-                    <p class="text-muted small mb-0">
-                        Inspirando el aprendizaje y el crecimiento personal a través de la educación.
-                    </p>
+    <footer class="bg-white border-top mt-5 py-5">
+        <div class="container">
+            <div class="row gy-4 justify-content-between">
+                <!-- Información de Contacto -->
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-primary fw-bold mb-4 position-relative pb-2">Fundación Educar Para La Vida</h5>
+                    <ul class="list-unstyled">
+                        <li class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-light rounded-circle p-2 me-3">
+                                <i class="bi bi-geo-alt text-primary"></i>
+                            </div>
+                            <span class="text-muted">Bolivia</span>
+                        </li>
+                        <li class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-light rounded-circle p-2 me-3">
+                                <i class="bi bi-telephone text-primary"></i>
+                            </div>
+                            <span class="text-muted">+591 72087186</span>
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <div class="icon-box bg-light rounded-circle p-2 me-3">
+                                <i class="bi bi-envelope text-primary"></i>
+                            </div>
+                            <span class="text-muted">contacto@educarparalavida.org.bo</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Enlaces Rápidos -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-primary fw-bold mb-4 position-relative pb-2">Enlaces Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <a href="https://educarparalavida.org.bo/web/Inicio.html"
+                               class="text-decoration-none text-muted d-flex align-items-center footer-link">
+                                <i class="bi bi-chevron-right me-2"></i>
+                                <span>Inicio</span>
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="https://educarparalavida.org.bo/web/Quienes-somos.html"
+                               class="text-decoration-none text-muted d-flex align-items-center footer-link">
+                                <i class="bi bi-chevron-right me-2"></i>
+                                <span>Quiénes Somos</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://educarparalavida.org.bo/web/Proyectos-y-servicios.html"
+                               class="text-decoration-none text-muted d-flex align-items-center footer-link">
+                                <i class="bi bi-chevron-right me-2"></i>
+                                <span>Servicios</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
 
                 <!-- Redes Sociales -->
-                <div class="col-md-4 mb-4 mb-md-0 text-center">
-                    <h6 class="fw-semibold text-dark">Síguenos en</h6>
-                    <div class="d-flex justify-content-center gap-3 mt-3">
-                        <a href="https://www.facebook.com/profile.php?id=100063510101095&mibextid=ZbWKwL" target="_blank"
-                           class="btn btn-outline-secondary btn-sm rounded-circle">
-                            <i class="bi bi-facebook"></i>
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-primary fw-bold mb-4 position-relative pb-2">Síguenos en</h5>
+                    <div class="d-flex gap-3">
+                        <a href="https://www.facebook.com/profile.php?id=100063510101095"
+                           class="btn btn-light rounded-circle p-2 footer-social"
+                           target="_blank">
+                            <i class="bi bi-facebook fs-5"></i>
                         </a>
-                        <a href="https://www.tiktok.com/@educarparalavida?_t=8fbFcMbWOGo&_r=1" target="_blank"
-                           class="btn btn-outline-dark btn-sm rounded-circle">
-                            <i class="bi bi-tiktok"></i>
+                        <a href="https://www.instagram.com/fundeducarparalavida/"
+                           class="btn btn-light rounded-circle p-2 footer-social"
+                           target="_blank">
+                            <i class="bi bi-instagram fs-5"></i>
                         </a>
-                        <a href="https://instagram.com/fundeducarparalavida?igshid=MzRlODBiNWFlZA==" target="_blank"
-                           class="btn btn-outline-danger btn-sm rounded-circle">
-                            <i class="bi bi-instagram"></i>
+                        <a href="https://api.whatsapp.com/send?phone=59172087186"
+                           class="btn btn-light rounded-circle p-2 footer-social"
+                           target="_blank">
+                            <i class="bi bi-whatsapp fs-5"></i>
+                        </a>
+                        <a href="https://x.com/FUNDVIDA2"
+                           class="btn btn-light rounded-circle p-2 footer-social"
+                           target="_blank">
+                            <i class="bi bi-twitter-x fs-5"></i>
                         </a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Derechos -->
-                <div class="col-md-4 text-center text-md-end">
-                    <small class="text-muted">
-                        &copy; {{ now()->year }} Fundación Educar para la Vida.<br class="d-md-none"> Todos los derechos reservados.
-                    </small>
+            <hr class="my-5" style="background-color: var(--accent-color); opacity: 0.1;">
+
+            <!-- Copyright -->
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="text-muted mb-0">
+                        &copy; <script>document.write(new Date().getFullYear())</script>
+                        <span class="text-primary">Fundación Educar para la Vida</span>.
+                        Todos los derechos reservados.
+                    </p>
                 </div>
             </div>
         </div>
@@ -131,6 +190,103 @@
         .social-icon:hover svg {
             filter: brightness(0) invert(1);
         }
+
+        .hover-link:hover {
+            color: var(--hover-color) !important;
+            transition: color 0.3s ease;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background-color: var(--hover-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        footer {
+            background-color: #f8f9fa;
+        }
+
+        footer h5 {
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        footer h5::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+
+        .icon-box {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link {
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--secondary-color) !important;
+            transform: translateX(5px);
+        }
+
+        .footer-link:hover i {
+            color: var(--secondary-color);
+        }
+
+        .footer-social {
+            transition: all 0.3s ease;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer-social:hover {
+            background-color: var(--secondary-color) !important;
+            color: white !important;
+            transform: translateY(-3px);
+        }
+
+        .position-relative.pb-2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--secondary-color);
+        }
+
+        footer .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        footer .bi {
+            transition: all 0.3s ease;
+        }
     </style>
 
     <script>
@@ -157,7 +313,7 @@
             $totalXP = $xpHistory->sum('xp');
             $currentLevel = \App\Models\Level::getCurrentLevel($totalXP);
             $nextLevel = \App\Models\Level::getNextLevel($currentLevel ? $currentLevel->level_number : 1);
-            
+
             // Calcular el progreso al siguiente nivel
             if ($currentLevel && $nextLevel) {
                 $xpForCurrentLevel = $currentLevel->xp_required;
@@ -174,61 +330,58 @@
             })->latest()->take(3)->get();
         }
     @endphp
-    
+
     @include('components.xp-system')
 
 </body>
 <script>
-    /*Toggle dropdown list*/
-    /*https://gist.github.com/slavapas/593e8e50cf4cc16ac972afcbad4f70c8*/
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener referencias a los elementos
+        const userMenuDiv = document.getElementById("userMenu");
+        const userMenu = document.getElementById("userButton");
+        const navMenuDiv = document.getElementById("nav-content");
+        const navMenu = document.getElementById("nav-toggle");
 
-    var userMenuDiv = document.getElementById("userMenu");
-    var userMenu = document.getElementById("userButton");
+        // Solo agregar el evento click si los elementos existen
+        if (userMenuDiv && userMenu && navMenuDiv && navMenu) {
+            document.onclick = function(e) {
+                const target = (e && e.target) || (event && event.srcElement);
 
-    var navMenuDiv = document.getElementById("nav-content");
-    var navMenu = document.getElementById("nav-toggle");
+                // User Menu
+                if (userMenuDiv && !checkParent(target, userMenuDiv)) {
+                    if (checkParent(target, userMenu)) {
+                        if (userMenuDiv.classList.contains("invisible")) {
+                            userMenuDiv.classList.remove("invisible");
+                        } else {
+                            userMenuDiv.classList.add("invisible");
+                        }
+                    } else {
+                        userMenuDiv.classList.add("invisible");
+                    }
+                }
 
-    document.onclick = check;
+                // Nav Menu
+                if (navMenuDiv && !checkParent(target, navMenuDiv)) {
+                    if (checkParent(target, navMenu)) {
+                        if (navMenuDiv.classList.contains("hidden")) {
+                            navMenuDiv.classList.remove("hidden");
+                        } else {
+                            navMenuDiv.classList.add("hidden");
+                        }
+                    } else {
+                        navMenuDiv.classList.add("hidden");
+                    }
+                }
+            };
+        }
 
-    function check(e) {
-        var target = (e && e.target) || (event && event.srcElement);
-
-        //User Menu
-        if (!checkParent(target, userMenuDiv)) {
-            // click NOT on the menu
-            if (checkParent(target, userMenu)) {
-                // click on the link
-                if (userMenuDiv.classList.contains("invisible")) {
-                    userMenuDiv.classList.remove("invisible");
-                } else { userMenuDiv.classList.add("invisible"); }
-            } else {
-                // click both outside link and outside menu, hide menu
-                userMenuDiv.classList.add("invisible");
+        function checkParent(t, elm) {
+            while(t.parentNode) {
+                if(t == elm) return true;
+                t = t.parentNode;
             }
+            return false;
         }
-
-        //Nav Menu
-        if (!checkParent(target, navMenuDiv)) {
-            // click NOT on the menu
-            if (checkParent(target, navMenu)) {
-                // click on the link
-                if (navMenuDiv.classList.contains("hidden")) {
-                    navMenuDiv.classList.remove("hidden");
-                } else { navMenuDiv.classList.add("hidden"); }
-            } else {
-                // click both outside link and outside menu, hide menu
-                navMenuDiv.classList.add("hidden");
-            }
-        }
-
-    }
-
-    function checkParent(t, elm) {
-        while (t.parentNode) {
-            if (t == elm) { return true; }
-            t = t.parentNode;
-        }
-        return false;
-    }
+    });
 </script>
 </html>

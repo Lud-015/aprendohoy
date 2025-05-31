@@ -169,44 +169,44 @@ class CuestionarioController extends Controller
             // Otorgar XP basado en el rendimiento
             $xpService = app(XPService::class);
             $achievementService = app(AchievementService::class);
-            
+
             // Base XP por completar el cuestionario
             $baseXP = 50;
-            
+
             // Bonus por porcentaje de aciertos
             $porcentajeAciertos = ($puntajeObtenido / $puntajeTotal) * 100;
             $bonusXP = round($porcentajeAciertos / 2); // Máximo 50 XP extra por 100%
-            
+
             // Bonus por velocidad si hay tiempo límite
             $bonusVelocidad = 0;
             if ($cuestionario->tiempo_limite) {
                 $tiempoUtilizado = $intento->iniciado_en->diffInMinutes($intento->finalizado_en);
                 if ($tiempoUtilizado < ($cuestionario->tiempo_limite * 0.5)) {
                     $bonusVelocidad = 25; // Bonus por completar en menos de la mitad del tiempo
-                    
+
                     // Verificar logro de velocista
                     if ($puntajeObtenido == $puntajeTotal) {
                         $speedyQuizzes = IntentoCuestionario::where('inscrito_id', $inscrito->id)
                             ->whereHas('cuestionario', function($q) {
                                 $q->whereNotNull('tiempo_limite');
                             })
-                            ->where(DB::raw('TIMESTAMPDIFF(MINUTE, iniciado_en, finalizado_en)'), '<', 
+                            ->where(DB::raw('TIMESTAMPDIFF(MINUTE, iniciado_en, finalizado_en)'), '<',
                                 DB::raw('cuestionarios.tiempo_limite * 0.5'))
                             ->where('nota', function ($q) {
                                 $q->select(DB::raw('SUM(preguntas.puntaje)'))
                                     ->from('preguntas')
-                                    ->whereColumn('preguntas.cuestionario_id', 'intento_cuestionarios.cuestionario_id');
+                                    ->whereColumn('preguntas.cuestionario_id', 'intentos_cuestionarios.cuestionario_id');
                             })
                             ->count();
-                            
+
                         $achievementService->checkAndAwardAchievements($inscrito, 'SPEED_RUNNER', $speedyQuizzes);
                     }
                 }
             }
-            
+
             // XP total
             $totalXP = $baseXP + $bonusXP + $bonusVelocidad;
-            
+
             // Otorgar XP
             $xpService->addXP($inscrito, $totalXP, "Cuestionario completado - Puntuación: {$puntajeObtenido}/{$puntajeTotal}");
 
@@ -217,10 +217,10 @@ class CuestionarioController extends Controller
                     ->where('nota', function ($q) {
                         $q->select(DB::raw('SUM(preguntas.puntaje)'))
                             ->from('preguntas')
-                            ->whereColumn('preguntas.cuestionario_id', 'intento_cuestionarios.cuestionario_id');
+                            ->whereColumn('preguntas.cuestionario_id', 'intentos_cuestionarios.cuestionario_id');
                     })
                     ->count();
-                    
+
                 $achievementService->checkAndAwardAchievements($inscrito, 'QUIZ_MASTER', $perfectQuizzes);
             }
 
@@ -232,10 +232,10 @@ class CuestionarioController extends Controller
                         ->whereHas('cuestionario', function($q) {
                             $q->whereNotNull('tiempo_limite');
                         })
-                        ->where(DB::raw('TIMESTAMPDIFF(MINUTE, iniciado_en, finalizado_en)'), '<', 
+                        ->where(DB::raw('TIMESTAMPDIFF(MINUTE, iniciado_en, finalizado_en)'), '<',
                             DB::raw('cuestionarios.tiempo_limite * 0.5'))
                         ->count();
-                        
+
                     $achievementService->checkAndAwardAchievements($inscrito, 'EARLY_BIRD', $earlySubmissions);
                 }
             }
@@ -246,7 +246,7 @@ class CuestionarioController extends Controller
                     ->whereTime('created_at', '>=', '00:00:00')
                     ->whereTime('created_at', '<', '04:00:00')
                     ->count();
-                    
+
                 $achievementService->checkAndAwardAchievements($inscrito, 'NIGHT_OWL', $nightActivities);
             }
 
@@ -272,7 +272,7 @@ class CuestionarioController extends Controller
 
         foreach ($respuestas as $preguntaId => $respuesta) {
             $pregunta = $cuestionario->preguntas->find($preguntaId);
-            
+
             if (!$pregunta) continue;
 
             $esCorrecta = false;

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Inscritos;
+use App\Events\UserLevelUp;
 use Illuminate\Support\Facades\Cache;
 
 class XPService
@@ -111,7 +112,7 @@ class XPService
     public function getUserRank(Inscritos $inscrito): int
     {
         $key = "user_rank:{$inscrito->id}";
-        
+
         return Cache::remember($key, now()->addMinutes(30), function () use ($inscrito) {
             return Inscritos::where('xp', '>', $inscrito->xp)->count() + 1;
         });
@@ -125,7 +126,7 @@ class XPService
         $currentXP = $inscrito->xp;
         $currentLevel = $this->getCurrentLevel($currentXP);
         $nextLevelXP = $this->getNextLevelXP($currentXP);
-        
+
         return [
             'current_xp' => $currentXP,
             'current_level' => $currentLevel,
@@ -134,4 +135,4 @@ class XPService
             'rank' => $this->getUserRank($inscrito)
         ];
     }
-} 
+}

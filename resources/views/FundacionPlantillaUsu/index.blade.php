@@ -7,7 +7,7 @@
     <div class="bg-white w-100 h-100 position-absolute top-0 start-0"></div>
 
     <!-- Blue Diagonal Background -->
-    <div class="position-absolute top-0 end-0 h-100 bg-primary" style="width: 60%; clip-path: polygon(30% 0%, 100% 0, 100% 100%, 0% 100%); z-index: 1;"></div>
+    <div class="position-absolute top-0 end-0 h-100" style="background-color: #1a4789; width: 60%; clip-path: polygon(30% 0%, 100% 0, 100% 100%, 0% 100%); z-index: 1;"></div>
 
     <!-- Content Container -->
     <div class="container position-relative h-100 d-flex justify-content-between align-items-center z-2 px-3">
@@ -96,19 +96,59 @@
 
 <!-- Optional CSS Enhancements -->
 <style>
+    :root {
+        --primary-color: #1a4789;
+        --secondary-color: #39a6cb;
+        --accent-color: #63becf;
+        --hover-color: #055c9d;
+        --active-color: #2197bd;
+        --link-color: #2f89a8;
+        --focus-color: #145da0;
+        --highlight-color: #2a81c2;
+    }
+
     .navbar-nav .nav-link {
         position: relative;
         transition: all 0.3s ease;
+        color: var(--primary-color);
     }
 
     .navbar-nav .nav-link:hover {
-        color: var(--bs-primary);
+        color: var(--hover-color);
+    }
+
+    .navbar-nav .nav-link.active {
+        color: var(--active-color);
     }
 
     .dropdown-menu li:hover {
-        background-color: #f8f9fa;
+        background-color: rgba(26, 71, 137, 0.1);
     }
 
+    .dropdown-item:hover {
+        background-color: rgba(26, 71, 137, 0.1);
+        color: var(--hover-color);
+    }
+
+    .navbar {
+        border-color: var(--primary-color) !important;
+    }
+
+    .bi {
+        color: var(--primary-color);
+    }
+
+    .nav-link:hover .bi {
+        color: var(--hover-color);
+    }
+
+    .text-primary {
+        color: var(--primary-color) !important;
+    }
+
+    .bg-primary {
+        background-color: var(--primary-color) !important;
+    }
 
     .logo-header {
         max-height: 3.5rem;

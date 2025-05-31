@@ -599,10 +599,10 @@ bg-third
     <!-- Botón flotante de XP -->
     @auth
         <div class="position-fixed bottom-0 end-0 mb-4 me-4 floating-xp-button" style="z-index: 1050;">
-            <button type="button" 
-                    class="btn btn-primary rounded-circle p-3 shadow-lg" 
-                    data-bs-toggle="offcanvas" 
-                    data-bs-target="#xpOffcanvas" 
+            <button type="button"
+                    class="btn btn-primary rounded-circle p-3 shadow-lg"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#xpOffcanvas"
                     aria-controls="xpOffcanvas">
                 <i class="bi bi-trophy-fill"></i>
             </button>
@@ -611,7 +611,7 @@ bg-third
         <!-- Offcanvas de XP -->
         <div class="offcanvas offcanvas-end" tabindex="-1" id="xpOffcanvas">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title">Mi Progreso</h5>
+                <h5 class="offcanvas-title">Mi Nivel y Logros</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
@@ -651,7 +651,7 @@ bg-third
                 @endphp
 
                 @forelse($unlockedAchievements as $index => $achievement)
-                    <div class="d-flex align-items-center mb-2 p-2 bg-light rounded achievement-item" 
+                    <div class="d-flex align-items-center mb-2 p-2 bg-light rounded achievement-item"
                          style="animation-delay: {{ 0.3 + ($index * 0.1) }}s">
                         <div class="me-3">
                             <span class="h5 mb-0">{{ $achievement->icon }}</span>
@@ -676,9 +676,9 @@ bg-third
         </div>
     @else
         <div class="position-fixed bottom-0 end-0 mb-4 me-4 floating-xp-button" style="z-index: 1050;">
-            <button type="button" 
-                    class="btn btn-primary rounded-circle p-3 shadow-lg" 
-                    data-bs-toggle="modal" 
+            <button type="button"
+                    class="btn btn-primary rounded-circle p-3 shadow-lg"
+                    data-bs-toggle="modal"
                     data-bs-target="#registerModal">
                 <i class="bi bi-trophy-fill"></i>
             </button>

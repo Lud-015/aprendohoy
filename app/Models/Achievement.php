@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\XPService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -74,6 +75,35 @@ class Achievement extends Model
 
             // Aquí podrías disparar eventos o notificaciones
             // event(new AchievementUnlocked($this, $user));
+        }
+    }
+
+    /**
+     * Verifica si un inscrito ha desbloqueado este logro
+     */
+    public function isUnlockedByInscrito(Inscritos $inscrito)
+    {
+        return $this->inscritos()->where('inscrito_id', $inscrito->id)->exists();
+    }
+
+    /**
+     * Otorga el logro a un inscrito
+     */
+    public function award(Inscritos $inscrito)
+    {
+        if (!$this->isUnlockedByInscrito($inscrito)) {
+            $this->inscritos()->attach($inscrito->id, [
+                'earned_at' => now()
+            ]);
+
+            // Añadir XP al inscrito
+            if ($this->xp_reward > 0) {
+                // Asumiendo que tienes un servicio de XP
+                app(XPService::class)->addXP($inscrito, $this->xp_reward, "Logro desbloqueado: {$this->title}");
+            }
+
+            // Aquí podrías disparar eventos o notificaciones si lo necesitas
+            // event(new AchievementUnlocked($this, $inscrito));
         }
     }
 
