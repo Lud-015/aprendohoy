@@ -173,7 +173,6 @@
     <div class="container pt-5" style="padding-top: 8rem !important;">>
 
         @yield('content')
-
     </div>
     <script>
         @if (session('success'))

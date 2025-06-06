@@ -26,8 +26,7 @@
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/browsershot": "^3.60",
         "spatie/laravel-permission": "^5.10",
-        "spatie/simple-excel": "^3.2",
-        "twilio/sdk": "^7.9"
+        "spatie/simple-excel": "^3.2"
     },
     "require-dev": {
         "beyondcode/laravel-er-diagram-generator": "^4.0",

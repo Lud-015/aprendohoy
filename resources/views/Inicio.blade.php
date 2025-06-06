@@ -22,7 +22,7 @@
     @include('FundacionPlantillaUsu.index')
 @endif
 
-@include('botman.tinker')
+@include('partials.whatsapp-chat')
 
 @if (auth()->user()->hasRole('Administrador'))
     @include('layout')

@@ -422,11 +422,15 @@ class CertificadoController extends Controller
             // Generar código único
             $codigo_certificado = Str::uuid();
 
+            // Generar la ruta del certificado (URL de verificación)
+            $ruta_certificado = route('verificar.certificado', ['codigo' => $codigo_certificado]);
+
             // Crear registro de certificado
             $certificado = Certificado::create([
                 'curso_id' => $cursoId,
                 'inscrito_id' => $inscritoId,
                 'codigo_certificado' => $codigo_certificado,
+                'ruta_certificado' => $ruta_certificado, // Agregar esta línea
             ]);
 
             // Otorgar XP por obtener certificado

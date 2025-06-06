@@ -4,34 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Inicio</title>
-    <meta name="description" content="description here">
-    <meta name="keywords" content="keywords,here">
-    <!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>@yield('titulo', 'Inicio')</title>
+    <meta name="description" content="@yield('description', 'Fundación Educar Para La Vida')">
 
-<!-- Bootstrap Icons (reemplaza Font Awesome) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- CSS Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.bunny.net/css?family=atma:600" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('./resources/css/styles3.css') }}">
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js" integrity="sha256-XF29CBwU1MWLaGEnsELogU6Y6rcc5nCkhhx89nFMIDQ=" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atma:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="preconnect" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css?family=atma:600" rel="stylesheet" />
-<link rel="stylesheet" href="{{ asset('./resources/css/styles3.css') }}">
+    <!-- External Scripts -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
-<body class="bg-light font-sans" style="line-height: 1.5; letter-spacing: normal;">
+<body class="bg-light font-sans" style="line-height: 1.5;">
 
     @yield('nav2')
     @yield('container')
 
+    <!-- Alert Scripts -->
     @if ($errors->any())
         <script>
             Swal.fire({
@@ -54,56 +47,58 @@
         </script>
     @endif
 
+    <!-- Main Content -->
+    <div class="container-fluid mt-2">
+        @yield('contentini')
+    </div>
 
-    <footer class="bg-white border-top mt-5 py-5">
+    <!-- Footer -->
+    {{-- <footer class="bg-white border-top mt-5 py-5">
         <div class="container">
             <div class="row gy-4 justify-content-between">
-                <!-- Información de Contacto -->
+                <!-- Contact Information -->
                 <div class="col-lg-4 col-md-6">
-                    <h5 class="text-primary fw-bold mb-4 position-relative pb-2">Fundación Educar Para La Vida</h5>
+                    <h5 class="text-primary fw-bold mb-4 section-title">Fundación Educar Para La Vida</h5>
                     <ul class="list-unstyled">
-                        <li class="d-flex align-items-center mb-3">
-                            <div class="icon-box bg-light rounded-circle p-2 me-3">
+                        <li class="contact-item mb-3">
+                            <div class="icon-box">
                                 <i class="bi bi-geo-alt text-primary"></i>
                             </div>
-                            <span class="text-muted">Bolivia</span>
+                            <span>Bolivia</span>
                         </li>
-                        <li class="d-flex align-items-center mb-3">
-                            <div class="icon-box bg-light rounded-circle p-2 me-3">
+                        <li class="contact-item mb-3">
+                            <div class="icon-box">
                                 <i class="bi bi-telephone text-primary"></i>
                             </div>
-                            <span class="text-muted">+591 72087186</span>
+                            <span>+591 72087186</span>
                         </li>
-                        <li class="d-flex align-items-center">
-                            <div class="icon-box bg-light rounded-circle p-2 me-3">
+                        <li class="contact-item">
+                            <div class="icon-box">
                                 <i class="bi bi-envelope text-primary"></i>
                             </div>
-                            <span class="text-muted">contacto@educarparalavida.org.bo</span>
+                            <span>contacto@educarparalavida.org.bo</span>
                         </li>
                     </ul>
                 </div>
 
-                <!-- Enlaces Rápidos -->
+                <!-- Quick Links -->
                 <div class="col-lg-3 col-md-6">
-                    <h5 class="text-primary fw-bold mb-4 position-relative pb-2">Enlaces Rápidos</h5>
+                    <h5 class="text-primary fw-bold mb-4 section-title">Enlaces Rápidos</h5>
                     <ul class="list-unstyled">
                         <li class="mb-3">
-                            <a href="https://educarparalavida.org.bo/web/Inicio.html"
-                               class="text-decoration-none text-muted d-flex align-items-center footer-link">
+                            <a href="https://educarparalavida.org.bo/web/Inicio.html" class="footer-link">
                                 <i class="bi bi-chevron-right me-2"></i>
                                 <span>Inicio</span>
                             </a>
                         </li>
                         <li class="mb-3">
-                            <a href="https://educarparalavida.org.bo/web/Quienes-somos.html"
-                               class="text-decoration-none text-muted d-flex align-items-center footer-link">
+                            <a href="https://educarparalavida.org.bo/web/Quienes-somos.html" class="footer-link">
                                 <i class="bi bi-chevron-right me-2"></i>
                                 <span>Quiénes Somos</span>
                             </a>
                         </li>
                         <li>
-                            <a href="https://educarparalavida.org.bo/web/Proyectos-y-servicios.html"
-                               class="text-decoration-none text-muted d-flex align-items-center footer-link">
+                            <a href="https://educarparalavida.org.bo/web/Proyectos-y-servicios.html" class="footer-link">
                                 <i class="bi bi-chevron-right me-2"></i>
                                 <span>Servicios</span>
                             </a>
@@ -111,166 +106,55 @@
                     </ul>
                 </div>
 
-                <!-- Redes Sociales -->
+                <!-- Social Media -->
                 <div class="col-lg-4 col-md-6">
-                    <h5 class="text-primary fw-bold mb-4 position-relative pb-2">Síguenos en</h5>
+                    <h5 class="text-primary fw-bold mb-4 section-title">Síguenos en</h5>
                     <div class="d-flex gap-3">
-                        <a href="https://www.facebook.com/profile.php?id=100063510101095"
-                           class="btn btn-light rounded-circle p-2 footer-social"
-                           target="_blank">
+                        <a href="https://www.facebook.com/profile.php?id=100063510101095" class="social-btn" target="_blank" aria-label="Facebook">
                             <i class="bi bi-facebook fs-5"></i>
                         </a>
-                        <a href="https://www.instagram.com/fundeducarparalavida/"
-                           class="btn btn-light rounded-circle p-2 footer-social"
-                           target="_blank">
+                        <a href="https://www.instagram.com/fundeducarparalavida/" class="social-btn" target="_blank" aria-label="Instagram">
                             <i class="bi bi-instagram fs-5"></i>
                         </a>
-                        <a href="https://api.whatsapp.com/send?phone=59172087186"
-                           class="btn btn-light rounded-circle p-2 footer-social"
-                           target="_blank">
+                        <a href="https://api.whatsapp.com/send?phone=59172087186" class="social-btn" target="_blank" aria-label="WhatsApp">
                             <i class="bi bi-whatsapp fs-5"></i>
                         </a>
-                        <a href="https://x.com/FUNDVIDA2"
-                           class="btn btn-light rounded-circle p-2 footer-social"
-                           target="_blank">
+                        <a href="https://x.com/FUNDVIDA2" class="social-btn" target="_blank" aria-label="Twitter">
                             <i class="bi bi-twitter-x fs-5"></i>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <hr class="my-5" style="background-color: var(--accent-color); opacity: 0.1;">
+            <hr class="my-5 opacity-25">
 
             <!-- Copyright -->
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="text-muted mb-0">
-                        &copy; <script>document.write(new Date().getFullYear())</script>
-                        <span class="text-primary">Fundación Educar para la Vida</span>.
-                        Todos los derechos reservados.
-                    </p>
-                </div>
+            <div class="text-center">
+                <p class="text-muted mb-0">
+                    &copy; <span id="current-year"></span>
+                    <span class="text-primary">Fundación Educar para la Vida</span>.
+                    Todos los derechos reservados.
+                </p>
             </div>
         </div>
-    </footer>
+    </footer> --}}
 
-
+    <!-- Optimized Styles -->
     <style>
-        .social-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6f42c1;
+            --accent-color: #20c997;
+            --hover-color: #0b5ed7;
         }
 
-        .social-icon:hover {
-            transform: translateY(-3px);
-        }
-
-        .facebook:hover {
-            background-color: #1877f2;
-        }
-
-        .instagram:hover {
-            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-        }
-
-        .tiktok:hover {
-            background-color: #000000;
-        }
-
-        .email:hover {
-            background-color: #d44638;
-        }
-
-        .social-icon:hover img,
-        .social-icon:hover svg {
-            filter: brightness(0) invert(1);
-        }
-
-        .hover-link:hover {
-            color: var(--hover-color) !important;
-            transition: color 0.3s ease;
-        }
-
-        .social-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .social-link:hover {
-            background-color: var(--hover-color);
-            color: white;
-            transform: translateY(-3px);
-        }
-
-        footer {
-            background-color: #f8f9fa;
-        }
-
-        footer h5 {
+        /* Footer Styles */
+        .section-title {
             position: relative;
             padding-bottom: 10px;
         }
 
-        footer h5::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 50px;
-            height: 2px;
-            background-color: var(--accent-color);
-        }
-
-        .icon-box {
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .footer-link {
-            transition: all 0.3s ease;
-        }
-
-        .footer-link:hover {
-            color: var(--secondary-color) !important;
-            transform: translateX(5px);
-        }
-
-        .footer-link:hover i {
-            color: var(--secondary-color);
-        }
-
-        .footer-social {
-            transition: all 0.3s ease;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .footer-social:hover {
-            background-color: var(--secondary-color) !important;
-            color: white !important;
-            transform: translateY(-3px);
-        }
-
-        .position-relative.pb-2::after {
+        .section-title::after {
             content: '';
             position: absolute;
             left: 0;
@@ -280,108 +164,237 @@
             background-color: var(--secondary-color);
         }
 
-        footer .text-primary {
-            color: var(--primary-color) !important;
+        .contact-item {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
         }
 
-        footer .bi {
+        .icon-box {
+            width: 35px;
+            height: 35px;
+            background-color: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
             transition: all 0.3s ease;
+        }
+
+        .footer-link {
+            color: #6c757d;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .social-btn {
+            width: 45px;
+            height: 45px;
+            background-color: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .social-btn {
+                width: 40px;
+                height: 40px;
+            }
         }
     </style>
 
+<footer id="footer">
+
+    <style>
+        #footer {
+            background-color: #2c3e50;
+            color: #ffffff;
+            padding: 40px 0 20px 0;
+        }
+
+        .footer-top {
+            padding-bottom: 30px;
+        }
+
+        .footer-contact h3 {
+            color: #3498db;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .footer-contact p {
+            line-height: 24px;
+            margin-bottom: 0;
+        }
+
+        .footer-links h4 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links ul li {
+            padding: 8px 0;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .footer-links ul li:last-child {
+            border-bottom: none;
+        }
+
+        .footer-links ul a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links ul a:hover {
+            color: #3498db;
+        }
+
+        .footer-links ul i {
+            color: #3498db;
+            margin-right: 8px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #34495e;
+            color: #ffffff;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #34495e;
+            color: #bdc3c7;
+        }
+
+        .copyright a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .copyright a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .footer-contact, .footer-links {
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+    <div class="footer-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 footer-contact mb-4 mb-lg-0">
+                    <h3>Aprendo Hoy</h3>
+                    <p>
+                        Bolivia <br><br>
+                        <strong>Celular:</strong><br>
+                        (+591) 72087186 <br>
+                        (+591) 4 4284295 <br>
+                        (+591) 2 2433208 <br>
+                        <strong>Correo Electrónico:</strong> contacto@educarparalavida.org.bo<br>
+                    </p>
+                </div>
+
+                <div class="col-lg-3 col-md-6 footer-links mb-4 mb-lg-0">
+                    <h4>Links Asociados</h4>
+                    <ul>
+                        <li><i class="fa fa-link"></i> <a
+                                href="https://educarparalavida.org.bo/web/Inicio.html">Web Principal</a></li>
+                        <li><i class="fa fa-users"></i> <a
+                                href="https://educarparalavida.org.bo/web/Quienes-somos.html">Quienes Somos</a>
+                        </li>
+                        <li><i class="bi bi-server"></i> <a
+                                href="https://educarparalavida.org.bo/web/Proyectos-y-servicios.html">Servicios</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Spacer column for better layout -->
+                <div class="col-lg-3 col-md-6 d-none d-lg-block"></div>
+
+                <div class="col-lg-3 col-md-6 footer-links">
+                    <h4>Nuestras Redes Sociales</h4>
+                    <div class="social-links mt-3">
+                        <a href="https://x.com/FUNDVIDA2" class="twitter" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=100063510101095" class="facebook" aria-label="Facebook"><i
+                                class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/fundeducarparalavida/" class="instagram" aria-label="Instagram"><i
+                                class="bi bi-instagram"></i></a>
+                        <a href="https://api.whatsapp.com/send?phone=%3C+59172087186%3E" class="whatsapp" aria-label="WhatsApp"><i
+                                class="bi bi-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="copyright">
+            <script>
+                document.write("&copy; " + new Date().getFullYear() +
+                    " <a href='' target='_blank'>Fundación educar para la vida</a>.");
+            </script>
+        </div>
+    </div>
+</footer>
+
+    @include('botman.tinker')
+    {{-- @include('components.achievements') --}}
+
+    <!-- Essential Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Initialize current year -->
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
 
-<!-- Agrega esto en tu CSS personalizado para los efectos hover -->
-<style>
-    .hover-primary:hover { color: #0d6efd !important; }
-    .hover-dark:hover { color: #212529 !important; }
-    .hover-pink:hover { color: #d63384 !important; }
-</style>
-    @include('botman.tinker')
-
-    <!-- Incluir el componente de XP -->
-    @php
-        if (auth()->check()) {
-            $user = auth()->user();
-            $inscripciones = $user->inscritos()->with(['cursos'])->get();
-            $xpHistory = \DB::table('xp_events')
-                ->where('users_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get();
-            $totalXP = $xpHistory->sum('xp');
-            $currentLevel = \App\Models\Level::getCurrentLevel($totalXP);
-            $nextLevel = \App\Models\Level::getNextLevel($currentLevel ? $currentLevel->level_number : 1);
-
-            // Calcular el progreso al siguiente nivel
-            if ($currentLevel && $nextLevel) {
-                $xpForCurrentLevel = $currentLevel->xp_required;
-                $xpForNextLevel = $nextLevel->xp_required;
-                $xpProgress = $totalXP - $xpForCurrentLevel;
-                $xpNeeded = $xpForNextLevel - $xpForCurrentLevel;
-                $progressToNext = ($xpNeeded > 0) ? min(100, ($xpProgress / $xpNeeded) * 100) : 0;
-            } else {
-                $progressToNext = 0;
-            }
-
-            $unlockedAchievements = \App\Models\Achievement::whereHas('inscritos', function($query) use ($inscripciones) {
-                $query->whereIn('inscrito_id', $inscripciones->pluck('id'));
-            })->latest()->take(3)->get();
-        }
-    @endphp
-
-    @include('components.xp-system')
+    @stack('scripts')
 
 </body>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Obtener referencias a los elementos
-        const userMenuDiv = document.getElementById("userMenu");
-        const userMenu = document.getElementById("userButton");
-        const navMenuDiv = document.getElementById("nav-content");
-        const navMenu = document.getElementById("nav-toggle");
-
-        // Solo agregar el evento click si los elementos existen
-        if (userMenuDiv && userMenu && navMenuDiv && navMenu) {
-            document.onclick = function(e) {
-                const target = (e && e.target) || (event && event.srcElement);
-
-                // User Menu
-                if (userMenuDiv && !checkParent(target, userMenuDiv)) {
-                    if (checkParent(target, userMenu)) {
-                        if (userMenuDiv.classList.contains("invisible")) {
-                            userMenuDiv.classList.remove("invisible");
-                        } else {
-                            userMenuDiv.classList.add("invisible");
-                        }
-                    } else {
-                        userMenuDiv.classList.add("invisible");
-                    }
-                }
-
-                // Nav Menu
-                if (navMenuDiv && !checkParent(target, navMenuDiv)) {
-                    if (checkParent(target, navMenu)) {
-                        if (navMenuDiv.classList.contains("hidden")) {
-                            navMenuDiv.classList.remove("hidden");
-                        } else {
-                            navMenuDiv.classList.add("hidden");
-                        }
-                    } else {
-                        navMenuDiv.classList.add("hidden");
-                    }
-                }
-            };
-        }
-
-        function checkParent(t, elm) {
-            while(t.parentNode) {
-                if(t == elm) return true;
-                t = t.parentNode;
-            }
-            return false;
-        }
-    });
-</script>
 </html>

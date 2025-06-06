@@ -4,285 +4,225 @@
                     ($userRole === 'Docente' && $cursos->isEmpty());
 @endphp
 
-<style>
-    :root {
-        --card-transition: transform 0.3s ease, box-shadow 0.3s ease;
-        --card-shadow: 0 10px 20px rgba(26, 71, 137, 0.1);
-        --card-border-radius: 8px;
-    }
-
-    /* Vista de lista */
-    .list-view .card {
-        flex-direction: row;
-        height: 200px !important;
-        transition: var(--card-transition);
-    }
-
-    .list-view .card img {
-        width: 280px;
-        height: 100%;
-        object-fit: cover;
-        border-radius: var(--card-border-radius) 0 0 var(--card-border-radius);
-    }
-
-    .list-view [class*="col-"] {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-
-    /* Estilos de tarjeta comunes */
-    .card {
-        transition: var(--card-transition);
-        border-radius: var(--card-border-radius);
-        border: none;
-        overflow: hidden;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--card-shadow);
-    }
-
-    .card-img-top {
-        transition: transform 0.3s ease;
-        height: 200px;
-        object-fit: cover;
-    }
-
-    .card:hover .card-img-top {
-        transform: scale(1.05);
-    }
-
-    /* Controles de vista */
-    .view-controls {
-        gap: 0.5rem;
-    }
-
-    .view-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--card-border-radius);
-        transition: all 0.3s ease;
-        background: white;
-        border: 1px solid #dee2e6;
-        color: var(--primary-color);
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .view-btn:hover, .view-btn.active {
-        background: var(--primary-color);
-        color: white;
-    }
-
-    /* Barra de progreso */
-    .progress {
-        height: 6px;
-        border-radius: 10px;
-        background-color: rgba(26, 71, 137, 0.1);
-    }
-
-    .progress-bar {
-        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    }
-
-    /* Badges y estados */
-    .badge {
-        padding: 0.5em 1em;
-        border-radius: 6px;
-        font-weight: 500;
-    }
-
-    .badge.bg-success {
-        background: rgba(25, 135, 84, 0.1) !important;
-        color: #198754;
-    }
-
-    .badge.bg-primary {
-        background: rgba(26, 71, 137, 0.1) !important;
-        color: var(--primary-color);
-    }
-
-    /* Animaciones */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .course-item {
-        animation: fadeInUp 0.5s ease forwards;
-    }
-</style>
-
-<div class="container py-5">
-    {{-- Encabezado y Controles --}}
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 gap-3">
-        <h2 class="h4 fw-bold mb-0 text-primary">
-            <i class="bi bi-collection-play me-2"></i>Tus Cursos
-        </h2>
-
-        <div class="d-flex flex-wrap align-items-center gap-3">
-            {{-- Filtros --}}
-            <div class="d-flex gap-3 flex-wrap">
-                <select class="form-select form-select-sm" style="min-width: 150px;" id="courseFilter">
-                    <option value="all">Todos los cursos</option>
-                    <option value="activos">En progreso</option>
-                    <option value="completados">Completados</option>
-                </select>
-
-                <div class="position-relative">
-                    <i class="bi bi-search position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%);"></i>
-                    <input type="search" id="courseSearch" placeholder="Buscar curso..."
-                           class="form-control form-control-sm ps-4" style="min-width: 200px;">
+<div class="dashboard-courses">
+    <div class="dashboard-header">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="dashboard-title-wrapper">
+                        <h2 class="dashboard-title">
+                            <i class="bi bi-collection-play"></i>
+                            {{ $userRole === 'Estudiante' ? 'Mis Cursos' : 'Cursos que Impartes' }}
+                        </h2>
+                        <p class="dashboard-subtitle">
+                            {{ $userRole === 'Estudiante'
+                                ? 'Gestiona y continúa con tu aprendizaje'
+                                : 'Administra los cursos que impartes' }}
+                        </p>
+                    </div>
                 </div>
-            </div>
-
-            {{-- Controles de vista --}}
-            <div class="btn-group view-controls">
-                <button id="btnGrid" class="view-btn active" title="Vista de cuadrícula">
-                    <i class="bi bi-grid-3x3-gap-fill"></i>
-                </button>
-                <button id="btnList" class="view-btn" title="Vista de lista">
-                    <i class="bi bi-list-ul"></i>
-                </button>
+                <div class="col-lg-6">
+                    <div class="dashboard-controls">
+                        <div class="filters-group">
+                            <div class="search-box">
+                                <i class="bi bi-search"></i>
+                                <input type="search" id="courseSearch"
+                                       placeholder="Buscar curso..."
+                                       class="form-control">
+                            </div>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="courseFilter">
+                                    <option value="all">Todos los cursos</option>
+                                    <option value="activos">En progreso</option>
+                                    <option value="completados">Completados</option>
+                                    @if($userRole === 'Estudiante')
+                                        <option value="congresos">Congresos</option>
+                                    @endif
+                                </select>
+                                <span class="select-icon"><i class="bi bi-chevron-down"></i></span>
+                            </div>
+                        </div>
+                        <div class="view-controls">
+                            <button id="btnGrid" class="view-btn active" title="Vista de cuadrícula">
+                                <i class="bi bi-grid-3x3-gap-fill"></i>
+                            </button>
+                            <button id="btnList" class="view-btn" title="Vista de lista">
+                                <i class="bi bi-list-ul"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- Contenedor de cursos --}}
-    <div class="row g-4" id="coursesContainer">
-        @if($hasNoCourses)
-            <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="bi bi-journal-x display-4 text-muted mb-3"></i>
-                    <h5 class="text-muted">No tienes cursos asignados</h5>
-                    <p class="text-muted mb-3">
+    <div class="container pb-5">
+        <div class="row g-4" id="coursesContainer">
+            @if($hasNoCourses)
+                <div class="col-12">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-journal-x"></i>
+                        </div>
+                        <h3>No tienes cursos {{ $userRole === 'Estudiante' ? 'inscritos' : 'asignados' }}</h3>
+                        <p>
+                            @if($userRole === 'Estudiante')
+                                Explora nuestro catálogo y comienza tu viaje de aprendizaje
+                            @else
+                                Contacta con el administrador para comenzar a impartir cursos
+                            @endif
+                        </p>
                         @if($userRole === 'Estudiante')
-                            ¡Explora nuestro catálogo y comienza tu aprendizaje!
-                        @else
-                            Contacta con el administrador para más información.
+                            <a href="{{ route('lista.cursos.congresos') }}" class="btn btn-primary btn-lg">
+                                <i class="bi bi-search"></i> Explorar Cursos
+                            </a>
                         @endif
-                    </p>
-                    @if($userRole === 'Estudiante')
-                        <a href="{{ route('lista.cursos.congresos') }}" class="btn btn-primary">
-                            <i class="bi bi-search me-1"></i> Explorar Cursos
-                        </a>
-                    @endif
+                    </div>
                 </div>
-            </div>
-        @else
-            @if($userRole === 'Estudiante')
-                @foreach($inscritos as $inscrito)
-                    @if(auth()->user()->id == $inscrito->estudiante_id && $inscrito->cursos && !$inscrito->cursos->deleted_at)
-                        <div class="col-12 col-sm-6 col-lg-4 course-item" data-progress="{{ $inscrito->progreso }}">
-                            <div class="card h-100 shadow-sm">
-                                <div class="position-relative overflow-hidden">
-                                    <img src="{{ $inscrito->cursos->imagen ? asset('storage/' . $inscrito->cursos->imagen) : asset('./assets/img/course-default.jpg') }}"
-                                         class="card-img-top" alt="{{ $inscrito->cursos->nombreCurso }}">
-                                    @if($inscrito->progreso == 100)
-                                        <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge bg-success">
+            @else
+                @if($userRole === 'Estudiante')
+                    @foreach($inscritos as $inscrito)
+                        @if(auth()->user()->id == $inscrito->estudiante_id && $inscrito->cursos && !$inscrito->cursos->deleted_at)
+                            <div class="col-12 col-md-6 col-lg-4 course-item"
+                                 data-progress="{{ $inscrito->progreso ?? 0 }}"
+                                 data-type="{{ $inscrito->cursos->tipo ?? 'curso' }}"
+                                 data-title="{{ strtolower($inscrito->cursos->nombreCurso) }}">
+                                <div class="course-card">
+                                    {{-- Imagen y Estado --}}
+                                    <div class="course-image">
+                                        <img src="{{ $inscrito->cursos->imagen
+                                            ? asset('storage/' . $inscrito->cursos->imagen)
+                                            : asset('./assets/img/course-default.jpg') }}"
+                                             alt="{{ $inscrito->cursos->nombreCurso }}"
+                                             loading="lazy">
+
+                                        @if(($inscrito->progreso ?? 0) == 100)
+                                            <div class="course-badge completed">
                                                 <i class="bi bi-check-circle-fill"></i> Completado
-                                            </span>
-                                        </div>
-                                    @endif
-                                </div>
-
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title fw-bold text-truncate mb-2">{{ $inscrito->cursos->nombreCurso }}</h5>
-                                    <p class="text-muted small mb-3">
-                                        <i class="bi bi-calendar-event me-1"></i>
-                                        Inscrito el {{ $inscrito->created_at->format('d/m/Y') }}
-                                    </p>
-
-                                    @if($inscrito->cursos->tipo == 'congreso')
-                                        <span class="badge bg-success mb-3">
-                                            <i class="bi bi-ticket-perforated"></i> Evento Gratuito
-                                        </span>
-                                    @endif
-
-                                    <div class="mt-auto">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="small text-muted">Progreso</span>
-                                            <span class="small fw-bold text-primary">{{ $inscrito->progreso }}%</span>
-                                        </div>
-                                        <div class="progress mb-3">
-                                            <div class="progress-bar" role="progressbar" style="width: {{ $inscrito->progreso }}%"></div>
-                                        </div>
-
-                                        @if($inscrito->cursos->tipo == 'congreso')
-                                            <a href="{{ route('congreso.detalle', $inscrito->cursos_id) }}"
-                                               class="btn btn-success btn-sm w-100">
-                                                <i class="bi bi-door-open"></i> Acceder al Congreso
-                                            </a>
-                                        @elseif($inscrito->pago_completado)
-                                            <a href="{{ route('Curso', $inscrito->cursos_id) }}"
-                                               class="btn btn-primary btn-sm w-100">
-                                                <i class="bi bi-play-circle"></i> Continuar Curso
-                                            </a>
-                                        @else
-                                            <button type="button" class="btn btn-primary btn-sm w-100"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#pagoModal"
-                                                    data-inscrito-id="{{ $inscrito->id }}"
-                                                    data-curso-id="{{ $inscrito->cursos->id }}"
-                                                    data-curso-nombre="{{ $inscrito->cursos->nombreCurso }}"
-                                                    data-curso-precio="{{ $inscrito->cursos->precio }}"
-                                                    data-estudiante-nombre="{{ auth()->user()->name }} {{ auth()->user()->lastname1 }} {{ auth()->user()->lastname2 }}"
-                                                    data-estudiante-id="{{ auth()->user()->id }}">
-                                                <i class="bi bi-credit-card"></i> Completar Pago
-                                            </button>
-
-                                            @if($inscrito->created_at->diffInDays(now()) < 2)
-                                                <div class="alert alert-warning mt-2 p-2 small text-center">
-                                                    <i class="bi bi-hourglass-split me-1"></i>
-                                                    Pago en revisión
-                                                </div>
-                                            @endif
+                                            </div>
                                         @endif
+                                    </div>
+
+                                    {{-- Contenido --}}
+                                    <div class="course-content">
+                                        <h3 class="course-title">{{ $inscrito->cursos->nombreCurso }}</h3>
+
+                                        <div class="course-meta">
+                                            <span>
+                                                <i class="bi bi-calendar-event"></i>
+                                                {{ $inscrito->created_at->format('d/m/Y') }}
+                                            </span>
+                                            @if($inscrito->cursos->tipo == 'congreso')
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-ticket-perforated"></i> Gratuito
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        {{-- Progreso --}}
+                                        @if(isset($inscrito->progreso))
+                                            <div class="progress-section mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span class="progress-label">Progreso</span>
+                                                    <span class="progress-value">{{ $inscrito->progreso }}%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar" role="progressbar"
+                                                         style="width: {{ $inscrito->progreso }}%"
+                                                         aria-valuenow="{{ $inscrito->progreso }}"
+                                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        {{-- Botones de Acción --}}
+                                        <div class="course-actions">
+                                            @if($inscrito->cursos->tipo == 'congreso')
+                                                <a href="{{ route('congreso.detalle', $inscrito->cursos_id) }}"
+                                                   class="btn btn-success btn-sm w-100">
+                                                    <i class="bi bi-door-open"></i> Acceder al Congreso
+                                                </a>
+                                            @elseif($inscrito->pago_completado)
+                                                <a href="{{ route('Curso', $inscrito->cursos_id) }}"
+                                                   class="btn btn-primary btn-sm w-100">
+                                                    <i class="bi bi-play-circle"></i> Continuar Curso
+                                                </a>
+                                            @else
+                                                <button type="button" class="btn btn-primary btn-sm w-100"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#pagoModal"
+                                                        data-inscrito-id="{{ $inscrito->id }}"
+                                                        data-curso-id="{{ $inscrito->cursos->id }}"
+                                                        data-curso-nombre="{{ $inscrito->cursos->nombreCurso }}"
+                                                        data-curso-precio="{{ $inscrito->cursos->precio }}"
+                                                        data-estudiante-nombre="{{ auth()->user()->name }} {{ auth()->user()->lastname1 }} {{ auth()->user()->lastname2 }}"
+                                                        data-estudiante-id="{{ auth()->user()->id }}">
+                                                    <i class="bi bi-credit-card"></i> Completar Pago
+                                                </button>
+
+                                                @if($inscrito->created_at->diffInDays(now()) < 2)
+                                                    <div class="payment-status">
+                                                        <i class="bi bi-hourglass-split"></i>
+                                                        Pago en revisión
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
-                @endforeach
-            @else
-                @foreach($cursos as $curso)
-                    @if(auth()->user()->id == $curso->docente_id)
-                        <div class="col-12 col-sm-6 col-lg-4 course-item">
-                            <div class="card h-100 shadow-sm">
-                                <div class="position-relative overflow-hidden">
-                                    <img src="{{ $curso->imagen ? asset('storage/' . $curso->imagen) : asset('./assets/img/course-default.jpg') }}"
-                                         class="card-img-top" alt="{{ $curso->nombreCurso }}">
-                                    <span class="position-absolute top-0 start-0 m-2 badge bg-primary">
-                                        <i class="bi bi-person-badge"></i> Docente
-                                    </span>
-                                </div>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title fw-bold text-truncate mb-2">{{ $curso->nombreCurso }}</h5>
-                                    <p class="text-muted small mb-3">
-                                        <i class="bi bi-people me-1"></i>
-                                        {{ $curso->inscritos_count ?? 0 }} estudiantes inscritos
-                                    </p>
-                                    <a href="{{ route('Curso', $curso->id) }}"
-                                       class="btn btn-primary btn-sm w-100 mt-auto">
-                                        <i class="bi bi-arrow-right-circle"></i> Gestionar Curso
-                                    </a>
+                        @endif
+                    @endforeach
+                @else
+                    @foreach($cursos as $curso)
+                        @if(auth()->user()->id == $curso->docente_id)
+                            <div class="col-12 col-md-6 col-lg-4 course-item"
+                                 data-title="{{ strtolower($curso->nombreCurso) }}">
+                                <div class="course-card">
+                                    <div class="course-image">
+                                        <img src="{{ $curso->imagen
+                                            ? asset('storage/' . $curso->imagen)
+                                            : asset('./assets/img/course-default.jpg') }}"
+                                             alt="{{ $curso->nombreCurso }}"
+                                             loading="lazy">
+                                        <div class="course-badge teacher">
+                                            <i class="bi bi-person-badge"></i> Docente
+                                        </div>
+                                    </div>
+
+                                    <div class="course-content">
+                                        <h3 class="course-title">{{ $curso->nombreCurso }}</h3>
+
+                                        <div class="course-meta">
+                                            <span>
+                                                <i class="bi bi-people"></i>
+                                                {{ $curso->inscritos->count() ?? 0 }} estudiantes
+                                            </span>
+                                        </div>
+
+                                        <div class="course-actions">
+                                            <a href="{{ route('Curso', $curso->id) }}"
+                                               class="btn btn-primary btn-sm w-100">
+                                                <i class="bi bi-arrow-right-circle"></i> Gestionar Curso
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
-                @endforeach
+                        @endif
+                    @endforeach
+                @endif
             @endif
-        @endif
+        </div>
+
+        {{-- No Results Message --}}
+        <div id="noResults" class="col-12 text-center py-5" style="display: none;">
+            <div class="text-muted">
+                <i class="bi bi-search fs-1 mb-3 d-block"></i>
+                <h5>No se encontraron cursos</h5>
+                <p>Intenta con otros términos de búsqueda o filtros diferentes</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -290,16 +230,417 @@
     @include('partials.dashboard.common.modal-pago')
 @endif
 
+<style>
+:root {
+    --primary-color: #1a4789;
+    --secondary-color: #2196f3;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --card-shadow: 0 10px 20px rgba(26, 71, 137, 0.1);
+    --card-border-radius: 12px;
+    --transition-base: all 0.3s ease;
+}
+
+.dashboard-header {
+    background: linear-gradient(90deg, #e3f0ff 0%, #f8fbff 100%);
+    border-bottom: 1px solid #e0e7ef;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(26, 71, 137, 0.04);
+}
+
+.dashboard-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dashboard-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dashboard-title i {
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+}
+
+.dashboard-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+    font-weight: 400;
+}
+
+/* Controls */
+.dashboard-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filters-group {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+    max-width: 600px;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 2;
+    pointer-events: none;
+    font-size: 1.1rem;
+}
+
+.search-box input {
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    width: 100%;
+    transition: var(--transition-base);
+    font-size: 1rem;
+    background: #fafdff;
+}
+
+.search-box input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(26, 71, 137, 0.10);
+    outline: none;
+    background: #fff;
+}
+
+.select-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 150px;
+}
+
+.form-select {
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    background: #fafdff;
+    font-size: 1rem;
+    appearance: none;
+    transition: var(--transition-base);
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(26, 71, 137, 0.10);
+    outline: none;
+    background: #fff;
+}
+
+.select-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.view-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.view-btn {
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 8px;
+    color: #6c757d;
+    transition: var(--transition-base);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    font-size: 1.2rem;
+}
+
+.view-btn:hover, .view-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Course Cards */
+.course-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: var(--transition-base);
+}
+
+.course-item.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.course-card {
+    background: white;
+    border-radius: var(--card-border-radius);
+    overflow: hidden;
+    transition: var(--transition-base);
+    border: 1px solid rgba(0,0,0,0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-shadow);
+}
+
+.course-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition-base);
+}
+
+.course-card:hover .course-image img {
+    transform: scale(1.05);
+}
+
+.course-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+}
+
+.course-badge.completed {
+    background: rgba(25, 135, 84, 0.9);
+    color: white;
+}
+
+.course-badge.teacher {
+    background: rgba(26, 71, 137, 0.9);
+    color: white;
+}
+
+.course-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.course-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    line-height: 1.3;
+}
+
+.course-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+    flex-wrap: wrap;
+}
+
+.course-meta i {
+    margin-right: 0.25rem;
+}
+
+.progress-section {
+    margin-bottom: 1rem;
+}
+
+.progress-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.progress-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+.course-actions {
+    margin-top: auto;
+}
+
+.payment-status {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--warning-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: var(--card-border-radius);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+/* List View */
+.list-view .course-card {
+    display: flex;
+    flex-direction: row;
+    height: auto;
+    min-height: 200px;
+}
+
+.list-view .course-image {
+    width: 300px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.list-view .course-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .dashboard-header .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+    .filters-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        max-width: none;
+    }
+    .view-controls {
+        margin-left: 0;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .course-content {
+        padding: 1rem;
+    }
+
+    .course-title {
+        font-size: 1.1rem;
+    }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del DOM
     const elements = {
         gridBtn: document.getElementById('btnGrid'),
         listBtn: document.getElementById('btnList'),
         container: document.getElementById('coursesContainer'),
         searchInput: document.getElementById('courseSearch'),
-        filterSelect: document.getElementById('courseFilter')
+        filterSelect: document.getElementById('courseFilter'),
+        noResults: document.getElementById('noResults')
     };
 
+    // Verificar que los elementos existen
+    if (!elements.container) {
+        console.error('Container not found');
+        return;
+    }
+
+    // Manejador de vistas
     const viewManager = {
         init() {
             this.loadPreference();
@@ -307,89 +648,141 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         loadPreference() {
-            try {
-                const view = localStorage.getItem('courseViewPreference');
-                if (view === 'list') {
-                    this.setListView();
-                }
-            } catch (e) {
-                console.warn('Error loading view preference:', e);
+            const savedView = localStorage.getItem('courseViewPreference');
+            if (savedView === 'list') {
+                this.setListView();
+            } else {
+                this.setGridView();
             }
         },
 
         savePreference(view) {
-            try {
-                localStorage.setItem('courseViewPreference', view);
-            } catch (e) {
-                console.warn('Error saving view preference:', e);
-            }
+            localStorage.setItem('courseViewPreference', view);
         },
 
         setGridView() {
             elements.container.classList.remove('list-view');
-            elements.gridBtn.classList.add('active');
-            elements.listBtn.classList.remove('active');
+            if (elements.gridBtn) {
+                elements.gridBtn.classList.add('active');
+            }
+            if (elements.listBtn) {
+                elements.listBtn.classList.remove('active');
+            }
             this.savePreference('grid');
         },
 
         setListView() {
             elements.container.classList.add('list-view');
-            elements.gridBtn.classList.remove('active');
-            elements.listBtn.classList.add('active');
+            if (elements.gridBtn) {
+                elements.gridBtn.classList.remove('active');
+            }
+            if (elements.listBtn) {
+                elements.listBtn.classList.add('active');
+            }
             this.savePreference('list');
-            this.adjustListViewImages();
-        },
-
-        adjustListViewImages() {
-            const images = elements.container.querySelectorAll('.card img');
-            images.forEach(img => {
-                img.style.height = elements.container.classList.contains('list-view') ? '200px' : '';
-            });
         },
 
         bindEvents() {
-            elements.gridBtn?.addEventListener('click', () => this.setGridView());
-            elements.listBtn?.addEventListener('click', () => this.setListView());
-            window.addEventListener('resize', () => this.adjustListViewImages());
+            if (elements.gridBtn) {
+                elements.gridBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.setGridView();
+                });
+            }
+
+            if (elements.listBtn) {
+                elements.listBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.setListView();
+                });
+            }
         }
     };
 
+    // Manejador de filtros
     const filterManager = {
         init() {
             this.bindEvents();
         },
 
         filterCourses() {
-            const query = elements.searchInput?.value.toLowerCase();
-            const filter = elements.filterSelect?.value;
+            const query = elements.searchInput?.value.toLowerCase().trim() || '';
+            const filter = elements.filterSelect?.value || 'all';
             const items = document.querySelectorAll('.course-item');
+            let visibleCount = 0;
 
             items.forEach(item => {
-                const title = item.querySelector('.card-title')?.textContent.toLowerCase();
+                const title = item.dataset.title || '';
                 const progress = parseInt(item.dataset.progress) || 0;
+                const type = item.dataset.type || '';
 
-                const matchesSearch = !query || title?.includes(query);
-                const matchesFilter = this.matchesProgressFilter(progress, filter);
+                const matchesSearch = !query || title.includes(query);
+                const matchesFilter = this.matchesProgressFilter(progress, filter, type);
 
-                item.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
+                if (matchesSearch && matchesFilter) {
+                    item.style.display = '';
+                    item.classList.add('show');
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('show');
+                }
             });
+
+            // Mostrar/ocultar mensaje de "no results"
+            if (elements.noResults) {
+                elements.noResults.style.display = visibleCount === 0 && items.length > 0 ? 'block' : 'none';
+            }
         },
 
-        matchesProgressFilter(progress, filter) {
-            if (!filter || filter === 'all') return true;
-            if (filter === 'completados') return progress === 100;
-            if (filter === 'activos') return progress < 100;
-            return true;
+        matchesProgressFilter(progress, filter, type) {
+            switch (filter) {
+                case 'completados':
+                    return progress === 100;
+                case 'activos':
+                    return progress < 100;
+                case 'congresos':
+                    return type === 'congreso';
+                case 'all':
+                default:
+                    return true;
+            }
         },
 
         bindEvents() {
-            elements.searchInput?.addEventListener('input', () => this.filterCourses());
-            elements.filterSelect?.addEventListener('change', () => this.filterCourses());
+            if (elements.searchInput) {
+                elements.searchInput.addEventListener('input', () => {
+                    this.filterCourses();
+                });
+            }
+
+            if (elements.filterSelect) {
+                elements.filterSelect.addEventListener('change', () => {
+                    this.filterCourses();
+                });
+            }
         }
     };
 
-    // Inicializar
-    viewManager.init();
-    filterManager.init();
+    // Animaciones de entrada
+    const animateCards = () => {
+        const cards = document.querySelectorAll('.course-item');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('show');
+            }, index * 100);
+        });
+    };
+
+    // Inicializar todo
+    try {
+        viewManager.init();
+        filterManager.init();
+        animateCards();
+
+        console.log('Dashboard initialized successfully');
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+    }
 });
 </script>

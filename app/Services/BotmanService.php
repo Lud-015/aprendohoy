@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 class BotManService
 {
     protected $botman;
+    protected $messages = [];
 
     public function __construct(BotMan $botman)
     {
@@ -26,34 +27,135 @@ class BotManService
 
     protected function registerCommands()
     {
+        // Comando de saludo
         $this->botman->hears('(hola|buenos días|buenas tardes|buenas noches|saludos|hey)', function (BotMan $bot) {
             $this->handleGreeting($bot);
         });
 
+        // Comando de certificados
         $this->botman->hears('(certificado|certificados|congreso|diploma|constancia|acreditación)', function (BotMan $bot) {
             $this->handleCertificates($bot);
         });
 
-        $this->botman->hears('(iniciar sesion|acceder|mi cuenta)', function (BotMan $bot) {
-            $this->handleLogin($bot);
+        // Comando de inscripción
+        $this->botman->hears('(inscripción|inscribir|curso|cursos|programa|programas)', function (BotMan $bot) {
+            $this->handleRegistration($bot);
         });
 
-        // Agregar más comandos aquí...
+        // Comando de contacto
+        $this->botman->hears('(contacto|teléfono|dirección|email|correo|ubicación)', function (BotMan $bot) {
+            $this->handleContact($bot);
+        });
+
+        // Comando de ayuda
+        $this->botman->hears('(ayuda|soporte|información|info)', function (BotMan $bot) {
+            $this->handleHelp($bot);
+        });
+
+        // Comando por defecto
+        $this->botman->fallback(function (BotMan $bot) {
+            $this->handleFallback($bot);
+        });
     }
 
     protected function handleGreeting(BotMan $bot)
     {
-        $bot->reply('¡Hola! Soy el asistente virtual de la plataforma. ¿En qué puedo ayudarte hoy?');
-        $bot->reply('Puedes preguntarme sobre: certificados, inscripciones, pagos, programación de eventos, o soporte técnico.');
+        $this->addMessage('¡Hola! Soy el asistente virtual de Fundación Educar para la Vida. ¿En qué puedo ayudarte hoy?');
+        $this->addMessage('Puedes preguntarme sobre:');
+
+        $question = Question::create('Selecciona una opción:')
+            ->fallback('No se pudo mostrar las opciones')
+            ->callbackId('main_menu')
+            ->addButtons([
+                Button::create('📋 Certificados')->value('certificados'),
+                Button::create('🎓 Cursos')->value('cursos'),
+                Button::create('📞 Contacto')->value('contacto'),
+                Button::create('❓ Ayuda')->value('ayuda')
+            ]);
+        $this->addMessage($question);
     }
 
     protected function handleCertificates(BotMan $bot)
     {
-        $bot->reply('Sobre los certificados de congresos:');
-        $bot->reply('1️⃣ Debes estar inscrito y haber completado los requisitos de asistencia.');
-        $bot->reply('2️⃣ Los certificados se habilitan cuando el estado cambia a "Certificado Disponible" en la página del congreso.');
-        $bot->reply('3️⃣ Recibirás una notificación por correo electrónico cuando esté listo.');
-        $bot->reply('4️⃣ ¿Necesitas ayuda adicional con algún certificado específico?');
+        $this->addMessage('Sobre los certificados de congresos:');
+        $this->addMessage('1️⃣ Debes estar inscrito y haber completado los requisitos de asistencia.');
+        $this->addMessage('2️⃣ Los certificados se habilitan cuando el estado cambia a "Certificado Disponible".');
+        $this->addMessage('3️⃣ Recibirás una notificación por correo electrónico cuando esté listo.');
+
+        $question = Question::create('¿Necesitas ayuda adicional?')
+            ->fallback('No se pudo mostrar las opciones')
+            ->callbackId('certificate_help')
+            ->addButtons([
+                Button::create('Sí, necesito ayuda')->value('help_cert'),
+                Button::create('No, gracias')->value('no_help')
+            ]);
+        $this->addMessage($question);
+    }
+
+    protected function handleRegistration(BotMan $bot)
+    {
+        $this->addMessage('Para inscribirte en nuestros cursos:');
+        $this->addMessage('1️⃣ Visita nuestra página web');
+        $this->addMessage('2️⃣ Selecciona el curso de tu interés');
+        $this->addMessage('3️⃣ Completa el formulario de inscripción');
+        $this->addMessage('4️⃣ Realiza el pago correspondiente');
+
+        $question = Question::create('¿Te gustaría ver los cursos disponibles?')
+            ->fallback('No se pudo mostrar las opciones')
+            ->callbackId('show_courses')
+            ->addButtons([
+                Button::create('Sí, mostrar cursos')->value('show_courses'),
+                Button::create('No, gracias')->value('no_show')
+            ]);
+        $this->addMessage($question);
+    }
+
+    protected function handleContact(BotMan $bot)
+    {
+        $this->addMessage('Puedes contactarnos a través de:');
+        $this->addMessage('📞 Teléfono: (+591) 72087186');
+        $this->addMessage('📧 Email: contacto@educarparalavida.org.bo');
+        $this->addMessage('📍 Dirección: Av. Melchor Pérez de Olguín e Idelfonso Murgía Nro. 1253, Cochabamba - Bolivia');
+        $this->addMessage('⏰ Horario: Lun - Vier: 9AM a 5PM');
+    }
+
+    protected function handleHelp(BotMan $bot)
+    {
+        $this->addMessage('Puedo ayudarte con:');
+        $this->addMessage('1️⃣ Información sobre certificados');
+        $this->addMessage('2️⃣ Proceso de inscripción a cursos');
+        $this->addMessage('3️⃣ Información de contacto');
+        $this->addMessage('4️⃣ Horarios y ubicaciones');
+        $this->addMessage('Solo pregúntame lo que necesites saber.');
+    }
+
+    protected function handleFallback(BotMan $bot)
+    {
+        $this->addMessage('Lo siento, no entiendo tu pregunta. Puedes preguntarme sobre:');
+        $this->addMessage('1️⃣ Certificados');
+        $this->addMessage('2️⃣ Inscripciones');
+        $this->addMessage('3️⃣ Información de contacto');
+        $this->addMessage('4️⃣ Horarios y ubicaciones');
+    }
+
+    protected function addMessage($message)
+    {
+        if ($message instanceof Question) {
+            $this->messages[] = [
+                'type' => 'buttons',
+                'buttons' => $message->getButtons()
+            ];
+        } else {
+            $this->messages[] = [
+                'type' => 'text',
+                'text' => $message
+            ];
+        }
+    }
+
+    public function getMessages()
+    {
+        return $this->messages;
     }
 
     protected function handleLogin(BotMan $bot)
@@ -118,5 +220,23 @@ class BotManService
             return false;
         }
     }
-    // Agregar más métodos para manejar otros comandos...
+
+    public function handleMessage($message)
+    {
+        $this->messages = []; // Limpiar mensajes anteriores
+
+        if (preg_match('/(hola|buenos días|buenas tardes|buenas noches|saludos|hey)/i', $message)) {
+            $this->handleGreeting($this->botman);
+        } elseif (preg_match('/(certificado|certificados|congreso|diploma|constancia|acreditación)/i', $message)) {
+            $this->handleCertificates($this->botman);
+        } elseif (preg_match('/(inscripción|inscribir|curso|cursos|programa|programas)/i', $message)) {
+            $this->handleRegistration($this->botman);
+        } elseif (preg_match('/(contacto|teléfono|dirección|email|correo|ubicación)/i', $message)) {
+            $this->handleContact($this->botman);
+        } elseif (preg_match('/(ayuda|soporte|información|info)/i', $message)) {
+            $this->handleHelp($this->botman);
+        } else {
+            $this->handleFallback($this->botman);
+        }
+    }
 }

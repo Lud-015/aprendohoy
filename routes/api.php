@@ -12,6 +12,8 @@ use App\Http\Controllers\ChatbotController;
 use App\Models\Cursos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\BotManController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +26,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
-
 Route::post('/chatbot', [ChatbotController::class, 'handle']);
+Route::post('/chat', [ChatController::class, 'handleMessage']);
+Route::post('/botman', [BotManController::class, 'handle']);

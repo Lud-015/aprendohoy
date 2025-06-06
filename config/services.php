@@ -30,12 +30,16 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-    'twilio' => [
-        'sid' => env('TWILIO_SID'),
-        'token' => env('TWILIO_AUTH_TOKEN'),
-        'phone_number' => env('TWILIO_PHONE_NUMBER'),
-    ],
+
     'openai' => [
         'key' => env('OPENAI_API_KEY'),
+    ],
+
+    'dialogflow' => [
+        'project_id' => env('DIALOGFLOW_PROJECT_ID'),
+    ],
+
+    'rasa' => [
+        'url' => env('RASA_URL', 'http://localhost:5005'),
     ],
 ];

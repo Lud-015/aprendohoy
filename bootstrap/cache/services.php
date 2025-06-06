@@ -45,10 +45,11 @@
     41 => 'Barryvdh\\DomPDF\\ServiceProvider',
     42 => 'ConsoleTVs\\Charts\\ChartsServiceProvider',
     43 => 'Spatie\\Permission\\PermissionServiceProvider',
-    44 => 'App\\Providers\\AppServiceProvider',
-    45 => 'App\\Providers\\AuthServiceProvider',
-    46 => 'App\\Providers\\EventServiceProvider',
-    47 => 'App\\Providers\\RouteServiceProvider',
+    44 => 'BotMan\\BotMan\\BotManServiceProvider',
+    45 => 'App\\Providers\\AppServiceProvider',
+    46 => 'App\\Providers\\AuthServiceProvider',
+    47 => 'App\\Providers\\EventServiceProvider',
+    48 => 'App\\Providers\\RouteServiceProvider',
   ),
   'eager' => 
   array (
@@ -82,10 +83,11 @@
     27 => 'Barryvdh\\DomPDF\\ServiceProvider',
     28 => 'ConsoleTVs\\Charts\\ChartsServiceProvider',
     29 => 'Spatie\\Permission\\PermissionServiceProvider',
-    30 => 'App\\Providers\\AppServiceProvider',
-    31 => 'App\\Providers\\AuthServiceProvider',
-    32 => 'App\\Providers\\EventServiceProvider',
-    33 => 'App\\Providers\\RouteServiceProvider',
+    30 => 'BotMan\\BotMan\\BotManServiceProvider',
+    31 => 'App\\Providers\\AppServiceProvider',
+    32 => 'App\\Providers\\AuthServiceProvider',
+    33 => 'App\\Providers\\EventServiceProvider',
+    34 => 'App\\Providers\\RouteServiceProvider',
   ),
   'deferred' => 
   array (

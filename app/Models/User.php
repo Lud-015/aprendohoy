@@ -42,13 +42,14 @@ class User extends Authenticatable
         'fechadenac',
         'PaisReside',
         'CiudadReside',
-        'CI',
-        'Celular',
-        'fechadenac',
         'email',
         'password',
         'avatar',
         'cv_file',
+        'country_code',
+        'latitude',
+        'longitude',
+        'last_activity'
     ];
 
 
@@ -149,7 +150,7 @@ class User extends Authenticatable
     }
 
 
-    
+
 
 
 

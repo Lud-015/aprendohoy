@@ -23,21 +23,18 @@
 </style>
 
 @section('contentup')
-
-
 <div class="container py-5">
-    <div class="row">
+    <div class="row g-4">
         <!-- Columna de perfil (izquierda) -->
-        <div class="col-lg-4 mb-4">
-            <div class="card border-0 shadow rounded-lg">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <!-- Sección de avatar -->
-                <div class="card-header bg-sec text-white text-center py-4 rounded-top">
-                    <h4 class="mb-0">Perfil de Usuario</h4>
+                <div class="card-header bg-gradient-primary text-white text-center py-4 border-0">
+                    <h4 class="mb-0 fw-semibold">Perfil de Usuario</h4>
                 </div>
 
                 <div class="text-center position-relative avatar-container">
-                    <!-- Overlay de fondo para la imagen de perfil -->
-                    <div class="profile-header-cover bg-gradient-info" style="height: 100px;"></div>
+                    <div class="profile-header-cover"></div>
 
                     <!-- Avatar -->
                     <div class="profile-avatar-wrapper">
@@ -48,64 +45,61 @@
                         @endphp
 
                         <img id="avatar" src="{{ $avatarUrl }}"
-                            class="profile-avatar rounded-circle border border-white shadow"
-                            data-toggle="modal" data-target="#avatarModal"
+                            class="profile-avatar rounded-circle border border-3 border-white shadow"
+                            data-bs-toggle="modal" data-bs-target="#avatarModal"
                             alt="Avatar del usuario" title="Cambiar imagen de perfil">
                     </div>
                 </div>
 
                 <div class="card-body text-center pt-5 mt-3">
-                    <h3 class="font-weight-bold">
+                    <h3 class="fw-bold mb-1">
                         {{ auth()->user()->name }} {{ auth()->user()->lastname1 }}
                     </h3>
 
-                    <div class="badge badge-pill badge-primary mb-3">
+                    <span class="badge bg-primary rounded-pill px-3 py-2 mb-3">
                         {{ auth()->user()->roles->pluck('name')[0] }}
-                    </div>
+                    </span>
 
-                    <div class="text-muted mb-3">
-                        <i class="fas fa-map-marker-alt mr-2"></i>
+                    <div class="text-muted mb-3 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-map-marker-alt me-2"></i>
                         {{ auth()->user()->CiudadReside }}, {{ auth()->user()->PaisReside }}
                     </div>
 
-                    <div class="text-muted mb-3">
-                        <i class="fas fa-phone mr-2"></i>
+                    <div class="text-muted mb-3 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-phone me-2"></i>
                         {{ auth()->user()->Celular }}
                     </div>
 
-                    <div class="text-muted">
-                        <i class="fas fa-envelope mr-2"></i>
+                    <div class="text-muted d-flex align-items-center justify-content-center">
+                        <i class="fas fa-envelope me-2"></i>
                         {{ auth()->user()->email }}
                     </div>
 
                     <!-- Botones de acción -->
-                    <div class="mt-4 d-flex justify-content-between">
+                    <div class="d-grid gap-3 mt-4">
                         <a href="{{ route('EditarperfilIndex', [auth()->user()->id]) }}"
-                            class="btn btn-primary btn-block mr-2">
-                            <i class="fas fa-user-edit mr-1"></i> Editar Perfil
+                            class="btn btn-primary">
+                            <i class="fas fa-user-edit me-2"></i>Editar Perfil
                         </a>
 
-                    </div>
-                    <div class="mt-4 d-flex justify-content-between">
-
                         <a href="{{ route('CambiarContrasena', [auth()->user()->id]) }}"
-                            class="btn btn-outline-primary btn-block">
-                            <i class="fas fa-key mr-1"></i> Cambiar Contraseña
+                            class="btn btn-outline-primary">
+                            <i class="fas fa-key me-2"></i>Cambiar Contraseña
                         </a>
                     </div>
 
                     @if (auth()->user()->hasRole('Administrador') || auth()->user()->hasRole('Docente'))
-                        <div class="mt-4 p-3 border-top">
-                            <h5 class="mb-3">Documento CV</h5>
+                        <div class="mt-4 pt-4 border-top">
+                            <h5 class="mb-3 fw-semibold">Documento CV</h5>
                             @if (auth()->user()->cv_file == '')
-                                <div class="alert alert-warning py-2">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                                    No se ha cargado hoja de vida
+                                <div class="alert alert-warning py-2 d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <span>No se ha cargado hoja de vida</span>
                                 </div>
                             @else
                                 <a href="{{ asset('storage/' . auth()->user()->cv_file) }}"
-                                    class="btn btn-outline-info btn-block">
-                                    <i class="fas fa-file-pdf mr-1"></i> Ver Hoja de Vida
+                                    class="btn btn-outline-info w-100">
+                                    <i class="fas fa-file-pdf me-2"></i>Ver Hoja de Vida
                                 </a>
                             @endif
                         </div>
@@ -119,63 +113,53 @@
             @yield('content')
 
             <!-- Sección de datos personales -->
-            <div class="card shadow rounded-lg mb-4">
-                <div class="card-header bg-white p-4 d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Información Personal</h4>
-                    <span class="badge badge-pill badge-light py-2 px-3 text-muted">
-                        <i class="fas fa-lock mr-1"></i> Solo lectura
+            <div class="card shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white p-4 d-flex justify-content-between align-items-center border-0">
+                    <h4 class="mb-0 fw-semibold">Información Personal</h4>
+                    <span class="badge bg-light text-muted px-3 py-2">
+                        <i class="fas fa-lock me-1"></i>Solo lectura
                     </span>
                 </div>
 
                 <div class="card-body p-4">
-                    <div class="row mb-4">
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="small text-muted">Nombre</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control bg-light" value="{{ auth()->user()->name }}" readonly>
-                                </div>
+                            <label class="form-label text-muted small">Nombre</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control-plaintext ps-2" value="{{ auth()->user()->name }}" readonly>
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="small text-muted">Correo Electrónico</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text bg-light"><i class="fas fa-envelope"></i></span>
-                                    </div>
-                                    <input type="email" class="form-control bg-light" value="{{ auth()->user()->email }}" readonly>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="small text-muted">Apellido Paterno</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text bg-light"><i class="fas fa-user-tag"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control bg-light" value="{{ auth()->user()->lastname1 }}" readonly>
-                                </div>
+                            <label class="form-label text-muted small">Correo Electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control-plaintext ps-2" value="{{ auth()->user()->email }}" readonly>
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="small text-muted">Apellido Materno</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text bg-light"><i class="fas fa-user-tag"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control bg-light" value="{{ auth()->user()->lastname2 }}" readonly>
-                                </div>
+                            <label class="form-label text-muted small">Apellido Paterno</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-user-tag"></i>
+                                </span>
+                                <input type="text" class="form-control-plaintext ps-2" value="{{ auth()->user()->lastname1 }}" readonly>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Apellido Materno</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-user-tag"></i>
+                                </span>
+                                <input type="text" class="form-control-plaintext ps-2" value="{{ auth()->user()->lastname2 }}" readonly>
                             </div>
                         </div>
                     </div>
@@ -183,35 +167,31 @@
             </div>
 
             <!-- Sección de contacto -->
-            <div class="card shadow rounded-lg">
-                <div class="card-header bg-white p-4">
-                    <h4 class="mb-0">Información de Contacto</h4>
+            <div class="card shadow-sm rounded-4">
+                <div class="card-header bg-white p-4 border-0">
+                    <h4 class="mb-0 fw-semibold">Información de Contacto</h4>
                 </div>
 
                 <div class="card-body p-4">
-                    <div class="row">
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="small text-muted">Teléfono Celular</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text bg-light"><i class="fas fa-phone"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control bg-light" value="{{ auth()->user()->Celular }}" readonly>
-                                </div>
+                            <label class="form-label text-muted small">Teléfono Celular</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                                <input type="text" class="form-control-plaintext ps-2" value="{{ auth()->user()->Celular }}" readonly>
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="small text-muted">Ubicación</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text bg-light"><i class="fas fa-map-marker-alt"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control bg-light"
-                                           value="{{ auth()->user()->CiudadReside }}, {{ auth()->user()->PaisReside }}" readonly>
-                                </div>
+                            <label class="form-label text-muted small">Ubicación</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </span>
+                                <input type="text" class="form-control-plaintext ps-2"
+                                       value="{{ auth()->user()->CiudadReside }}, {{ auth()->user()->PaisReside }}" readonly>
                             </div>
                         </div>
                     </div>
@@ -222,25 +202,27 @@
 </div>
 
 <!-- Modal para cambiar la foto -->
-<div class="modal fade" id="avatarModal" tabindex="-1" role="dialog" aria-labelledby="avatarModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header border-0 bg-light">
                 <h5 class="modal-title" id="avatarModalLabel">
-                    <i class="fas fa-camera mr-2"></i>Actualizar Foto de Perfil
+                    <i class="fas fa-camera me-2"></i>Actualizar Foto de Perfil
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body px-4 py-4">
                 <!-- Vista previa de la imagen -->
-                <div class="text-center mb-4">
-                    <img id="preview" class="rounded-circle border shadow"
-                        src="{{ $avatarUrl }}" width="150" height="150">
-
-                    <div class="small text-muted mt-2">
+                <div class="text-center mb-4 position-relative">
+                    <div class="preview-container mx-auto">
+                        <img id="preview" class="rounded-circle border shadow-sm"
+                            src="{{ $avatarUrl }}" style="width: 180px; height: 180px; object-fit: cover;">
+                        <div class="preview-overlay">
+                            <i class="fas fa-camera fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="small text-muted mt-3">
                         Haga clic en el botón para seleccionar una imagen
                     </div>
                 </div>
@@ -250,22 +232,25 @@
                     @csrf
                     <input type="hidden" name="id" value="{{ auth()->user()->id }}">
 
-                    <div class="form-group">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="avatarInput" name="avatar" accept="image/*">
-                            <label class="custom-file-label" for="avatarInput">Elegir imagen...</label>
+                    <div class="mb-4">
+                        <div class="input-group">
+                            <input type="file" class="form-control" id="avatarInput" name="avatar" accept="image/*">
+                            <label class="input-group-text" for="avatarInput">
+                                <i class="fas fa-image me-2"></i>Elegir
+                            </label>
                         </div>
-                        <small class="form-text text-muted">
+                        <div class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
                             Se recomiendan imágenes cuadradas de al menos 200x200 píxeles
-                        </small>
+                        </div>
                     </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-                            <i class="fas fa-times mr-1"></i> Cancelar
+                    <div class="d-flex justify-content-between gap-3">
+                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancelar
                         </button>
-                        <button type="submit" class="btn btn-success px-4">
-                            <i class="fas fa-upload mr-1"></i> Subir Imagen
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-upload me-2"></i>Subir Imagen
                         </button>
                     </div>
                 </form>
@@ -274,8 +259,45 @@
     </div>
 </div>
 
-<!-- Estilos adicionales -->
 <style>
+    .preview-container {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .preview-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .preview-container:hover .preview-overlay {
+        opacity: 1;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .profile-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
     .avatar-container {
         margin-top: -50px;
     }
@@ -285,51 +307,124 @@
         top: 30px;
         left: 50%;
         transform: translateX(-50%);
-    }
-
-    .profile-avatar {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .profile-avatar:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        z-index: 1;
     }
 
     .profile-header-cover {
-        border-top-left-radius: calc(0.3rem - 1px);
-        border-top-right-radius: calc(0.3rem - 1px);
+        height: 100px;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+        background: linear-gradient(45deg, #1a73e8, #34a853);
     }
 </style>
 
-<!-- Script para vista previa -->
+@push('scripts')
 <script>
-    document.getElementById('avatarInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            if (!file.type.startsWith('image/')) {
-                alert('Por favor, selecciona una imagen válida.');
-                return;
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.getElementById('avatarInput');
+    const previewImg = document.getElementById('preview');
+    const avatarImg = document.getElementById('avatar');
+    const uploadForm = document.getElementById('uploadForm');
+
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Validar tamaño (máximo 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'La imagen no debe superar los 5MB',
+                        confirmButtonText: 'Entendido'
+                    });
+                    this.value = '';
+                    return;
+                }
+
+                // Validar tipo
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Por favor, selecciona una imagen válida (JPG, PNG, GIF)',
+                        confirmButtonText: 'Entendido'
+                    });
+                    this.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewImg) previewImg.src = e.target.result;
+                    if (avatarImg) avatarImg.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
             }
+        });
+    }
 
-            // Actualizar el nombre del archivo en el label
-            const fileName = file.name;
-            const label = document.querySelector('label.custom-file-label');
-            label.textContent = fileName.length > 25 ? fileName.substring(0, 22) + '...' : fileName;
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function(event) {
+            event.preventDefault();
 
-            // Mostrar la vista previa de la imagen
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('preview').src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+            const formData = new FormData(this);
+
+            // Mostrar loading
+            Swal.fire({
+                title: 'Subiendo imagen...',
+                text: 'Por favor espere...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Enviar el formulario
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text().then(text => {
+                        try {
+                            return JSON.parse(text);
+                        } catch (e) {
+                            // Si no es JSON, asumimos éxito
+                            return { success: true };
+                        }
+                    });
+                }
+                throw new Error('Error en la subida');
+            })
+            .then(result => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: 'La imagen se ha actualizado correctamente',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.reload();
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema al subir la imagen. Por favor, intenta de nuevo.',
+                    confirmButtonText: 'Entendido'
+                });
+            });
+        });
+    }
+});
 </script>
+@endpush
+
 @endsection
 
 

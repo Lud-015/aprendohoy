@@ -214,4 +214,42 @@ class Cursos extends Model
     {
         return $this->hasMany(CursoImagen::class, 'curso_id')->orderBy('orden');
     }
+
+    public function progreso()
+    {
+        return $this->hasOne(CursoProgreso::class, 'curso_id');
+    }
+
+    /**
+     * Obtiene las estadísticas del progreso del curso basado en los inscritos
+     * @return array
+     */
+    public function obtenerEstadisticasProgreso()
+    {
+        $inscritos = $this->inscritos;
+
+        if ($inscritos->isEmpty()) {
+            return [
+                'porcentaje_total' => 0,
+                'estudiantes_total' => 0,
+                'estudiantes_completados' => 0,
+                'estudiantes_en_progreso' => 0,
+                'estudiantes_sin_iniciar' => 0
+            ];
+        }
+
+        $totalEstudiantes = $inscritos->count();
+        $estudiantesCompletados = $inscritos->where('progreso', 100)->count();
+        $estudiantesSinIniciar = $inscritos->where('progreso', 0)->count();
+        $estudiantesEnProgreso = $totalEstudiantes - $estudiantesCompletados - $estudiantesSinIniciar;
+        $porcentajeTotal = $inscritos->avg('progreso') ?? 0;
+
+        return [
+            'porcentaje_total' => round($porcentajeTotal, 2),
+            'estudiantes_total' => $totalEstudiantes,
+            'estudiantes_completados' => $estudiantesCompletados,
+            'estudiantes_en_progreso' => $estudiantesEnProgreso,
+            'estudiantes_sin_iniciar' => $estudiantesSinIniciar
+        ];
+    }
 }
